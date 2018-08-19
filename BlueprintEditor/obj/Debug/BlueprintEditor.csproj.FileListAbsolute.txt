@@ -1,0 +1,17 @@
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\bin\Debug\BlueprintEditor.exe.config
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\bin\Debug\BlueprintEditor.exe
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\bin\Debug\BlueprintEditor.pdb
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.csprojResolveAssemblyReference.cache
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.Form1.resources
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.Properties.Resources.resources
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.csproj.GenerateResource.Cache
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.csproj.CoreCompileInputs.cache
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.exe
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.pdb
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.Form2.resources
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\bin\Debug\BlueprintEditor.exe.manifest
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\bin\Debug\BlueprintEditor.application
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.Form3.resources
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.TrustInfo.xml
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.exe.manifest
+C:\Users\Денис\source\repos\BlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.application
