@@ -22,11 +22,14 @@ namespace BlueprintEditor
         }
     }
 
+
     public class MyColor
     {
         public int R, G, B;
         public MyColor()
         {
+
+
 
         }
         public MyColor(System.Drawing.Color Color)
@@ -47,10 +50,14 @@ namespace BlueprintEditor
         public string GamePath;
         public int LangID;
         public int Theme;
+        public string EditorProgram;
         public MyColor ForeColor;
         public MyColor BackColor;
         public Settings()
         {
+
+
+
 
         }
     }

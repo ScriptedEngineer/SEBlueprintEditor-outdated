@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Globalization;
 using System.Threading;
 using Microsoft.Win32;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace BlueprintEditor
@@ -213,7 +214,10 @@ namespace BlueprintEditor
             if (Calculator != null && !Calculator.IsDisposed) Calculator.Hide();
             BluePathc = Folder + "\\" + listBox1.Items[listBox1.SelectedIndex];
             Image img = Image.FromFile(BluePathc + "\\thumb.png", true);
-            pictureBox1.Image = SetImgOpacity(img, 5000);
+            pictureBox1.SuspendLayout();
+            //pictureBox1.Image = img;
+            pictureBox1.Image = SetImgOpacity(img, 1);
+            pictureBox1.ResumeLayout();
             Blueprint = new XmlDocument();
             string[] Translate = new string[] { "Blocks", "Блоки" };
             label2.Text = Translate[Settings.LangID];
@@ -245,7 +249,10 @@ namespace BlueprintEditor
             Graphics gfxPic = Graphics.FromImage(bmpPic);
             ColorMatrix cmxPic = new ColorMatrix();
             cmxPic.Matrix33 = imgOpac;
-
+            cmxPic.Matrix23 = imgOpac;
+            cmxPic.Matrix13 = imgOpac;
+            cmxPic.Matrix03 = imgOpac;
+            cmxPic.Matrix43 = imgOpac;
             ImageAttributes iaPic = new ImageAttributes();
             iaPic.SetColorMatrix(cmxPic, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             gfxPic.DrawImage(imgPic, new Rectangle(0, 0, bmpPic.Width, bmpPic.Height), 0, 0, imgPic.Width, imgPic.Height, GraphicsUnit.Pixel, iaPic);
@@ -263,17 +270,12 @@ namespace BlueprintEditor
             comboBox3.SelectedIndex = -1;
             comboBox6.SelectedIndex = -1;
             comboBox3.Items.Clear();
-            //comboBox6.Enabled = false;
             SetEnableCombo(comboBox6, false);
             textBox1.Enabled = false;
-            //comboBox1.Enabled = false;
-            //comboBox2.Enabled = false;
             SetEnableCombo(comboBox1, false);
             SetEnableCombo(comboBox2, false);
             panel1.Enabled = false;
             SetEnableCombo(comboBox3, false);
-            //pictureBox2.BackColor = Color.Black;
-            //pictureBox3.BackColor = Color.Black;
         }
         private void ClearEditorBlock()
         {
@@ -286,14 +288,12 @@ namespace BlueprintEditor
             textBox9.Text = "";
             button6.Text = "None";
             button6.Visible = false;
+            if (File.Exists("EditProgramTmpFile.cs")) File.Delete("EditProgramTmpFile.cs");
             comboBox4.SelectedIndex = -1;
             comboBox5.SelectedIndex = -1;
-            //comboBox7.Enabled = false;
             SetEnableCombo(comboBox7, false);
             comboBox7.SelectedIndex = -1;
             button4.Enabled = false;
-            //comboBox4.Enabled = false;
-            //comboBox5.Enabled = false;
             SetEnableCombo(comboBox4, false);
             SetEnableCombo(comboBox5, false);
             pictureBox4.Enabled = false;
@@ -304,7 +304,6 @@ namespace BlueprintEditor
             textBox6.Enabled = false;
             textBox7.Enabled = false;
             textBox8.Enabled = false;
-            //pictureBox4.BackColor = Color.Black;
         }
 
         void SetEnableCombo(ComboBox Box, bool Enable)
@@ -693,7 +692,7 @@ namespace BlueprintEditor
                     {
                         button6.Text = "EditProgram";
                         EXTData = Child.InnerText;
-                        //button6.Visible = true;Future
+                        button6.Visible = true;
                     }
                 }
                 FirsTrart = false;
@@ -1275,7 +1274,7 @@ namespace BlueprintEditor
                     Invoke(new Action(() => {
                         label22.Text = "Loading Data... Please Wait";
                     }));
-                    Calculator = new Form4(GamePath);
+                    Calculator = new Form4(GamePath,this);
                     Calculator.SetColor(AllForeColor, AllBackColor);
                     Calculator.ChangeLang(Settings.LangID);
                 }
@@ -1301,7 +1300,7 @@ namespace BlueprintEditor
                 }
                 Invoke(new Action(() =>
                 {
-                    Calculator.ShowBlocks();
+                    Calculator.ShowBlocks(listBox1.SelectedItem.ToString());
                     Calculator.ChangeLang(Settings.LangID);
                     Calculator.Show();
                     label22.Text = "";
@@ -1380,24 +1379,58 @@ namespace BlueprintEditor
             if (Calculator != null && !Calculator.IsDisposed)
                 Calculator.SetColor(AllForeColor, AllBackColor);
         }
-
-        /*Future
-        Dictionary<string, Form> Forms = new Dictionary<string, Form>();
-        void FormsLoad()
-        {
-            //Forms.Add("EditProgram",new EXTS.Form1());
-        }*/
         private void button6_Click(object sender, EventArgs e)
         {
-            /*switch (button6.Text) {
+            switch (button6.Text) {
                 case "EditProgram":
-                    Form Frome = Forms[button6.Text];
-                    Frome.Hide();
-                    EXTS.Form1 FormAs = Frome as EXTS.Form1;
-                    FormAs.Data(EXTData);
-                    Frome.Show();
+                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad++";
+                    try
+                    {
+                        File.WriteAllText("EditProgramTmpFile.cs", EXTData);
+                        Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditProgramTmpFile.cs");
+                        if (Editor != null)
+                        {
+                            Editor.WaitForExit();
+                            if (File.Exists("EditProgramTmpFile.cs"))
+                            {
+                                string Program = File.ReadAllText("EditProgramTmpFile.cs");
+                                if (Block != null && Block.Count == 1 && button6.Visible)
+                                {
+                                    foreach (XmlNode Bl in Block)
+                                    {
+                                        foreach (XmlNode Child in Bl.ChildNodes)
+                                        {
+                                            if (Child.Name == "Program")
+                                            {
+                                                Child.InnerText = Program;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    UpdateBlocks();
+                                }
+                                File.Delete("EditProgramTmpFile.cs");
+                            }
+                        }
+                        else
+                        {
+                            File.Delete("EditProgramTmpFile.cs");
+                            if (Settings.LangID == 0)
+                                MessageBox.Show("Please install "+ Settings.EditorProgram, "Missing "+ Settings.EditorProgram);
+                            else
+                                MessageBox.Show("Пожалуйста, установите "+ Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                        }
+                    }
+                    catch
+                    {
+                        File.Delete("EditProgramTmpFile.cs");
+                        if (Settings.LangID == 0)
+                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                        else
+                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                    }
                     break;
-            }*/
+            }
         }
 
         private void comboBox7_SelectedIndexChanged(object sender, EventArgs e)

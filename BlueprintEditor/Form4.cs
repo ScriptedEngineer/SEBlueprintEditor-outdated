@@ -25,6 +25,8 @@ namespace BlueprintEditor
         XmlDocument CubeBlocks;
         XmlDocument Blueprints;
 
+        string PrintName;
+
         double ReginaryMultiplier = 0;
         double RefineryEfficensy = 0;
 
@@ -76,11 +78,12 @@ namespace BlueprintEditor
         }
 
         string UndefinedBlocks = "";
-
-        public Form4(string GamePatch)
+        Form1 MainForm;
+        public Form4(string GamePatch,Form1 MainF)
         {
             InitializeComponent();
             string str = GamePatch + "\\Content\\Data\\";
+            MainForm = MainF;
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(str + "CubeBlocks.sbc");
             CubeBlocks = xmlDocument;
@@ -395,9 +398,9 @@ namespace BlueprintEditor
             ShipOres.Clear();
         }
 
-        public void ShowBlocks()
+        public void ShowBlocks(string BlueName)
         {
-            string Faster3 = "";
+            string Faster3 = ""; PrintName = BlueName;
             foreach (string Key in ShipComponents.Keys)
             {
                 double Amount = ShipComponents[Key];
@@ -574,6 +577,27 @@ namespace BlueprintEditor
                 Faster2 += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n";
             }
             textBox4.Text = Faster2;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string Data =   "#Automatic created by SE BlueprintEditor#\r\n"+
+                                "#Resources need to build \""+ PrintName + "\"#\r\n"+
+                                "#Assembler Efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
+                                "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n\r\n" +
+                                "#List of undefined block types#\r\n" + textBox2.Text + "#End list of undefined block types#\r\n\r\n" +
+                                "#List of components#\r\n" + textBox3.Text + "#End list of components#\r\n\r\n" +
+                                "#List of ingots#\r\n" + textBox1.Text + "#End list of ingots#\r\n\r\n" +
+                                "#List of ores#\r\n" + textBox4.Text + "#End list of ores#\r\n";
+                File.WriteAllText(saveFileDialog1.FileName, Data);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Put Components?(Components or (ingots or ores))", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
     }
 }
