@@ -154,9 +154,9 @@ namespace BlueprintEditor
                 return false;
             }
         }
+        static Random rand = new Random();
         static public int Rand(int Min, int Max)
         {
-            Random rand = new Random();
             return rand.Next(Min, Max);
         }
         static public void CompliteAsync(System.Threading.ThreadStart Instruction)

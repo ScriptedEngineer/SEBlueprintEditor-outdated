@@ -18,6 +18,7 @@ using System.Threading;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace BlueprintEditor
 {
@@ -176,12 +177,32 @@ namespace BlueprintEditor
             }
             listBox1.Items.Clear();
             List<string> listBox1Items = new List<string>();
-            foreach (string BlueD in Blueprints) {
+            List<string> Brushes = new List<string>();
+            foreach (string BlueD in Blueprints)
+            {
 
                 if (File.Exists(Folder + "\\" + BlueD + "\\bp.sbc")
-                    && File.Exists(Folder + "\\" + BlueD + "\\thumb.png")) listBox1Items.Add(BlueD);
+                    && File.Exists(Folder + "\\" + BlueD + "\\thumb.png"))
+                {
+                    if (BlueD.StartsWith("PaintBrush-"))
+                    {
+                        Brushes.Add(BlueD.Replace("PaintBrush-", ""));
+                    }
+                    else
+                    {
+                        listBox1Items.Add(BlueD);
+                    }
+                }
             }
             listBox1.Items.AddRange(listBox1Items.ToArray());
+            if (Brushes.Count > 0)
+            {
+                comboBox11.Items.AddRange(Brushes.ToArray());
+                comboBox11.SelectedIndex = 0;
+                button7.Visible = true;
+                comboBox11.Visible = true;
+                label24.Visible = true;
+            }
             MainF = this;
             ArhApi.CompliteAsync(() =>
             {
@@ -210,38 +231,42 @@ namespace BlueprintEditor
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ClearEditorGrid(); ClearEditorBlock();
-            if (Calculator != null && !Calculator.IsDisposed) Calculator.Hide();
-            BluePathc = Folder + "\\" + listBox1.Items[listBox1.SelectedIndex];
-            Image img = Image.FromFile(BluePathc + "\\thumb.png", true);
-            pictureBox1.SuspendLayout();
-            //pictureBox1.Image = img;
-            pictureBox1.Image = SetImgOpacity(img, 1);
-            pictureBox1.ResumeLayout();
-            Blueprint = new XmlDocument();
-            string[] Translate = new string[] { "Blocks", "Блоки" };
-            label2.Text = Translate[Settings.LangID];
-            Blueprint.Load(BluePathc + "\\bp.sbc");
-            XmlNodeList Grids = Blueprint.GetElementsByTagName("CubeGrid");
-            listBox3.Items.Clear(); Grides.Clear(); listBox2.Items.Clear(); Blocks.Clear();
-            List<string> listBox3Items = new List<string>();
-            foreach (XmlNode Grid in Grids)
+            if (listBox1.SelectedIndex != -1)
             {
-                Grides.Add(Grid);
-                foreach (XmlNode Child in Grid.ChildNodes)
+                ClearEditorGrid(); ClearEditorBlock();
+                if (Calculator != null && !Calculator.IsDisposed) Calculator.Hide();
+                BluePathc = Folder + "\\" + listBox1.Items[listBox1.SelectedIndex];
+                Image img = Image.FromFile(BluePathc + "\\thumb.png", true);
+                pictureBox1.SuspendLayout();
+                //pictureBox1.Image = img;
+                pictureBox1.Image = SetImgOpacity(img, 1);
+                pictureBox1.ResumeLayout();
+                Blueprint = new XmlDocument();
+                string[] Translate = new string[] { "Blocks", "Блоки" };
+                label2.Text = Translate[Settings.LangID];
+                Blueprint.Load(BluePathc + "\\bp.sbc");
+                XmlNodeList Grids = Blueprint.GetElementsByTagName("CubeGrid");
+                listBox3.Items.Clear(); Grides.Clear(); listBox2.Items.Clear(); Blocks.Clear();
+                List<string> listBox3Items = new List<string>();
+                foreach (XmlNode Grid in Grids)
                 {
-                    if (Child.Name == "DisplayName")
+                    Grides.Add(Grid);
+                    foreach (XmlNode Child in Grid.ChildNodes)
                     {
-                        listBox3Items.Add(Child.InnerText);
-                        break;
+                        if (Child.Name == "DisplayName")
+                        {
+                            listBox3Items.Add(Child.InnerText);
+                            break;
+                        }
                     }
                 }
+                listBox3.Items.AddRange(listBox3Items.ToArray());
+                listBox3.SelectedIndex = 0;
+                label3.Visible = true;
+                listBox3.Visible = true;
+                button3.Enabled = true;
+                button2.Enabled = true;
             }
-            listBox3.Items.AddRange(listBox3Items.ToArray());
-            label3.Visible = true;
-            listBox3.Visible = true;
-            button3.Enabled = true;
-            button2.Enabled = true;
         }
         public static Image SetImgOpacity(Image imgPic, float imgOpac)
         {
@@ -263,10 +288,12 @@ namespace BlueprintEditor
 
         private void ClearEditorGrid()
         {
+            //button7.Enabled = false;
             textBox1.Text = "";
             textBox4.Text = "";
             comboBox1.SelectedIndex = -1;
             comboBox2.SelectedIndex = -1;
+            comboBox11.SelectedIndex = -1;
             comboBox3.SelectedIndex = -1;
             comboBox6.SelectedIndex = -1;
             comboBox3.Items.Clear();
@@ -276,6 +303,8 @@ namespace BlueprintEditor
             SetEnableCombo(comboBox2, false);
             panel1.Enabled = false;
             SetEnableCombo(comboBox3, false);
+            button7.Enabled = false;
+            SetEnableCombo(comboBox11, false);
         }
         private void ClearEditorBlock()
         {
@@ -285,10 +314,14 @@ namespace BlueprintEditor
             textBox6.Text = "";
             textBox7.Text = "";
             textBox8.Text = "";
+            textBox10.Text = "";
             textBox9.Text = "";
             button6.Text = "None";
+            button6.Tag = "None|Ничего";
             button6.Visible = false;
+            if (ImageConvert != null && !ImageConvert.IsDisposed) ImageConvert.Close();
             if (File.Exists("EditProgramTmpFile.cs")) File.Delete("EditProgramTmpFile.cs");
+            if (File.Exists("EditTmpFile.txt")) File.Delete("EditTmpFile.txt");
             comboBox4.SelectedIndex = -1;
             comboBox5.SelectedIndex = -1;
             SetEnableCombo(comboBox7, false);
@@ -303,7 +336,9 @@ namespace BlueprintEditor
             textBox5.Enabled = false;
             textBox6.Enabled = false;
             textBox7.Enabled = false;
+            textBox10.Enabled = false;
             textBox8.Enabled = false;
+            panel2.Visible = false;
         }
 
         void SetEnableCombo(ComboBox Box, bool Enable)
@@ -330,24 +365,30 @@ namespace BlueprintEditor
             else
                 UpdateBlocksNoSett();
             OldGridSelect = listBox3.SelectedIndex;
+            if (listBox2.Items.Count == 1) listBox2.SetSelected(0, true);
         }
 
-        List<int> SelectedSaveVar = new List<int>();
+        List<XmlNode> SelectedSaveVar = new List<XmlNode>();
 
         void UpdateBlocks()
         {
             SelectedSaveVar.Clear();
-            foreach (int Sel in listBox2.SelectedIndices)
+            foreach (int Index in listBox2.SelectedIndices)
             {
-                SelectedSaveVar.Add(Sel);
+                SelectedSaveVar.Add(BlocksSorted[Sorter[Index]]);
             }
             UpdateBlocksNoSett();
             listBox2.BeginUpdate();
-            foreach (int Sel in SelectedSaveVar)
+            foreach (XmlNode Sel in SelectedSaveVar)
             {
-                listBox2.SetSelected(Sel, true);
+                if (BlocksSorted.ContainsValue(Sel))
+                {
+                    string Key = BlocksSorted.FirstOrDefault(x => x.Value == Sel).Key;
+                    listBox2.SetSelected(Sorter.IndexOf(Key), true);
+                }
             }
             listBox2.EndUpdate();
+            SelectedSaveVar.Clear();
         }
 
         void UpdateBlocksNoSett()
@@ -487,6 +528,12 @@ namespace BlueprintEditor
                     SelectedArmor = Light > Heavy ? 0 : 1;
                     comboBox6.SelectedIndex = SelectedArmor;
                 }
+                if (comboBox11.Items.Count > 0)
+                {
+                    button7.Enabled = true;
+                    SetEnableCombo(comboBox11, true);
+                    comboBox11.SelectedIndex = 0;
+                }
             }
         }
         static public string[] ListFill(string[] Elements, int DigitLenght)
@@ -563,204 +610,260 @@ namespace BlueprintEditor
         {
             Blueprint.Save(BluePathc + "\\bp.sbc");
             if (File.Exists(BluePathc + "\\bp.sbcPB")) File.Delete(BluePathc + "\\bp.sbcPB");
-            else if (File.Exists(BluePathc + "\\bp.sbcB1")) File.Delete(BluePathc + "\\bp.sbcB1");
+            if (File.Exists(BluePathc + "\\bp.sbcB1")) File.Delete(BluePathc + "\\bp.sbcB1");
         }
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Block.Clear();
-            ClearEditorBlock(); string SubtypeName = ""; string BuiltBy = ""; int Heavy = 0, Light = 0;
-            string MinX = ""; string MinY = ""; string MinZ = ""; bool IsArmor = true; string Color = "";
-            string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
-            int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
-            int CountBuilt = 0; int CountSubt = 0;
-            foreach (int Index in listBox2.SelectedIndices)
+            if (listBox2.SelectedIndex != -1)
             {
-                Block.Add(BlocksSorted[Sorter[Index]]);
-                foreach (XmlNode Child in BlocksSorted[Sorter[Index]].ChildNodes)
+                Block.Clear();
+                ClearEditorBlock(); string SubtypeName = ""; string BuiltBy = ""; int Heavy = 0, Light = 0;
+                string MinX = ""; string MinY = ""; string MinZ = ""; bool IsArmor = true; string Color = "";
+                string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
+                int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
+                int CountBuilt = 0; int CountSubt = 0; string TypeName = "";
+                foreach (int Index in listBox2.SelectedIndices)
                 {
-                    if (Child.Name == "SubtypeName")
+                    XmlNode Blocke = BlocksSorted[Sorter[Index]];
+                    if (Blocke.Attributes.GetNamedItem("xsi:type") != null)
                     {
-                        if (Child.InnerText != "")
-                        {
-                            if (FirsTrart) SubtypeName = Child.InnerText;
-                            if (SubtypeName != Child.InnerText) SubtypeName = "";
-                        }
-                        else
-                        {
-                            SubtypeName = "";
-                        }
-                        IsArmor = IsArmor && Child.InnerText.Contains("Armor");
-                        if (Child.InnerText.Contains("Armor") && Child.InnerText.Contains("Heavy"))
-                        {
-                            Heavy++;
-                        }
-                        else if (Child.InnerText.Contains("Armor"))
-                        {
-                            Light++;
-                        }
-                        CountSubt++;
+                        if (FirsTrart) TypeName = Blocke.Attributes.GetNamedItem("xsi:type").Value;
+                        if (TypeName != Blocke.Attributes.GetNamedItem("xsi:type").Value) TypeName = "";
                     }
-                    else if (Child.Name == "CustomName")
+                    else
                     {
-                        if (Child.InnerText != "")
-                        {
-                            if (FirsTrart) CustomName = Child.InnerText;
-                            if (CustomName != Child.InnerText) CustomName = "";
-                        }
-                        else
-                        {
-                            CustomName = "";
-                        }
-                        CustomnameCount++;
+                        TypeName = "";
                     }
-                    else if (Child.Name == "BuiltBy")
+                    Block.Add(Blocke);
+                    foreach (XmlNode Child in BlocksSorted[Sorter[Index]].ChildNodes)
                     {
-                        if (Child.InnerText != "")
+                        if (Child.Name == "SubtypeName")
                         {
-                            if (FirsTrart) BuiltBy = Child.InnerText;
-                            if (BuiltBy != Child.InnerText) BuiltBy = "";
-                        }
-                        else
-                        {
-                            BuiltBy = "";
-                        }
-                        CountBuilt++;
-                    }
-                    else if (Child.Name == "BlockOrientation")
-                    {
-                        if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null)
-                        {
-                            if (FirsTrart)
+                            if (Child.InnerText != "")
                             {
-                                OrForw = Child.Attributes[0].Value;
-                                OrUp = Child.Attributes[1].Value;
+                                if (FirsTrart) SubtypeName = Child.InnerText;
+                                if (SubtypeName != Child.InnerText) SubtypeName = "";
                             }
-                            if (OrForw != Child.Attributes[0].Value) OrForw = "";
-                            if (OrUp != Child.Attributes[1].Value) OrUp = "";
-                        }
-                        else
-                        {
-                            OrUp = "";
-                            OrForw = "";
-                        }
-                        CountOrient++;
-                    }
-                    else if (Child.Name == "Min")
-                    {
-                        if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
-                        {
-                            if (FirsTrart)
+                            else
                             {
-                                MinX = Child.Attributes[0].Value;
-                                MinY = Child.Attributes[1].Value;
-                                MinZ = Child.Attributes[2].Value;
+                                SubtypeName = "";
                             }
-                            if (MinX != Child.Attributes[0].Value) MinX = "";
-                            if (MinY != Child.Attributes[1].Value) MinY = "";
-                            if (MinZ != Child.Attributes[2].Value) MinZ = "";
-                        }
-                        else
-                        {
-                            MinX = "";
-                            MinY = "";
-                            MinZ = "";
-                        }
-                        CountMin++;
-                    }
-                    else if (Child.Name == "ColorMaskHSV")
-                    {
-                        if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
-                        {
-                            string Colore = Child.Attributes[0].Value + ":" + Child.Attributes[1].Value + ":" + Child.Attributes[2].Value;
-                            if (FirsTrart)
+                            IsArmor = IsArmor && Child.InnerText.Contains("Armor");
+                            if (Child.InnerText.Contains("Armor") && Child.InnerText.Contains("Heavy"))
                             {
-                                Color = Colore;
+                                Heavy++;
                             }
-                            if (Color != Colore)
+                            else if (Child.InnerText.Contains("Armor"))
+                            {
+                                Light++;
+                            }
+                            CountSubt++;
+                        }
+                        else if (Child.Name == "CustomName")
+                        {
+                            if (Child.InnerText != "")
+                            {
+                                if (FirsTrart) CustomName = Child.InnerText;
+                                if (CustomName != Child.InnerText) CustomName = "";
+                            }
+                            else
+                            {
+                                CustomName = "";
+                            }
+                            CustomnameCount++;
+                        }
+                        else if (Child.Name == "BuiltBy")
+                        {
+                            if (Child.InnerText != "")
+                            {
+                                if (FirsTrart) BuiltBy = Child.InnerText;
+                                if (BuiltBy != Child.InnerText) BuiltBy = "";
+                            }
+                            else
+                            {
+                                BuiltBy = "";
+                            }
+                            CountBuilt++;
+                        }
+                        else if (Child.Name == "BlockOrientation")
+                        {
+                            if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null)
+                            {
+                                if (FirsTrart)
+                                {
+                                    OrForw = Child.Attributes[0].Value;
+                                    OrUp = Child.Attributes[1].Value;
+                                }
+                                if (OrForw != Child.Attributes[0].Value) OrForw = "";
+                                if (OrUp != Child.Attributes[1].Value) OrUp = "";
+                            }
+                            else
+                            {
+                                OrUp = "";
+                                OrForw = "";
+                            }
+                            CountOrient++;
+                        }
+                        else if (Child.Name == "Min")
+                        {
+                            if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
+                            {
+                                if (FirsTrart)
+                                {
+                                    MinX = Child.Attributes[0].Value;
+                                    MinY = Child.Attributes[1].Value;
+                                    MinZ = Child.Attributes[2].Value;
+                                }
+                                if (MinX != Child.Attributes[0].Value) MinX = "";
+                                if (MinY != Child.Attributes[1].Value) MinY = "";
+                                if (MinZ != Child.Attributes[2].Value) MinZ = "";
+                            }
+                            else
+                            {
+                                MinX = "";
+                                MinY = "";
+                                MinZ = "";
+                            }
+                            CountMin++;
+                        }
+                        else if (Child.Name == "ColorMaskHSV")
+                        {
+                            if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
+                            {
+                                string Colore = Child.Attributes[0].Value + ":" + Child.Attributes[1].Value + ":" + Child.Attributes[2].Value;
+                                if (FirsTrart)
+                                {
+                                    Color = Colore;
+                                }
+                                if (Color != Colore)
+                                {
+                                    Color = "";
+                                }
+                            }
+                            else
                             {
                                 Color = "";
                             }
+                            ColorCount++;
                         }
-                        else
+                        else if (Child.Name == "Program" && listBox2.SelectedIndices.Count == 1)
                         {
-                            Color = "";
+                            button6.Text = Settings.LangID == 0 ? "Edit program" : "Изменить скрипт";
+                            button6.Tag = "Edit program|Изменить скрипт";
+                            EXTData = Child.InnerText;
+                            button6.Visible = true;
                         }
-                        ColorCount++;
+                        else if (Child.Name == "PublicDescription" && listBox2.SelectedIndices.Count == 1 && BlocksSorted[Sorter[Index]].Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_TextPanel")
+                        {
+                            button6.Text = Settings.LangID == 0 ? "Edit text" : "Изменить текст";
+                            button6.Tag = "Edit text|Изменить текст";
+                            EXTData = Child.InnerText;
+                            button6.Visible = true;
+                            Regex Regex = new Regex("[\ue100-\ue2FF]");
+                            panel2.Visible = true;
+                            if (Regex.Match(EXTData).Success)
+                            {
+                                string[] Lines = EXTData.Split('\n');int X = 0, Y = 0;
+                                Bitmap Bmp = new Bitmap(Lines[0].Length, Lines.Length);
+                                Console.WriteLine(Lines[0].Length+"|"+ Lines.Length);
+                                foreach (string Ziline in Lines)
+                                {
+                                    foreach (Char Chared in Ziline)
+                                    {
+                                        if(X < Bmp.Width)Bmp.SetPixel(X,Y,ColorUtils.CharToColor(Chared));
+                                        X++;
+                                    }
+                                    X = 0;
+                                    Y++;
+                                }
+                                pictureBox5.Image = Bmp;
+                            }
+                            else
+                            {
+                                pictureBox5.Image = Properties.Resources.Undefined;
+                            }
+                        }
+                        else if (Child.Name == "ComponentContainer" && listBox2.SelectedIndices.Count == 1 && BlocksSorted[Sorter[Index]].Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_CargoContainer")
+                        {
+                            button6.Text = Settings.LangID == 0 ? "Edit inventory" : "Изменить инвентарь";
+                            button6.Tag = "Edit inventory|Изменить инвентарь";
+                            EXTXML = Child.FirstChild.FirstChild.LastChild.FirstChild;
+                            button6.Visible = true;
+                        }
                     }
-                    else if (Child.Name == "Program" && listBox2.SelectedIndices.Count == 1)
+                    FirsTrart = false;
+                }
+                if (TypeName != "")
+                {
+                    textBox10.Text = TypeName;
+                    textBox10.Enabled = true;
+                }
+                if (CustomName != "" && CustomnameCount == Block.Count)
+                {
+                    textBox3.Text = CustomName;
+                    textBox3.Enabled = true;
+                }
+                if (SubtypeName != "" && CountSubt == Block.Count)
+                {
+                    textBox2.Text = SubtypeName;
+                    textBox2.Enabled = true;
+                }
+                if (IsArmor && (Light != 0 || Heavy != 0))
+                {
+                    SelectedArmorB = Light > Heavy ? 0 : 1;
+                    //comboBox7.Enabled = true;
+                    SetEnableCombo(comboBox7, true);
+                    comboBox7.SelectedIndex = SelectedArmorB;
+                }
+                if (BuiltBy != "" && CountBuilt == Block.Count)
+                {
+                    textBox5.Text = BuiltBy;
+                    textBox5.Enabled = true;
+                }
+                if (CountOrient == Block.Count)
+                {
+                    if (OrForw != "")
                     {
-                        button6.Text = "EditProgram";
-                        EXTData = Child.InnerText;
-                        button6.Visible = true;
+                        SetEnableCombo(comboBox4, true);
+                        comboBox4.SelectedIndex = comboBox4.Items.IndexOf(OrForw);
+                        //comboBox4.Enabled = true;
+                    }
+                    if (OrUp != "")
+                    {
+                        SetEnableCombo(comboBox5, true);
+                        comboBox5.SelectedIndex = comboBox5.Items.IndexOf(OrUp);
+                        //comboBox5.Enabled = true;
                     }
                 }
-                FirsTrart = false;
-            }
-            if (CustomName != "" && CustomnameCount == Block.Count)
-            {
-                textBox3.Text = CustomName;
-                textBox3.Enabled = true;
-            }
-            if (SubtypeName != "" && CountSubt == Block.Count)
-            {
-                textBox2.Text = SubtypeName;
-                textBox2.Enabled = true;
-            }
-            if (IsArmor && (Light != 0 || Heavy != 0))
-            {
-                SelectedArmorB = Light > Heavy ? 0 : 1;
-                //comboBox7.Enabled = true;
-                SetEnableCombo(comboBox7, true);
-                comboBox7.SelectedIndex = SelectedArmorB;
-            }
-            if (BuiltBy != "" && CountBuilt == Block.Count)
-            {
-                textBox5.Text = BuiltBy;
-                textBox5.Enabled = true;
-            }
-            if (CountOrient == Block.Count)
-            {
-                if (OrForw != "")
+                if (CountMin == Block.Count)
                 {
-                    SetEnableCombo(comboBox4, true);
-                    comboBox4.SelectedIndex = comboBox4.Items.IndexOf(OrForw);
-                    //comboBox4.Enabled = true;
+                    if (MinX != "")
+                    {
+                        textBox6.Text = MinX;
+                        textBox6.Enabled = true;
+                    }
+                    if (MinY != "")
+                    {
+                        textBox7.Text = MinY;
+                        textBox7.Enabled = true;
+                    }
+                    if (MinZ != "")
+                    {
+                        textBox8.Text = MinZ;
+                        textBox8.Enabled = true;
+                    }
                 }
-                if (OrUp != "")
+                if (Color != "" && ColorCount == Block.Count)
                 {
-                    SetEnableCombo(comboBox5, true);
-                    comboBox5.SelectedIndex = comboBox5.Items.IndexOf(OrUp);
-                    //comboBox5.Enabled = true;
+                    textBox9.Text = Color;
+                    textBox9.Enabled = true;
+                    pictureBox4.Enabled = true;
                 }
+                if (listBox2.SelectedIndex != -1) button4.Enabled = true;
             }
-            if (CountMin == Block.Count)
-            {
-                if (MinX != "")
-                {
-                    textBox6.Text = MinX;
-                    textBox6.Enabled = true;
-                }
-                if (MinY != "")
-                {
-                    textBox7.Text = MinY;
-                    textBox7.Enabled = true;
-                }
-                if (MinZ != "")
-                {
-                    textBox8.Text = MinZ;
-                    textBox8.Enabled = true;
-                }
-            }
-            if (Color != "" && ColorCount == Block.Count)
-            {
-                textBox9.Text = Color;
-                textBox9.Enabled = true;
-                pictureBox4.Enabled = true;
-            }
-            if (listBox2.SelectedIndex != -1) button4.Enabled = true;
         }
-        string EXTData;
+        string EXTData; XmlNode EXTXML;
         private void textBox2_Leave(object sender, EventArgs e)
         {
             if (Block != null)
@@ -823,75 +926,152 @@ namespace BlueprintEditor
 
         public class ColorUtils
         {
+
+            public static Color CharToColor(char Ch)
+            {
+                int Chr = (int)Ch - 0xe100, pr, pg, pb, r, g, b;
+                BitArray Bin = new BitArray(BitConverter.GetBytes(Chr));
+                pr = (int)((Bin[0] ? 1 : 0) + ((Bin[1] ? 1 : 0) << 1) + ((Bin[2] ? 1 : 0) << 2));
+                pg = (int)((Bin[3] ? 1 : 0) + ((Bin[4] ? 1 : 0) << 1) + ((Bin[5] ? 1 : 0) << 2));
+                pb = (int)((Bin[6] ? 1 : 0) + ((Bin[7] ? 1 : 0) << 1) + ((Bin[8] ? 1 : 0) << 2));
+                r = (int)(((float)pb / 7) * 255);
+                g = (int)(((float)pg / 7) * 255);
+                b = (int)(((float)pr / 7) * 255);
+                return Color.FromArgb(r, g, b);
+            }
+            private static bool[] GetBinaryRepresentation(int i)
+            {
+                List<bool> result = new List<bool>();
+                while (i > 0)
+                {
+                    int m = i % 2;
+                    i = i / 2;
+                    result.Add(m == 1);
+                }
+                result.Reverse();
+                return result.ToArray();
+            }
+            public static char CharRGB(byte r = 7, byte g = 7, byte b = 7)
+            {
+                return (char)(0xe100 + (r << 6) + (g << 3) + b);
+            }
             public static Color ColorFromHSV(double H, double S, double V)
             {
-                double r = 0, g = 0, b = 0;
+                int r, g, b;
+                HsvToRgb(H, S, V, out r, out g, out b);
+                return Color.FromArgb(r, g, b);
+            }
+            /// <summary>
+            /// Convert HSV to RGB
+            /// h is from 0-360
+            /// s,v values are 0-1
+            /// r,g,b values are 0-255
+            /// Based upon http://ilab.usc.edu/wiki/index.php/HSV_And_H2SV_Color_Space#HSV_Transformation_C_.2F_C.2B.2B_Code_2
+            /// </summary>
+            static void HsvToRgb(double h, double S, double V, out int r, out int g, out int b)
+            {
+                // ######################################################################
+                // T. Nathan Mundhenk
+                // mundhenk@usc.edu
+                // C/C++ Macro HSV to RGB
 
-                if (S == 0)
+                double H = h;
+                while (H < 0) { H += 360; };
+                while (H >= 360) { H -= 360; };
+                double R, G, B;
+                if (V <= 0)
+                { R = G = B = 0; }
+                else if (S <= 0)
                 {
-                    r = V;
-                    g = V;
-                    b = V;
+                    R = G = B = V;
                 }
                 else
                 {
-                    int i;
-                    double f, p, q, t;
-
-                    if (H == 360)
-                        H = 0;
-                    else
-                        H = H / 60;
-
-                    i = (int)Math.Truncate(H);
-                    f = H - i;
-
-                    p = V * (1.0 - S);
-                    q = V * (1.0 - (S * f));
-                    t = V * (1.0 - (S * (1.0 - f)));
-
+                    double hf = H / 60.0;
+                    int i = (int)Math.Floor(hf);
+                    double f = hf - i;
+                    double pv = V * (1 - S);
+                    double qv = V * (1 - S * f);
+                    double tv = V * (1 - S * (1 - f));
                     switch (i)
                     {
+
+                        // Red is the dominant color
+
                         case 0:
-                            r = V;
-                            g = t;
-                            b = p;
+                            R = V;
+                            G = tv;
+                            B = pv;
                             break;
+
+                        // Green is the dominant color
 
                         case 1:
-                            r = q;
-                            g = V;
-                            b = p;
+                            R = qv;
+                            G = V;
+                            B = pv;
+                            break;
+                        case 2:
+                            R = pv;
+                            G = V;
+                            B = tv;
                             break;
 
-                        case 2:
-                            r = p;
-                            g = V;
-                            b = t;
-                            break;
+                        // Blue is the dominant color
 
                         case 3:
-                            r = p;
-                            g = q;
-                            b = V;
+                            R = pv;
+                            G = qv;
+                            B = V;
+                            break;
+                        case 4:
+                            R = tv;
+                            G = pv;
+                            B = V;
                             break;
 
-                        case 4:
-                            r = t;
-                            g = p;
-                            b = V;
+                        // Red is the dominant color
+
+                        case 5:
+                            R = V;
+                            G = pv;
+                            B = qv;
                             break;
+
+                        // Just in case we overshoot on our math by a little, we put these here. Since its a switch it won't slow us down at all to put these here.
+
+                        case 6:
+                            R = V;
+                            G = tv;
+                            B = pv;
+                            break;
+                        case -1:
+                            R = V;
+                            G = pv;
+                            B = qv;
+                            break;
+
+                        // The color is not defined, we should throw an error.
 
                         default:
-                            r = V;
-                            g = p;
-                            b = q;
+                            //LFATAL("i Value error in Pixel conversion, Value is %d", i);
+                            R = G = B = V; // Just pretend its black/white
                             break;
                     }
-
                 }
+                r = Clamp((int)(R * 255.0));
+                g = Clamp((int)(G * 255.0));
+                b = Clamp((int)(B * 255.0));
+            }
 
-                return Color.FromArgb((int)(r * 255), (int)(g * 255), (int)(b * 255));
+            /// <summary>
+            /// Clamp a value to 0-255
+            /// </summary>
+            static int Clamp(int i)
+            {
+                if (i < 0) return 0;
+                if (i > 255) return 255;
+                return i;
             }
         }
         double Clamp(double i)
@@ -986,6 +1166,9 @@ namespace BlueprintEditor
         private void button2_Click(object sender, EventArgs e)
         {
             SaveBlueprint();
+            int index = listBox1.SelectedIndex;
+            listBox1.SelectedIndex = -1;
+            listBox1.SelectedIndex = index;
         }
 
         private void textBox5_Leave(object sender, EventArgs e)
@@ -998,11 +1181,11 @@ namespace BlueprintEditor
                     {
                         if (Child.Name == "BuiltBy")
                         {
-                            if (textBox3.Text == "")
+                            if (textBox5.Text == "")
                             {
-                                textBox3.Text = Child.InnerText;
+                                textBox5.Text = Child.InnerText;
                             }
-                            Child.InnerText = textBox3.Text;
+                            Child.InnerText = textBox5.Text;
                         }
                     }
                 }
@@ -1030,7 +1213,6 @@ namespace BlueprintEditor
                 {
                     XmlNode parent = Bl.ParentNode;
                     parent.RemoveChild(Bl);
-
                 }
                 UpdateBlocks();
             }
@@ -1265,6 +1447,17 @@ namespace BlueprintEditor
 
         }
 
+        public void CreateBlueprint(string Name, string XML)
+        {
+            string Pathb = Folder + "\\" + Name;
+            Directory.CreateDirectory(Pathb);
+            File.WriteAllText(Pathb + "\\bp.sbc", XML);
+            Properties.Resources.forthumb.Save(Pathb + "\\thumb.png", ImageFormat.Png);
+            if (File.Exists(Pathb + "\\bp.sbcPB")) File.Delete(Pathb + "\\bp.sbcPB");
+            if (File.Exists(Pathb + "\\bp.sbcB1")) File.Delete(Pathb + "\\bp.sbcB1");
+            if (!listBox1.Items.Contains(Name)) listBox1.Items.Add(Name);
+        }
+
         private void button3_Click(object sender, EventArgs e)
         {
             ArhApi.CompliteAsync(() =>
@@ -1274,7 +1467,7 @@ namespace BlueprintEditor
                     Invoke(new Action(() => {
                         label22.Text = "Loading Data... Please Wait";
                     }));
-                    Calculator = new Form4(GamePath,this);
+                    Calculator = new Form4(GamePath, this);
                     Calculator.SetColor(AllForeColor, AllBackColor);
                     Calculator.ChangeLang(Settings.LangID);
                 }
@@ -1321,6 +1514,7 @@ namespace BlueprintEditor
             Settings.LangID = comboBox9.SelectedIndex;
             if (Calculator != null && !Calculator.IsDisposed) Calculator.ChangeLang(Settings.LangID);
             if (Report != null && !Report.IsDisposed) Report.ChangeLang(Settings.LangID);
+            if (ImageConvert != null && !ImageConvert.IsDisposed) ImageConvert.ChangeLang(Settings.LangID);
         }
 
         void ChangeLang(Control Control, int Lang)
@@ -1373,20 +1567,25 @@ namespace BlueprintEditor
             BackColor = AllBackColor;
             Settings.BackColor = new MyColor(AllBackColor);
             Settings.ForeColor = new MyColor(AllForeColor);
-            Recolor(Controls, AllForeColor, AllBackColor);
+            Recolor(Controls, AllForeColor, AllBackColor); 
             if (Report != null && !Report.IsDisposed)
                 Report.SetColor(AllForeColor, AllBackColor);
+            if (ImageConvert != null && !ImageConvert.IsDisposed)
+                ImageConvert.SetColor(AllForeColor, AllBackColor);
             if (Calculator != null && !Calculator.IsDisposed)
                 Calculator.SetColor(AllForeColor, AllBackColor);
         }
         private void button6_Click(object sender, EventArgs e)
         {
-            switch (button6.Text) {
-                case "EditProgram":
-                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad++";
+            switch (button6.Text)
+            {
+                case "Edit program":
+                case "Изменить скрипт":
+                    #region EditProgram
+                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
                     try
                     {
-                        File.WriteAllText("EditProgramTmpFile.cs", EXTData);
+                        File.WriteAllText("EditProgramTmpFile.cs", EXTData.Replace("\n", "\r\n"));
                         Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditProgramTmpFile.cs");
                         if (Editor != null)
                         {
@@ -1402,7 +1601,7 @@ namespace BlueprintEditor
                                         {
                                             if (Child.Name == "Program")
                                             {
-                                                Child.InnerText = Program;
+                                                Child.InnerText = Program.Replace("\r\n", "\n");
                                                 break;
                                             }
                                         }
@@ -1416,9 +1615,9 @@ namespace BlueprintEditor
                         {
                             File.Delete("EditProgramTmpFile.cs");
                             if (Settings.LangID == 0)
-                                MessageBox.Show("Please install "+ Settings.EditorProgram, "Missing "+ Settings.EditorProgram);
+                                MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
                             else
-                                MessageBox.Show("Пожалуйста, установите "+ Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                                MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
                         }
                     }
                     catch
@@ -1429,7 +1628,314 @@ namespace BlueprintEditor
                         else
                             MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
                     }
+                    #endregion
                     break;
+                case "Edit inventory":
+                case "Изменить инвентарь":
+                    #region EditInventory
+                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                    try
+                    {
+                        string Inventory = "#Inventory text editor#";
+                        foreach (XmlNode Xm in EXTXML.ChildNodes)
+                        {
+                            XmlNode Type = Xm.ChildNodes[1];
+                            Inventory += "\r\n" + Type.Attributes.GetNamedItem("xsi:type").Value.Replace("MyObjectBuilder_", "") + "/" + Type.FirstChild.InnerText + ":" + Xm.FirstChild.InnerText;
+                        }
+                        File.WriteAllText("EditTmpFile.txt", Inventory);
+                        Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
+                        if (Editor != null)
+                        {
+                            Editor.WaitForExit();
+                            if (File.Exists("EditTmpFile.txt"))
+                            {
+                                string Program = File.ReadAllText("EditTmpFile.txt");
+                                if (Block != null && Block.Count == 1 && button6.Visible)
+                                {
+                                    foreach (XmlNode Bl in Block)
+                                    {
+                                        foreach (XmlNode Child in Bl.ChildNodes)
+                                        {
+                                            if (Child.Name == "ComponentContainer")
+                                            {
+                                                string Inventoryed = ""; int Couner = 0;
+                                                string[] Splited = Program.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                                foreach (string inv in Splited)
+                                                {
+                                                    string[] Amount = inv.Split(':'), Type = Amount[0].Split('/');
+                                                    if (Amount.Length > 1 && Type.Length > 1) Inventoryed += "<MyObjectBuilder_InventoryItem><Amount>" + Amount[1] + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Type[0] + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><SubtypeName>" + Type[1] + "</SubtypeName></PhysicalContent><ItemId>" + Couner + "</ItemId></MyObjectBuilder_InventoryItem>";
+                                                    Couner++;
+                                                }
+                                                Child.FirstChild.FirstChild.LastChild.FirstChild.InnerXml = Inventoryed;
+                                                Child.FirstChild.FirstChild.LastChild.ChildNodes[1].InnerText = Couner.ToString();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    UpdateBlocks();
+                                }
+                                File.Delete("EditTmpFile.txt");
+                            }
+                        }
+                        else
+                        {
+                            File.Delete("EditTmpFile.txt");
+                            if (Settings.LangID == 0)
+                                MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                            else
+                                MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                        }
+                    }
+                    catch
+                    {
+                        File.Delete("EditTmpFile.txt");
+                        if (Settings.LangID == 0)
+                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                        else
+                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                    }
+                    #endregion
+                    break;
+                case "Edit text":
+                case "Изменить текст":
+                    #region EditText
+                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                    try
+                    {
+                        File.WriteAllText("EditTmpFile.txt", EXTData.Replace("\n", "\r\n"));
+                        Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
+                        if (Editor != null)
+                        {
+                            Editor.WaitForExit();
+                            if (File.Exists("EditTmpFile.txt"))
+                            {
+                                string Program = File.ReadAllText("EditTmpFile.txt");
+                                if (Block != null && Block.Count == 1 && button6.Visible)
+                                {
+                                    foreach (XmlNode Bl in Block)
+                                    {
+                                        foreach (XmlNode Child in Bl.ChildNodes)
+                                        {
+                                            if (Child.Name == "PublicDescription")
+                                            {
+                                                Child.InnerText = Program.Replace("\r\n", "\n");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    UpdateBlocks();
+                                }
+                                File.Delete("EditTmpFile.txt");
+                            }
+                        }
+                        else
+                        {
+                            File.Delete("EditTmpFile.txt");
+                            if (Settings.LangID == 0)
+                                MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                            else
+                                MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                        }
+                    }
+                    catch
+                    {
+                        File.Delete("EditTmpFile.txt");
+                        if (Settings.LangID == 0)
+                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                        else
+                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                    }
+                    #endregion
+                    break;
+            }
+        }
+
+        private void textBox10_Leave(object sender, EventArgs e)
+        {
+            if (Block != null)
+            {
+                foreach (XmlNode Bl in Block)
+                {
+
+                    if (textBox10.Text == "")
+                    {
+                        textBox10.Text = Bl.Attributes.GetNamedItem("xsi:type").Value;
+                    }
+                    Bl.Attributes.GetNamedItem("xsi:type").Value = textBox10.Text;
+                }
+                UpdateBlocks();
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            List<string> Painters = new List<string>();
+            string Brush = "PaintBrush-" + comboBox11.SelectedItem.ToString();
+            string BluesPathc = Folder + "\\" + Brush;
+            XmlDocument Blueprinte = new XmlDocument();
+            Blueprinte.Load(BluesPathc + "\\bp.sbc");
+            XmlNodeList Paints = Blueprinte.GetElementsByTagName("MyObjectBuilder_CubeBlock");
+            foreach (XmlNode Paint in Paints)
+            {
+                foreach (XmlNode Child in Paint.ChildNodes)
+                {
+                    if (Child.Name == "ColorMaskHSV")
+                    {
+                        Painters.Add(Child.Attributes[0].Value + "|" + Child.Attributes[1].Value + "|" + Child.Attributes[2].Value);
+                        break;
+                    }
+                }
+            }
+            foreach (XmlNode Child in Grid.ChildNodes)
+            {
+                if (Child.Name == "CubeBlocks")
+                {
+                    foreach (XmlNode Childs in Child.ChildNodes)
+                    {
+
+                        foreach (XmlNode Chold in Childs.ChildNodes)
+                        {
+                            if (Chold.Name == "ColorMaskHSV")
+                            {
+                                string[] Paint = Painters[ArhApi.Rand(0, Painters.Count)].Split('|');
+                                Chold.Attributes[0].Value = Paint[0];
+                                Chold.Attributes[1].Value = Paint[1];
+                                Chold.Attributes[2].Value = Paint[2];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        #region Empty
+        private void label8_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label23_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox10_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label9_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label13_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox5_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label16_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label17_Click(object sender, EventArgs e)
+        {
+
+        }
+        #endregion
+        private void button9_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Console.WriteLine(saveFileDialog1.FilterIndex);
+                switch (saveFileDialog1.FilterIndex)
+                {
+                    case 1:
+                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Png);
+                        break;
+                    case 2:
+                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Jpeg);
+                        break;
+                    case 3:
+                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Bmp);
+                        break;
+                    case 4:
+                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Icon);
+                        break;
+                }
+            }
+        }
+        Form5 ImageConvert;
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (ImageConvert == null || ImageConvert.IsDisposed)
+            {
+                ImageConvert = new Form5(this);
+                ImageConvert.SetColor(AllForeColor, AllBackColor);
+                ImageConvert.ChangeLang(Settings.LangID);
+            }
+            ImageConvert.ImageAndRadio(pictureBox5.Image,textBox2.Text.Contains("Wide"),EXTData);
+            ImageConvert.ChangeLang(Settings.LangID);
+            ImageConvert.Show();
+        }
+
+        private static Color InGameColorSpace(Color IC)
+        {
+            return Color.FromArgb((int)((Math.Round((float)IC.R*7/255))*255/7),
+                (int)((Math.Round((float)IC.G * 7 / 255)) * 255 / 7),
+                (int)((Math.Round((float)IC.B * 7 / 255)) * 255 / 7));
+        }
+
+        public void WritePic(string Pic)
+        {
+            if (Block != null && Block.Count == 1 && button6.Visible)
+            {
+                foreach (XmlNode Bl in Block)
+                {
+                    foreach (XmlNode Child in Bl.ChildNodes)
+                    {
+                        if (Child.Name == "PublicDescription")
+                        {
+                            Child.InnerText = Pic;
+                        }
+                        else if (Child.Name == "Font")
+                        {
+                            Child.Attributes[1].Value = "Monospace";
+                        }
+                        else if (Child.Name == "ShowText")
+                        {
+                            Child.InnerText = "PUBLIC";
+                        }
+                    }
+                }
+                UpdateBlocks();
             }
         }
 

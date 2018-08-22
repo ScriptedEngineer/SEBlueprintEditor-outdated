@@ -71,6 +71,7 @@ namespace BlueprintEditor
                 Recolor(Contr.Controls, ForeColor, BackColor);
             }
         }
+
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.Text != "")

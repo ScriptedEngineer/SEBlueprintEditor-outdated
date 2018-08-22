@@ -286,6 +286,7 @@
             // saveFileDialog1
             // 
             this.saveFileDialog1.DefaultExt = "txt";
+            this.saveFileDialog1.FileName = "Resources";
             this.saveFileDialog1.Filter = "Text|*.txt";
             // 
             // Form4

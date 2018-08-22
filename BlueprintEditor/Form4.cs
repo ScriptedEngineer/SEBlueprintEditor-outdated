@@ -581,9 +581,10 @@ namespace BlueprintEditor
 
         private void button2_Click(object sender, EventArgs e)
         {
+            saveFileDialog1.FileName = "Resources for "+PrintName;
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                string Data =   "#Automatic created by SE BlueprintEditor#\r\n"+
+                string Data =   "#This file created by SE BlueprintEditor#\r\n"+
                                 "#Resources need to build \""+ PrintName + "\"#\r\n"+
                                 "#Assembler Efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
                                 "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n\r\n" +
@@ -597,7 +598,49 @@ namespace BlueprintEditor
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Put Components?(Components or (ingots or ores))", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            bool TrueS = false;int Count = 0;
+            DialogResult DialogResulte = MessageBox.Show("Put Components?(Components or (ingots or ores))", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            string CompData = "";
+            if (DialogResulte == DialogResult.Yes)
+            {
+                foreach (string Key in ShipComponents.Keys)
+                {
+                    CompData += "<MyObjectBuilder_InventoryItem><Amount>"+ShipComponents[Key].ToString()+ "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_Component\"><SubtypeName>" + Key+"</SubtypeName></PhysicalContent><ItemId>"+ Count + "</ItemId></MyObjectBuilder_InventoryItem>";
+                    Count++;
+                }
+                TrueS = true;
+            }
+            else if(DialogResulte != DialogResult.Cancel)
+            {
+                DialogResulte = MessageBox.Show("Put Ingots?(Ingots or ores)", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (DialogResulte == DialogResult.Yes)
+                {
+                    foreach (string Key in ShipIngots.Keys)
+                    {
+                        string[] Typez = Key.Split('/');
+                        CompData += "<MyObjectBuilder_InventoryItem><Amount>" + ShipIngots[Key].ToString("0.000000").Replace(',', '.') + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Typez[0] + "\"><SubtypeName>" + Typez[1] + "</SubtypeName></PhysicalContent><ItemId>" + Count + "</ItemId></MyObjectBuilder_InventoryItem>";
+                        Count++;
+                    }
+                    TrueS = true;
+                }
+                else if (DialogResulte != DialogResult.Cancel&&MessageBox.Show("Putting ores!Ok?", "Question", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                {
+                    foreach (string Key in ShipOres.Keys)
+                    {
+                        string[] Typez = Key.Split('/');
+                        CompData += "<MyObjectBuilder_InventoryItem><Amount>" + (ShipOres[Key]).ToString("0.000000").Replace(',','.') + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Typez[0] + "\"><SubtypeName>" + Typez[1] + "</SubtypeName></PhysicalContent><ItemId>" + Count + "</ItemId></MyObjectBuilder_InventoryItem>";
+                        Count++;
+                    }
+                    TrueS = true;
+                }
+            }
+            if (TrueS)
+            {
+                string ToFileST = "<?xml version=\"1.0\"?><Definitions xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><ShipBlueprints><ShipBlueprint xsi:type=\"MyObjectBuilder_ShipBlueprintDefinition\"><Id Type=\"MyObjectBuilder_ShipBlueprintDefinition\" Subtype=\"OwerLoadedCargo\" /><DisplayName>SE_BlueprintEditor</DisplayName><CubeGrids><CubeGrid><SubtypeName /><EntityId>118739124154775050</EntityId><PersistentFlags>CastShadows InScene</PersistentFlags><PositionAndOrientation><Position x=\"148226.6011545636\" y=\"209903.54307619989\" z=\"169702.54195813951\" /><Forward x=\"0.595039845\" y=\"-0.0242931172\" z=\"0.8033289\" /><Up x=\"-0.390973866\" y=\"-0.8820478\" z=\"0.262927562\" /><Orientation><X>0.9202668</X><Y>-0.23403728</Y><Z>-0.306810915</Z><W>0.06482753</W></Orientation></PositionAndOrientation><GridSizeEnum>Large</GridSizeEnum><CubeBlocks><MyObjectBuilder_CubeBlock xsi:type=\"MyObjectBuilder_CargoContainer\"><SubtypeName>LargeBlockLargeContainer</SubtypeName><EntityId>118739124154775051</EntityId><Min x=\"-1\" y=\"-1\" z=\"-1\" /><ColorMaskHSV x=\"0.108333334\" y=\"-0.04\" z=\"0.43\" /><Owner>0</Owner><BuiltBy>0</BuiltBy><ComponentContainer><Components><ComponentData><TypeId>MyInventoryBase</TypeId><Component xsi:type=\"MyObjectBuilder_Inventory\"><Items>";
+                string ToFileND = "</Items><nextItemId>"+ Count.ToString() + "</nextItemId><Volume>10000</Volume><Mass>10</Mass><MaxItemCount>2147483647</MaxItemCount><Size xsi:nil=\"true\" /><InventoryFlags>CanReceive CanSend</InventoryFlags><RemoveEntityOnEmpty>false</RemoveEntityOnEmpty></Component></ComponentData></Components></ComponentContainer><CustomName>Auto_Container_SEBE</CustomName><ShowOnHUD>false</ShowOnHUD><ShowInTerminal>true</ShowInTerminal><ShowInToolbarConfig>true</ShowInToolbarConfig><ShowInInventory>true</ShowInInventory></MyObjectBuilder_CubeBlock></CubeBlocks><DisplayName>Auto_Container_SEBE</DisplayName><DestructibleBlocks>false</DestructibleBlocks><IsRespawnGrid>false</IsRespawnGrid><LocalCoordSys>0</LocalCoordSys><TargetingTargets /></CubeGrid></CubeGrids><WorkshopId>0</WorkshopId><OwnerSteamId>0</OwnerSteamId><Points>0</Points></ShipBlueprint></ShipBlueprints></Definitions>";
+                string File = ToFileST + CompData + ToFileND;
+                MainForm.CreateBlueprint("Auto_Container_SEBE", File);
+            }
         }
     }
 }
