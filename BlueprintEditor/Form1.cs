@@ -766,7 +766,6 @@ namespace BlueprintEditor
                             {
                                 string[] Lines = EXTData.Split('\n');int X = 0, Y = 0;
                                 Bitmap Bmp = new Bitmap(Lines[0].Length, Lines.Length);
-                                Console.WriteLine(Lines[0].Length+"|"+ Lines.Length);
                                 foreach (string Ziline in Lines)
                                 {
                                     foreach (Char Chared in Ziline)
