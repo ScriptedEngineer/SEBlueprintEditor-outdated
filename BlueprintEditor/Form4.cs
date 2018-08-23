@@ -30,6 +30,11 @@ namespace BlueprintEditor
         double ReginaryMultiplier = 0;
         double RefineryEfficensy = 0;
 
+        public void Test()
+        {
+            double Node = ShipComponents["Zero"];
+        }
+
         class Item
         {
             string Name;
@@ -81,6 +86,7 @@ namespace BlueprintEditor
         Form1 MainForm;
         public Form4(string GamePatch,Form1 MainF)
         {
+            try {
             InitializeComponent();
             string str = GamePatch + "\\Content\\Data\\";
             MainForm = MainF;
@@ -333,6 +339,11 @@ namespace BlueprintEditor
                 if (Directory.Exists("Mods")) ArhApi.DeleteFolder("Mods");
                 GC.Collect();
             }
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
 
@@ -467,13 +478,20 @@ namespace BlueprintEditor
 
         private void Form4_FormClosing(object sender, FormClosingEventArgs e)
         {
+            try{ 
             ClearBlocks();
             e.Cancel = true;
             Hide();
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
+            try {
             string Faster1 = "", Faster2 = "";
             double Pos = (double)trackBar1.Value; ShipOres.Clear();
             double Efficinsy = RefineryEfficensy * Math.Pow(ReginaryMultiplier, (double)trackBar2.Value * 2);
@@ -500,6 +518,11 @@ namespace BlueprintEditor
             }
             textBox4.Text = Faster2;
             textBox1.Text = Faster1;
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void trackBar2_Scroll(object sender, EventArgs e)
@@ -543,11 +566,18 @@ namespace BlueprintEditor
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
+            try {
             textBox2.Text = UndefinedBlocks;
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
+            try {
             string Faster2 = "";
             double Pos = (double)trackBar1.Value;
             foreach (string Key in ShipIngots.Keys)
@@ -556,10 +586,16 @@ namespace BlueprintEditor
                 Faster2 += Key.Replace("Ingot/", "") + ": " + AddCounters(Amount) + "\r\n";
             }
             textBox1.Text = Faster2;
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
+            try {
             string Faster3 = "";
             foreach (string Key in ShipComponents.Keys)
             {
@@ -567,37 +603,56 @@ namespace BlueprintEditor
                 Faster3 += Key + ": " + (Amount).ToString() + "\r\n";
             }
             textBox3.Text = Faster3;
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void textBox4_TextChanged(object sender, EventArgs e)
         {
+            try {
             string Faster2 = "";
             foreach (string Key in ShipOres.Keys)
             {
                 Faster2 += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n";
             }
             textBox4.Text = Faster2;
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            saveFileDialog1.FileName = "Resources for "+PrintName;
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            try
             {
-                string Data =   "#This file created by SE BlueprintEditor#\r\n"+
-                                "#Resources need to build \""+ PrintName + "\"#\r\n"+
-                                "#Assembler Efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
-                                "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n\r\n" +
-                                "#List of undefined block types#\r\n" + textBox2.Text + "#End list of undefined block types#\r\n\r\n" +
-                                "#List of components#\r\n" + textBox3.Text + "#End list of components#\r\n\r\n" +
-                                "#List of ingots#\r\n" + textBox1.Text + "#End list of ingots#\r\n\r\n" +
-                                "#List of ores#\r\n" + textBox4.Text + "#End list of ores#\r\n";
-                File.WriteAllText(saveFileDialog1.FileName, Data);
+                saveFileDialog1.FileName = "Resources for " + PrintName;
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string Data = "#This file created by SE BlueprintEditor#\r\n" +
+                                    "#Resources need to build \"" + PrintName + "\"#\r\n" +
+                                    "#Assembler Efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
+                                    "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n\r\n" +
+                                    "#List of undefined block types#\r\n" + textBox2.Text + "#End list of undefined block types#\r\n\r\n" +
+                                    "#List of components#\r\n" + textBox3.Text + "#End list of components#\r\n\r\n" +
+                                    "#List of ingots#\r\n" + textBox1.Text + "#End list of ingots#\r\n\r\n" +
+                                    "#List of ores#\r\n" + textBox4.Text + "#End list of ores#\r\n";
+                    File.WriteAllText(saveFileDialog1.FileName, Data);
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            try { 
             bool TrueS = false;int Count = 0;
             DialogResult DialogResulte = MessageBox.Show("Put Components?(Components or (ingots or ores))", "Question", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
             string CompData = "";
@@ -640,6 +695,11 @@ namespace BlueprintEditor
                 string ToFileND = "</Items><nextItemId>"+ Count.ToString() + "</nextItemId><Volume>10000</Volume><Mass>10</Mass><MaxItemCount>2147483647</MaxItemCount><Size xsi:nil=\"true\" /><InventoryFlags>CanReceive CanSend</InventoryFlags><RemoveEntityOnEmpty>false</RemoveEntityOnEmpty></Component></ComponentData></Components></ComponentContainer><CustomName>Auto_Container_SEBE</CustomName><ShowOnHUD>false</ShowOnHUD><ShowInTerminal>true</ShowInTerminal><ShowInToolbarConfig>true</ShowInToolbarConfig><ShowInInventory>true</ShowInInventory></MyObjectBuilder_CubeBlock></CubeBlocks><DisplayName>Auto_Container_SEBE</DisplayName><DestructibleBlocks>false</DestructibleBlocks><IsRespawnGrid>false</IsRespawnGrid><LocalCoordSys>0</LocalCoordSys><TargetingTargets /></CubeGrid></CubeGrids><WorkshopId>0</WorkshopId><OwnerSteamId>0</OwnerSteamId><Points>0</Points></ShipBlueprint></ShipBlueprints></Definitions>";
                 string File = ToFileST + CompData + ToFileND;
                 MainForm.CreateBlueprint("Auto_Container_SEBE", File);
+            }
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
             }
         }
     }

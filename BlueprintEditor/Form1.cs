@@ -31,7 +31,6 @@ namespace BlueprintEditor
         public Form1()
         {
             InitializeComponent();
-
         }
 
         void Recolor(Control.ControlCollection Controlls, Color ForeColor, Color BackColor)
@@ -57,6 +56,7 @@ namespace BlueprintEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            try { 
             if (File.Exists("update.vbs"))
             {
                 File.Delete("update.vbs");
@@ -226,46 +226,58 @@ namespace BlueprintEditor
             ChangeLang(this, comboBox9.SelectedIndex);
             BackColor = AllBackColor;
             Recolor(Controls, AllForeColor, AllBackColor);
-            //FormsLoad();Future
+                //FormsLoad();Future
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listBox1.SelectedIndex != -1)
+            try
             {
-                ClearEditorGrid(); ClearEditorBlock();
-                if (Calculator != null && !Calculator.IsDisposed) Calculator.Hide();
-                BluePathc = Folder + "\\" + listBox1.Items[listBox1.SelectedIndex];
-                Image img = Image.FromFile(BluePathc + "\\thumb.png", true);
-                pictureBox1.SuspendLayout();
-                //pictureBox1.Image = img;
-                pictureBox1.Image = SetImgOpacity(img, 1);
-                pictureBox1.ResumeLayout();
-                Blueprint = new XmlDocument();
-                string[] Translate = new string[] { "Blocks", "Блоки" };
-                label2.Text = Translate[Settings.LangID];
-                Blueprint.Load(BluePathc + "\\bp.sbc");
-                XmlNodeList Grids = Blueprint.GetElementsByTagName("CubeGrid");
-                listBox3.Items.Clear(); Grides.Clear(); listBox2.Items.Clear(); Blocks.Clear();
-                List<string> listBox3Items = new List<string>();
-                foreach (XmlNode Grid in Grids)
+                if (listBox1.SelectedIndex != -1)
                 {
-                    Grides.Add(Grid);
-                    foreach (XmlNode Child in Grid.ChildNodes)
+                    ClearEditorGrid(); ClearEditorBlock();
+                    if (Calculator != null && !Calculator.IsDisposed) Calculator.Hide();
+                    BluePathc = Folder + "\\" + listBox1.Items[listBox1.SelectedIndex];
+                    Image img = Image.FromFile(BluePathc + "\\thumb.png", true);
+                    pictureBox1.SuspendLayout();
+                    //pictureBox1.Image = img;
+                    pictureBox1.Image = SetImgOpacity(img, 1);
+                    pictureBox1.ResumeLayout();
+                    Blueprint = new XmlDocument();
+                    string[] Translate = new string[] { "Blocks", "Блоки" };
+                    label2.Text = Translate[Settings.LangID];
+                    Blueprint.Load(BluePathc + "\\bp.sbc");
+                    XmlNodeList Grids = Blueprint.GetElementsByTagName("CubeGrid");
+                    listBox3.Items.Clear(); Grides.Clear(); listBox2.Items.Clear(); Blocks.Clear();
+                    List<string> listBox3Items = new List<string>();
+                    foreach (XmlNode Grid in Grids)
                     {
-                        if (Child.Name == "DisplayName")
+                        Grides.Add(Grid);
+                        foreach (XmlNode Child in Grid.ChildNodes)
                         {
-                            listBox3Items.Add(Child.InnerText);
-                            break;
+                            if (Child.Name == "DisplayName")
+                            {
+                                listBox3Items.Add(Child.InnerText);
+                                break;
+                            }
                         }
                     }
+                    listBox3.Items.AddRange(listBox3Items.ToArray());
+                    listBox3.SelectedIndex = 0;
+                    label3.Visible = true;
+                    listBox3.Visible = true;
+                    button3.Enabled = true;
+                    button2.Enabled = true;
                 }
-                listBox3.Items.AddRange(listBox3Items.ToArray());
-                listBox3.SelectedIndex = 0;
-                label3.Visible = true;
-                listBox3.Visible = true;
-                button3.Enabled = true;
-                button2.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
         public static Image SetImgOpacity(Image imgPic, float imgOpac)
@@ -284,6 +296,17 @@ namespace BlueprintEditor
             gfxPic.Dispose();
             return bmpPic;
             GC.Collect();
+        }
+
+        public void Error(Exception except)
+        {
+            if (Report == null || Report.IsDisposed)
+            {
+                Report = new Form3(button1);
+                Report.SetColor(AllForeColor, AllBackColor);
+                Report.ChangeLang(Settings.LangID);
+            }
+            ArhApi.Server("bugreport", "Message:\n" + except.Message + "\n\nStackTrace:\n" + except.StackTrace, "", Report.GetPCInfo());
         }
 
         private void ClearEditorGrid()
@@ -360,12 +383,18 @@ namespace BlueprintEditor
         int OldGridSelect;
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             if (OldGridSelect == listBox3.SelectedIndex)
                 UpdateBlocks();
             else
                 UpdateBlocksNoSett();
             OldGridSelect = listBox3.SelectedIndex;
             if (listBox2.Items.Count == 1) listBox2.SetSelected(0, true);
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         List<XmlNode> SelectedSaveVar = new List<XmlNode>();
@@ -566,6 +595,7 @@ namespace BlueprintEditor
 
         private void textBox1_Leave(object sender, EventArgs e)
         {
+            try {
             if (listBox3.SelectedIndex != -1)
             {
                 foreach (XmlNode Child in Grid.ChildNodes)
@@ -581,10 +611,16 @@ namespace BlueprintEditor
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             foreach (XmlNode Child in Grid.ChildNodes)
             {
                 if (Child.Name == "DestructibleBlocks")
@@ -593,10 +629,16 @@ namespace BlueprintEditor
                     break;
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             foreach (XmlNode Child in Grid.ChildNodes)
             {
                 if (Child.Name == "GridSizeEnum")
@@ -605,6 +647,12 @@ namespace BlueprintEditor
                     break;
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+
         }
         private void SaveBlueprint()
         {
@@ -615,6 +663,7 @@ namespace BlueprintEditor
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             if (listBox2.SelectedIndex != -1)
             {
                 Block.Clear();
@@ -764,13 +813,13 @@ namespace BlueprintEditor
                             panel2.Visible = true;
                             if (Regex.Match(EXTData).Success)
                             {
-                                string[] Lines = EXTData.Split('\n');int X = 0, Y = 0;
+                                string[] Lines = EXTData.Split('\n'); int X = 0, Y = 0;
                                 Bitmap Bmp = new Bitmap(Lines[0].Length, Lines.Length);
                                 foreach (string Ziline in Lines)
                                 {
                                     foreach (Char Chared in Ziline)
                                     {
-                                        if(X < Bmp.Width)Bmp.SetPixel(X,Y,ColorUtils.CharToColor(Chared));
+                                        if (X < Bmp.Width) Bmp.SetPixel(X, Y, ColorUtils.CharToColor(Chared));
                                         X++;
                                     }
                                     X = 0;
@@ -861,10 +910,16 @@ namespace BlueprintEditor
                 }
                 if (listBox2.SelectedIndex != -1) button4.Enabled = true;
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
         string EXTData; XmlNode EXTXML;
         private void textBox2_Leave(object sender, EventArgs e)
         {
+            try { 
             if (Block != null)
             {
                 foreach (XmlNode Bl in Block)
@@ -883,10 +938,16 @@ namespace BlueprintEditor
                 }
                 UpdateBlocks();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox3_Leave(object sender, EventArgs e)
         {
+            try { 
             if (Block != null)
             {
                 foreach (XmlNode Bl in Block)
@@ -905,10 +966,16 @@ namespace BlueprintEditor
                 }
                 UpdateBlocks();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             if (comboBox3.SelectedIndex != -1)
             {
                 string[] Mask = comboBox3.SelectedItem.ToString().Split(':');
@@ -920,6 +987,11 @@ namespace BlueprintEditor
                 double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
                 pictureBox2.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
                 textBox4.Text = comboBox3.SelectedItem.ToString();
+            }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
@@ -1082,6 +1154,7 @@ namespace BlueprintEditor
 
         private void textBox4_TextChanged(object sender, EventArgs e)
         {
+            try { 
             string[] Mask = textBox4.Text.Split(':');
             if (Mask.Length == 3 && Mask[0] != "")
             {
@@ -1100,10 +1173,16 @@ namespace BlueprintEditor
 
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox4_Leave(object sender, EventArgs e)
         {
+            try { 
             if (comboBox3.SelectedItem != null)
             {
                 foreach (XmlNode Bl in Blocks)
@@ -1126,10 +1205,16 @@ namespace BlueprintEditor
                 }
                 UpdateColors();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
+            try { 
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
                 Color C = colorDialog1.Color;
@@ -1160,18 +1245,30 @@ namespace BlueprintEditor
                     UpdateColors();
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            try { 
             SaveBlueprint();
             int index = listBox1.SelectedIndex;
             listBox1.SelectedIndex = -1;
             listBox1.SelectedIndex = index;
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox5_Leave(object sender, EventArgs e)
         {
+            try { 
             if (Block != null)
             {
                 foreach (XmlNode Bl in Block)
@@ -1190,10 +1287,16 @@ namespace BlueprintEditor
                 }
                 UpdateBlocks();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            try {
             Settings.BlueprintPath = Folder;
             Settings.GamePath = GamePath;
             if (!File.Exists("Config.dat"))
@@ -1202,10 +1305,16 @@ namespace BlueprintEditor
                 FileSt.Close();
             }
             File.WriteAllText("Config.dat", ArhApi.SerializeClass<Settings>(Settings));
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            try { 
             if (Block != null)
             {
                 foreach (XmlNode Bl in Block)
@@ -1215,10 +1324,16 @@ namespace BlueprintEditor
                 }
                 UpdateBlocks();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             if (comboBox4.SelectedIndex != -1)
             {
                 if (Block != null)
@@ -1236,10 +1351,16 @@ namespace BlueprintEditor
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox5_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try {
             if (comboBox5.SelectedIndex != -1)
             {
                 if (Block != null)
@@ -1257,10 +1378,16 @@ namespace BlueprintEditor
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox6_Leave(object sender, EventArgs e)
         {
+            try {
             if (textBox6.Text != "")
             {
                 if (Block != null)
@@ -1278,10 +1405,16 @@ namespace BlueprintEditor
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox7_Leave(object sender, EventArgs e)
         {
+            try { 
             if (textBox7.Text != "")
             {
                 if (Block != null)
@@ -1299,10 +1432,16 @@ namespace BlueprintEditor
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox8_Leave(object sender, EventArgs e)
         {
+            try { 
             if (textBox8.Text != "")
             {
                 if (Block != null)
@@ -1320,10 +1459,16 @@ namespace BlueprintEditor
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            try {
             if (Report == null || Report.IsDisposed)
             {
                 Report = new Form3(button1);
@@ -1334,10 +1479,16 @@ namespace BlueprintEditor
             Report.ChangeLang(Settings.LangID);
             Report.Clear();
             Report.Show();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox6_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try {
             if (comboBox6.SelectedIndex != -1 && comboBox6.SelectedIndex != SelectedArmor)
             {
                 foreach (XmlNode Bl in Blocks)
@@ -1357,20 +1508,38 @@ namespace BlueprintEditor
                 }
                 UpdateBlocks();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            try {
             UpdateBlocks();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox8_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             UpdateBlocks();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox9_TextChanged(object sender, EventArgs e)
         {
+            try {
             string[] Mask = textBox9.Text.Split(':');
             if (Mask.Length == 3 && Mask[0] != "")
             {
@@ -1389,10 +1558,16 @@ namespace BlueprintEditor
 
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void pictureBox4_Click(object sender, EventArgs e)
         {
+            try {
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
                 Color C = colorDialog1.Color;
@@ -1415,10 +1590,16 @@ namespace BlueprintEditor
                 }
                 UpdateColors();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox9_Leave(object sender, EventArgs e)
         {
+            try { 
             foreach (XmlNode Bl in Block)
             {
                 foreach (XmlNode Cld in Bl.ChildNodes)
@@ -1434,6 +1615,11 @@ namespace BlueprintEditor
                 }
             }
             UpdateColors();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void label8_Click(object sender, EventArgs e)
@@ -1459,11 +1645,13 @@ namespace BlueprintEditor
 
         private void button3_Click(object sender, EventArgs e)
         {
+            try {
             ArhApi.CompliteAsync(() =>
             {
                 if (Calculator == null || Calculator.IsDisposed)
                 {
-                    Invoke(new Action(() => {
+                    Invoke(new Action(() =>
+                    {
                         label22.Text = "Loading Data... Please Wait";
                     }));
                     Calculator = new Form4(GamePath, this);
@@ -1498,22 +1686,40 @@ namespace BlueprintEditor
                     label22.Text = "";
                 }));
             });
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
-            ArhApi.ClearFolder(ModFolder);
-            button5.Visible = false;
+            try
+            {
+                string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
+                ArhApi.ClearFolder(ModFolder);
+                button5.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void comboBox9_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             ChangeLang(this, comboBox9.SelectedIndex);
             Settings.LangID = comboBox9.SelectedIndex;
             if (Calculator != null && !Calculator.IsDisposed) Calculator.ChangeLang(Settings.LangID);
             if (Report != null && !Report.IsDisposed) Report.ChangeLang(Settings.LangID);
             if (ImageConvert != null && !ImageConvert.IsDisposed) ImageConvert.ChangeLang(Settings.LangID);
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         void ChangeLang(Control Control, int Lang)
@@ -1560,22 +1766,29 @@ namespace BlueprintEditor
 
         private void comboBox10_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try {
             Settings.Theme = comboBox10.SelectedIndex;
             AllBackColor = Themes[comboBox10.SelectedIndex].Back;
             AllForeColor = Themes[comboBox10.SelectedIndex].Fore;
             BackColor = AllBackColor;
             Settings.BackColor = new MyColor(AllBackColor);
             Settings.ForeColor = new MyColor(AllForeColor);
-            Recolor(Controls, AllForeColor, AllBackColor); 
+            Recolor(Controls, AllForeColor, AllBackColor);
             if (Report != null && !Report.IsDisposed)
                 Report.SetColor(AllForeColor, AllBackColor);
             if (ImageConvert != null && !ImageConvert.IsDisposed)
                 ImageConvert.SetColor(AllForeColor, AllBackColor);
             if (Calculator != null && !Calculator.IsDisposed)
                 Calculator.SetColor(AllForeColor, AllBackColor);
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
         private void button6_Click(object sender, EventArgs e)
         {
+            try { 
             switch (button6.Text)
             {
                 case "Edit program":
@@ -1747,10 +1960,16 @@ namespace BlueprintEditor
                     #endregion
                     break;
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox10_Leave(object sender, EventArgs e)
         {
+            try { 
             if (Block != null)
             {
                 foreach (XmlNode Bl in Block)
@@ -1764,10 +1983,16 @@ namespace BlueprintEditor
                 }
                 UpdateBlocks();
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
+            try { 
             List<string> Painters = new List<string>();
             string Brush = "PaintBrush-" + comboBox11.SelectedItem.ToString();
             string BluesPathc = Folder + "\\" + Brush;
@@ -1805,6 +2030,11 @@ namespace BlueprintEditor
                         }
                     }
                 }
+            }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
@@ -1871,6 +2101,7 @@ namespace BlueprintEditor
         #endregion
         private void button9_Click(object sender, EventArgs e)
         {
+            try { 
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 Console.WriteLine(saveFileDialog1.FilterIndex);
@@ -1890,19 +2121,30 @@ namespace BlueprintEditor
                         break;
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
         Form5 ImageConvert;
         private void button8_Click(object sender, EventArgs e)
         {
+            try {
             if (ImageConvert == null || ImageConvert.IsDisposed)
             {
                 ImageConvert = new Form5(this);
                 ImageConvert.SetColor(AllForeColor, AllBackColor);
                 ImageConvert.ChangeLang(Settings.LangID);
             }
-            ImageConvert.ImageAndRadio(pictureBox5.Image,textBox2.Text.Contains("Wide"),EXTData);
+            ImageConvert.ImageAndRadio(pictureBox5.Image, textBox2.Text.Contains("Wide"), EXTData);
             ImageConvert.ChangeLang(Settings.LangID);
             ImageConvert.Show();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         public void WritePic(string Pic)
@@ -1924,7 +2166,8 @@ namespace BlueprintEditor
                         else if (Child.Name == "ShowText")
                         {
                             Child.InnerText = "PUBLIC";
-                        }else if (Child.Name == "FontSize")
+                        }
+                        else if (Child.Name == "FontSize")
                         {
                             Child.InnerText = "0.1";
                         }
@@ -1934,8 +2177,21 @@ namespace BlueprintEditor
             }
         }
 
+        private void button10_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if(Calculator != null && !Calculator.IsDisposed)Calculator.Test();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
         private void comboBox7_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try { 
             if (comboBox7.SelectedIndex != -1 && comboBox7.SelectedIndex != SelectedArmorB)
             {
                 if (Block != null)
@@ -1957,6 +2213,11 @@ namespace BlueprintEditor
                     }
                     UpdateBlocks();
                 }
+            }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
     }

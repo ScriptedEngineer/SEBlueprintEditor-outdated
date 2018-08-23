@@ -15,7 +15,7 @@ namespace BlueprintEditor
     public partial class Form3 : Form
     {
         Button ReportButton;
-        public Form3(Button _ReportButton)
+        public Form3(Button _ReportButton = null)
         {
             InitializeComponent();
             ReportButton = _ReportButton;
@@ -72,6 +72,11 @@ namespace BlueprintEditor
             }
         }
 
+        public string GetPCInfo()
+        {
+            return "Processor: " + GetProcessorInformation() + "\nVideo: " + GetVideoProcessorInformation() + "\nBoard: " + GetBoardProductId() + "\nDisc: " + GetDisckModel() + "\nMem: " + GetPhysicalMemory() + "\nOS: " + GetOSInformation();
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.Text != "")
@@ -81,7 +86,7 @@ namespace BlueprintEditor
                 switch (comboBox1.SelectedIndex)
                 {
                     case 0:
-                        ArhApi.Server("bugreport", Report, "", "Processor: " + GetProcessorInformation() +"\nVideo: " + GetVideoProcessorInformation() + "\nBoard: "+ GetBoardProductId()+"\nDisc: "+ GetDisckModel()+"\nMem: " + GetPhysicalMemory() + "\nOS: " + GetOSInformation());
+                        ArhApi.Server("bugreport", Report, "", GetPCInfo());
                         break;
                     case 1:
                         ArhApi.Server("suggestionsreport", Report);
@@ -90,7 +95,7 @@ namespace BlueprintEditor
                 MessageBox.Show("Thank you for your report");
                 //ReportButton.Dispose();
                 int result;
-                ReportButton.Enabled = false;
+                if(ReportButton != null) ReportButton.Enabled = false;
                 this.Hide();
             }
             else

@@ -79,7 +79,13 @@ namespace BlueprintEditor
 
         private void button1_Click(object sender, EventArgs e)
         {
+            try {
             openFileDialog1.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+               MainForm.Error(ex);
+            }
         }
 
         string picture = "";
@@ -117,6 +123,7 @@ namespace BlueprintEditor
 
         private void button2_Click(object sender, EventArgs e)
         {
+            try {
             string text = "";
             Bitmap bm = new Bitmap(pictureBox1.Image ,radioButton2.Checked ? 356 : 178, 178);
             for (int i = 0; i < bm.Height; i++)
@@ -153,6 +160,11 @@ namespace BlueprintEditor
             pictureBox1.Image = bm.Clone(new Rectangle(0, 0, bm.Width, bm.Height), PixelFormat.Undefined);
             bm.Dispose();
             NormalizeForm();
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
 
         private void AddPixelRGB(ref Bitmap bm, int x, int y, int R, int G, int B)
@@ -182,10 +194,21 @@ namespace BlueprintEditor
 
         private void button3_Click(object sender, EventArgs e)
         {
+            try { 
             MainForm.WritePic(picture);
             Close();
+            }
+            catch (Exception ex)
+            {
+                MainForm.Error(ex);
+            }
         }
         double AspectR;int OldW, OldH,ChangeType;
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
 
         private void Form5_ResizeEnd(object sender, EventArgs e)
         {

@@ -9,6 +9,7 @@ namespace BlueprintEditor
 {
     static class Program
     {
+        public static Form1 GlobalMainForm;
         /// <summary>
         /// Главная точка входа для приложения.
         /// </summary>
@@ -17,7 +18,19 @@ namespace BlueprintEditor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Restart:
+            try
+            {
+                GlobalMainForm = new Form1();
+                Application.Run(GlobalMainForm);
+            }
+            catch (Exception e)
+            {
+                Form3 Reporting = new Form3();
+                ArhApi.Server("bugreport", "CRITICAL!!!!\nMessage:\n" + e.Message+ "\n\nStackTrace:\n" + e.StackTrace,"", Reporting.GetPCInfo());
+                Reporting.Dispose();
+                goto Restart;
+            }
             //Application.Run(new EXTS.Form1());
         }
     }
@@ -55,9 +68,6 @@ namespace BlueprintEditor
         public MyColor BackColor;
         public Settings()
         {
-
-
-
 
         }
     }
