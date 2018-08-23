@@ -1906,13 +1906,6 @@ namespace BlueprintEditor
             ImageConvert.Show();
         }
 
-        private static Color InGameColorSpace(Color IC)
-        {
-            return Color.FromArgb((int)((Math.Round((float)IC.R*7/255))*255/7),
-                (int)((Math.Round((float)IC.G * 7 / 255)) * 255 / 7),
-                (int)((Math.Round((float)IC.B * 7 / 255)) * 255 / 7));
-        }
-
         public void WritePic(string Pic)
         {
             if (Block != null && Block.Count == 1 && button6.Visible)
@@ -1932,6 +1925,9 @@ namespace BlueprintEditor
                         else if (Child.Name == "ShowText")
                         {
                             Child.InnerText = "PUBLIC";
+                        }else if (Child.Name == "FontSize")
+                        {
+                            Child.InnerText = "0.1";
                         }
                     }
                 }

@@ -86,8 +86,7 @@ namespace BlueprintEditor
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
-            pictureBox1.ImageLocation = openFileDialog1.FileName;
-            pictureBox1.Load();
+            pictureBox1.Image = new Bitmap(Image.FromFile(openFileDialog1.FileName), radioButton2.Checked ? 356 : 178, 178);
             NormalizeForm();
         }
 
