@@ -56,63 +56,77 @@ namespace BlueprintEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            try { 
-            if (File.Exists("update.vbs"))
+            try
             {
-                File.Delete("update.vbs");
-            }
-            label19.Text = "v" + Application.ProductVersion;
-            string[] Blueprints = new string[] { };
-            Folder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Blueprints\\local";
-            if (File.Exists("Config.dat"))
-            {
-                string Xml = File.ReadAllText("Config.dat");
-                if (Xml != "")
+                if (File.Exists("update.vbs"))
                 {
-                    Settings = ArhApi.DeserializeClass<Settings>(Xml);
-                    Folder = Settings.BlueprintPath;
-                    GamePath = Settings.GamePath;
-                    comboBox9.SelectedIndex = Settings.LangID;
-                    if (Settings.Theme == -1)
+                    File.Delete("update.vbs");
+                }
+                label19.Text = "v" + Application.ProductVersion;
+                string[] Blueprints = new string[] { };
+                Folder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Blueprints\\local";
+                if (File.Exists("Config.dat"))
+                {
+                    string Xml = File.ReadAllText("Config.dat");
+                    if (Xml != "")
                     {
-                        AllBackColor = Settings.BackColor.GetColor();
-                        AllForeColor = Settings.ForeColor.GetColor();
-                        comboBox10.Text = "Custom";
-                    }
-                    else
-                    {
-                        Settings.BackColor = new MyColor(AllBackColor);
-                        Settings.ForeColor = new MyColor(AllForeColor);
-                        comboBox10.SelectedIndex = Settings.Theme;
+                        Settings = ArhApi.DeserializeClass<Settings>(Xml);
+                        Folder = Settings.BlueprintPath;
+                        GamePath = Settings.GamePath;
+                        comboBox9.SelectedIndex = Settings.LangID;
+                        if (Settings.Theme == -1)
+                        {
+                            AllBackColor = Settings.BackColor.GetColor();
+                            AllForeColor = Settings.ForeColor.GetColor();
+                            comboBox10.Text = "Custom";
+                        }
+                        else
+                        {
+                            Settings.BackColor = new MyColor(AllBackColor);
+                            Settings.ForeColor = new MyColor(AllForeColor);
+                            comboBox10.SelectedIndex = Settings.Theme;
+                        }
                     }
                 }
-            }
-            else
-            {
-                comboBox10.SelectedIndex = 0;
-                comboBox9.SelectedIndex = Settings.LangID = CultureInfo.CurrentCulture.NativeName == "русский (Россия)" ? 1 : 0;
-            }
-            if (GamePath == "")
-            {
-                try
+                else
                 {
-                    string SteamDir = Registry.GetValue("HKEY_CURRENT_USER\\Software\\Valve\\Steam", "SteamPath", "Error").ToString();
-                    if (SteamDir != "Error")
+                    comboBox10.SelectedIndex = 0;
+                    comboBox9.SelectedIndex = Settings.LangID = CultureInfo.CurrentCulture.NativeName == "русский (Россия)" ? 1 : 0;
+                }
+                if (GamePath == "")
+                {
+                    try
                     {
-                        string ConfigFile = File.ReadAllText(SteamDir + "\\config\\config.vdf");
-                        Regex regex = new Regex(".+?(?=\"BaseInstallFolder_1\"		\"|\"SentryFile\"|$)", RegexOptions.Singleline);
-                        var matches = regex.Matches(ConfigFile);
-                        string[] Matches = matches[1].Value.Split('\"');
-                        if (Matches[3] != "")
+                        string SteamDir = Registry.GetValue("HKEY_CURRENT_USER\\Software\\Valve\\Steam", "SteamPath", "Error").ToString();
+                        if (SteamDir != "Error")
                         {
-                            string Patch = Matches[3] + "\\steamapps\\common\\SpaceEngineers";
-                            if (File.Exists(Patch + "\\Bin64\\SpaceEngineers.exe"))
+                            string ConfigFile = File.ReadAllText(SteamDir + "\\config\\config.vdf");
+                            Regex regex = new Regex(".+?(?=\"BaseInstallFolder_1\"		\"|\"SentryFile\"|$)", RegexOptions.Singleline);
+                            var matches = regex.Matches(ConfigFile);
+                            string[] Matches = matches[1].Value.Split('\"');
+                            if (Matches[3] != "")
                             {
-                                GamePath = Patch;
+                                string Patch = Matches[3] + "\\steamapps\\common\\SpaceEngineers";
+                                if (File.Exists(Patch + "\\Bin64\\SpaceEngineers.exe"))
+                                {
+                                    GamePath = Patch;
+                                }
+                                else
+                                {
+                                    Patch = SteamDir + "\\steamapps\\common\\SpaceEngineers";
+                                    if (File.Exists(Patch + "\\Bin64\\SpaceEngineers.exe"))
+                                    {
+                                        GamePath = Patch;
+                                    }
+                                    else
+                                    {
+                                        CalculateShip = false;
+                                    }
+                                }
                             }
                             else
                             {
-                                Patch = SteamDir + "\\steamapps\\common\\SpaceEngineers";
+                                string Patch = SteamDir + "\\steamapps\\common\\SpaceEngineers";
                                 if (File.Exists(Patch + "\\Bin64\\SpaceEngineers.exe"))
                                 {
                                     GamePath = Patch;
@@ -125,107 +139,94 @@ namespace BlueprintEditor
                         }
                         else
                         {
-                            string Patch = SteamDir + "\\steamapps\\common\\SpaceEngineers";
-                            if (File.Exists(Patch + "\\Bin64\\SpaceEngineers.exe"))
-                            {
-                                GamePath = Patch;
-                            }
-                            else
-                            {
-                                CalculateShip = false;
-                            }
+                            CalculateShip = false;
                         }
                     }
-                    else
+                    catch (Exception Expt)
                     {
                         CalculateShip = false;
                     }
                 }
-                catch (Exception Expt)
+                if (GamePath == "" && !CalculateShip)
                 {
-                    CalculateShip = false;
+                    button3.Visible = false;
                 }
-            }
-            if (GamePath == "" && !CalculateShip)
-            {
-                button3.Visible = false;
-            }
-            if (Directory.Exists(Folder))
-            {
-                Blueprints = Directory.GetDirectories(Folder);
-            }
-            if (Blueprints.Length == 0)
-            {
-                folderBrowserDialog1.ShowNewFolderButton = false;
-                folderBrowserDialog1.Description =
-                    Settings.LangID == 0 ?
-                    "It seems that we couldn't find your blueprints, please select the blueprints folder." :
-                    "Кажется мы не смогли найти ваши чертежи, пожалуйста, выберите папку с чертежами.";
-                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                if (Directory.Exists(Folder))
                 {
-                    Folder = folderBrowserDialog1.SelectedPath;
                     Blueprints = Directory.GetDirectories(Folder);
                 }
-                else
+                if (Blueprints.Length == 0)
                 {
-                    Application.Exit();
-                }
-            }
-            for (int i = 0; i < Blueprints.Length; i++)
-            {
-                Blueprints[i] = Path.GetFileName(Blueprints[i]);
-            }
-            listBox1.Items.Clear();
-            List<string> listBox1Items = new List<string>();
-            List<string> Brushes = new List<string>();
-            foreach (string BlueD in Blueprints)
-            {
-
-                if (File.Exists(Folder + "\\" + BlueD + "\\bp.sbc")
-                    && File.Exists(Folder + "\\" + BlueD + "\\thumb.png"))
-                {
-                    if (BlueD.StartsWith("PaintBrush-"))
+                    folderBrowserDialog1.ShowNewFolderButton = false;
+                    folderBrowserDialog1.Description =
+                        Settings.LangID == 0 ?
+                        "It seems that we couldn't find your blueprints, please select the blueprints folder." :
+                        "Кажется мы не смогли найти ваши чертежи, пожалуйста, выберите папку с чертежами.";
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                     {
-                        Brushes.Add(BlueD.Replace("PaintBrush-", ""));
+                        Folder = folderBrowserDialog1.SelectedPath;
+                        Blueprints = Directory.GetDirectories(Folder);
                     }
                     else
                     {
-                        listBox1Items.Add(BlueD);
+                        Application.Exit();
                     }
                 }
-            }
-            listBox1.Items.AddRange(listBox1Items.ToArray());
-            if (Brushes.Count > 0)
-            {
-                comboBox11.Items.AddRange(Brushes.ToArray());
-                comboBox11.SelectedIndex = 0;
-                button7.Visible = true;
-                comboBox11.Visible = true;
-                label24.Visible = true;
-            }
-            MainF = this;
-            ArhApi.CompliteAsync(() =>
-            {
-                string UpdateUrl = ArhApi.Server("nalgversion");
-                if (UpdateUrl != "You New" && ArhApi.IsLink(UpdateUrl))
+                for (int i = 0; i < Blueprints.Length; i++)
                 {
-                    MainF.Invoke(new Action(() =>
-                    {
-                        Form2 Updater = new Form2(UpdateUrl, this);
-                        ArhApi.LoadForm(Updater);
-                        Updater.SetColor(AllForeColor, AllBackColor);
-                    }));
+                    Blueprints[i] = Path.GetFileName(Blueprints[i]);
                 }
-            });
-            comboBox8.SelectedIndex = 1;
-            string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
-            if (Directory.Exists(ModFolder) && Directory.GetFiles(ModFolder).Length > 0)
-            {
-                button5.Visible = true;
-            }
-            ChangeLang(this, comboBox9.SelectedIndex);
-            BackColor = AllBackColor;
-            Recolor(Controls, AllForeColor, AllBackColor);
+                listBox1.Items.Clear();
+                List<string> listBox1Items = new List<string>();
+                List<string> Brushes = new List<string>();
+                foreach (string BlueD in Blueprints)
+                {
+
+                    if (File.Exists(Folder + "\\" + BlueD + "\\bp.sbc")
+                        && File.Exists(Folder + "\\" + BlueD + "\\thumb.png"))
+                    {
+                        if (BlueD.StartsWith("PaintBrush-"))
+                        {
+                            Brushes.Add(BlueD.Replace("PaintBrush-", ""));
+                        }
+                        else
+                        {
+                            listBox1Items.Add(BlueD);
+                        }
+                    }
+                }
+                listBox1.Items.AddRange(listBox1Items.ToArray());
+                if (Brushes.Count > 0)
+                {
+                    comboBox11.Items.AddRange(Brushes.ToArray());
+                    comboBox11.SelectedIndex = 0;
+                    button7.Visible = true;
+                    comboBox11.Visible = true;
+                    label24.Visible = true;
+                }
+                MainF = this;
+                ArhApi.CompliteAsync(() =>
+                {
+                    string UpdateUrl = ArhApi.Server("nalgversion");
+                    if (UpdateUrl != "You New" && ArhApi.IsLink(UpdateUrl))
+                    {
+                        MainF.Invoke(new Action(() =>
+                        {
+                            Form2 Updater = new Form2(UpdateUrl, this);
+                            ArhApi.LoadForm(Updater);
+                            Updater.SetColor(AllForeColor, AllBackColor);
+                        }));
+                    }
+                });
+                comboBox8.SelectedIndex = 1;
+                string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
+                if (Directory.Exists(ModFolder) && Directory.GetFiles(ModFolder).Length > 0)
+                {
+                    button5.Visible = true;
+                }
+                ChangeLang(this, comboBox9.SelectedIndex);
+                BackColor = AllBackColor;
+                Recolor(Controls, AllForeColor, AllBackColor);
                 //FormsLoad();Future
             }
             catch (Exception ex)
@@ -300,13 +301,27 @@ namespace BlueprintEditor
 
         public void Error(Exception except)
         {
-            if (Report == null || Report.IsDisposed)
+            try
             {
-                Report = new Form3(button1);
-                Report.SetColor(AllForeColor, AllBackColor);
-                Report.ChangeLang(Settings.LangID);
+                if (Report == null || Report.IsDisposed)
+                {
+                    Report = new Form3(button1);
+                    Report.SetColor(AllForeColor, AllBackColor);
+                    Report.ChangeLang(Settings.LangID);
+                }
+                ArhApi.Server("bugreport", "Message:\n" + except.Message + "\n\nStackTrace:\n" + except.StackTrace, "", Report.GetPCInfo());
+                /*MessageBox.Show("Похоже было вызванно некритическое исключение, отчет был отправлен и мы постараемся решить проблему как можно скорее."+
+                    "\nЖелаете перезапустить приложение?"+
+                    "\nДа - Приложение перезапустится, Нет - Приложение продолжит работу(Данные измененные незавершившимся кодом могут вызвать другие исключения)", 
+                    "Похоже у нас проблемы", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);*/
             }
-            ArhApi.Server("bugreport", "Message:\n" + except.Message + "\n\nStackTrace:\n" + except.StackTrace, "", Report.GetPCInfo());
+            catch
+            {
+                /*MessageBox.Show("Похоже было вызванно некритическое исключение, отчет не удалось отправить похоже мы не узнаем о проблеме, вы можете отпавить отчет в ручную, данные об ошибке будет записанны в файл \"Error.txt\"." +
+                     "\nЖелаете перезапустить приложение?" +
+                     "\nДа - Приложение перезапустится, Нет - Приложение продолжит работу(Данные измененные незавершившимся кодом могут вызвать другие исключения)",
+                     "Похоже у нас проблемы", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);*/
+            }
         }
 
         private void ClearEditorGrid()
@@ -350,6 +365,7 @@ namespace BlueprintEditor
             SetEnableCombo(comboBox7, false);
             comboBox7.SelectedIndex = -1;
             button4.Enabled = false;
+            button10.Visible = false;
             SetEnableCombo(comboBox4, false);
             SetEnableCombo(comboBox5, false);
             pictureBox4.Enabled = false;
@@ -383,13 +399,14 @@ namespace BlueprintEditor
         int OldGridSelect;
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            if (OldGridSelect == listBox3.SelectedIndex)
-                UpdateBlocks();
-            else
-                UpdateBlocksNoSett();
-            OldGridSelect = listBox3.SelectedIndex;
-            if (listBox2.Items.Count == 1) listBox2.SetSelected(0, true);
+            try
+            {
+                if (OldGridSelect == listBox3.SelectedIndex)
+                    UpdateBlocks();
+                else
+                    UpdateBlocksNoSett();
+                OldGridSelect = listBox3.SelectedIndex;
+                if (listBox2.Items.Count == 1) listBox2.SetSelected(0, true);
             }
             catch (Exception ex)
             {
@@ -595,22 +612,23 @@ namespace BlueprintEditor
 
         private void textBox1_Leave(object sender, EventArgs e)
         {
-            try {
-            if (listBox3.SelectedIndex != -1)
+            try
             {
-                foreach (XmlNode Child in Grid.ChildNodes)
+                if (listBox3.SelectedIndex != -1)
                 {
-                    if (Child.Name == "DisplayName")
+                    foreach (XmlNode Child in Grid.ChildNodes)
                     {
-                        if (textBox1.Text != "")
+                        if (Child.Name == "DisplayName")
                         {
-                            Child.InnerText = textBox1.Text;
-                            listBox3.Items[listBox3.SelectedIndex] = textBox1.Text;
+                            if (textBox1.Text != "")
+                            {
+                                Child.InnerText = textBox1.Text;
+                                listBox3.Items[listBox3.SelectedIndex] = textBox1.Text;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -620,15 +638,16 @@ namespace BlueprintEditor
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            foreach (XmlNode Child in Grid.ChildNodes)
+            try
             {
-                if (Child.Name == "DestructibleBlocks")
+                foreach (XmlNode Child in Grid.ChildNodes)
                 {
-                    if (comboBox1.SelectedIndex != -1) Child.InnerText = (Convert.ToBoolean(comboBox1.SelectedIndex)).ToString().ToLower();
-                    break;
+                    if (Child.Name == "DestructibleBlocks")
+                    {
+                        if (comboBox1.SelectedIndex != -1) Child.InnerText = (Convert.ToBoolean(comboBox1.SelectedIndex)).ToString().ToLower();
+                        break;
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -638,15 +657,16 @@ namespace BlueprintEditor
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            foreach (XmlNode Child in Grid.ChildNodes)
+            try
             {
-                if (Child.Name == "GridSizeEnum")
+                foreach (XmlNode Child in Grid.ChildNodes)
                 {
-                    if (comboBox2.SelectedIndex != -1) Child.InnerText = Convert.ToBoolean(comboBox2.SelectedIndex) ? "Large" : "Small";
-                    break;
+                    if (Child.Name == "GridSizeEnum")
+                    {
+                        if (comboBox2.SelectedIndex != -1) Child.InnerText = Convert.ToBoolean(comboBox2.SelectedIndex) ? "Large" : "Small";
+                        break;
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -663,253 +683,269 @@ namespace BlueprintEditor
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            if (listBox2.SelectedIndex != -1)
+            try
             {
-                Block.Clear();
-                ClearEditorBlock(); string SubtypeName = ""; string BuiltBy = ""; int Heavy = 0, Light = 0;
-                string MinX = ""; string MinY = ""; string MinZ = ""; bool IsArmor = true; string Color = "";
-                string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
-                int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
-                int CountBuilt = 0; int CountSubt = 0; string TypeName = "";
-                foreach (int Index in listBox2.SelectedIndices)
+                if (listBox2.SelectedIndex != -1)
                 {
-                    XmlNode Blocke = BlocksSorted[Sorter[Index]];
-                    if (Blocke.Attributes.GetNamedItem("xsi:type") != null)
+                    Block.Clear();
+                    ClearEditorBlock(); string SubtypeName = ""; string BuiltBy = ""; int Heavy = 0, Light = 0;
+                    string MinX = ""; string MinY = ""; string MinZ = ""; bool IsArmor = true; string Color = "";
+                    string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
+                    int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
+                    int CountBuilt = 0; int CountSubt = 0; string TypeName = "";
+                    foreach (int Index in listBox2.SelectedIndices)
                     {
-                        if (FirsTrart) TypeName = Blocke.Attributes.GetNamedItem("xsi:type").Value;
-                        if (TypeName != Blocke.Attributes.GetNamedItem("xsi:type").Value) TypeName = "";
-                    }
-                    else
-                    {
-                        TypeName = "";
-                    }
-                    Block.Add(Blocke);
-                    foreach (XmlNode Child in BlocksSorted[Sorter[Index]].ChildNodes)
-                    {
-                        if (Child.Name == "SubtypeName")
+                        XmlNode Blocke = BlocksSorted[Sorter[Index]];
+                        if (Blocke.Attributes.GetNamedItem("xsi:type") != null)
                         {
-                            if (Child.InnerText != "")
-                            {
-                                if (FirsTrart) SubtypeName = Child.InnerText;
-                                if (SubtypeName != Child.InnerText) SubtypeName = "";
-                            }
-                            else
-                            {
-                                SubtypeName = "";
-                            }
-                            IsArmor = IsArmor && Child.InnerText.Contains("Armor");
-                            if (Child.InnerText.Contains("Armor") && Child.InnerText.Contains("Heavy"))
-                            {
-                                Heavy++;
-                            }
-                            else if (Child.InnerText.Contains("Armor"))
-                            {
-                                Light++;
-                            }
-                            CountSubt++;
+                            if (FirsTrart) TypeName = Blocke.Attributes.GetNamedItem("xsi:type").Value;
+                            if (TypeName != Blocke.Attributes.GetNamedItem("xsi:type").Value) TypeName = "";
                         }
-                        else if (Child.Name == "CustomName")
+                        else
                         {
-                            if (Child.InnerText != "")
-                            {
-                                if (FirsTrart) CustomName = Child.InnerText;
-                                if (CustomName != Child.InnerText) CustomName = "";
-                            }
-                            else
-                            {
-                                CustomName = "";
-                            }
-                            CustomnameCount++;
+                            TypeName = "";
                         }
-                        else if (Child.Name == "BuiltBy")
+                        Block.Add(Blocke);
+                        foreach (XmlNode Child in BlocksSorted[Sorter[Index]].ChildNodes)
                         {
-                            if (Child.InnerText != "")
+                            if (Child.Name == "SubtypeName")
                             {
-                                if (FirsTrart) BuiltBy = Child.InnerText;
-                                if (BuiltBy != Child.InnerText) BuiltBy = "";
-                            }
-                            else
-                            {
-                                BuiltBy = "";
-                            }
-                            CountBuilt++;
-                        }
-                        else if (Child.Name == "BlockOrientation")
-                        {
-                            if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null)
-                            {
-                                if (FirsTrart)
+                                if (Child.InnerText != "")
                                 {
-                                    OrForw = Child.Attributes[0].Value;
-                                    OrUp = Child.Attributes[1].Value;
+                                    if (FirsTrart) SubtypeName = Child.InnerText;
+                                    if (SubtypeName != Child.InnerText) SubtypeName = "";
                                 }
-                                if (OrForw != Child.Attributes[0].Value) OrForw = "";
-                                if (OrUp != Child.Attributes[1].Value) OrUp = "";
-                            }
-                            else
-                            {
-                                OrUp = "";
-                                OrForw = "";
-                            }
-                            CountOrient++;
-                        }
-                        else if (Child.Name == "Min")
-                        {
-                            if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
-                            {
-                                if (FirsTrart)
+                                else
                                 {
-                                    MinX = Child.Attributes[0].Value;
-                                    MinY = Child.Attributes[1].Value;
-                                    MinZ = Child.Attributes[2].Value;
+                                    SubtypeName = "";
                                 }
-                                if (MinX != Child.Attributes[0].Value) MinX = "";
-                                if (MinY != Child.Attributes[1].Value) MinY = "";
-                                if (MinZ != Child.Attributes[2].Value) MinZ = "";
-                            }
-                            else
-                            {
-                                MinX = "";
-                                MinY = "";
-                                MinZ = "";
-                            }
-                            CountMin++;
-                        }
-                        else if (Child.Name == "ColorMaskHSV")
-                        {
-                            if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
-                            {
-                                string Colore = Child.Attributes[0].Value + ":" + Child.Attributes[1].Value + ":" + Child.Attributes[2].Value;
-                                if (FirsTrart)
+                                IsArmor = IsArmor && Child.InnerText.Contains("Armor");
+                                if (Child.InnerText.Contains("Armor") && Child.InnerText.Contains("Heavy"))
                                 {
-                                    Color = Colore;
+                                    Heavy++;
                                 }
-                                if (Color != Colore)
+                                else if (Child.InnerText.Contains("Armor"))
+                                {
+                                    Light++;
+                                }
+                                CountSubt++;
+                            }
+                            else if (Child.Name == "CustomName")
+                            {
+                                if (Child.InnerText != "")
+                                {
+                                    if (FirsTrart) CustomName = Child.InnerText;
+                                    if (CustomName != Child.InnerText) CustomName = "";
+                                }
+                                else
+                                {
+                                    CustomName = "";
+                                }
+                                CustomnameCount++;
+                            }
+                            else if (Child.Name == "BuiltBy")
+                            {
+                                if (Child.InnerText != "")
+                                {
+                                    if (FirsTrart) BuiltBy = Child.InnerText;
+                                    if (BuiltBy != Child.InnerText) BuiltBy = "";
+                                }
+                                else
+                                {
+                                    BuiltBy = "";
+                                }
+                                CountBuilt++;
+                            }
+                            else if (Child.Name == "BlockOrientation")
+                            {
+                                if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null)
+                                {
+                                    if (FirsTrart)
+                                    {
+                                        OrForw = Child.Attributes[0].Value;
+                                        OrUp = Child.Attributes[1].Value;
+                                    }
+                                    if (OrForw != Child.Attributes[0].Value) OrForw = "";
+                                    if (OrUp != Child.Attributes[1].Value) OrUp = "";
+                                }
+                                else
+                                {
+                                    OrUp = "";
+                                    OrForw = "";
+                                }
+                                CountOrient++;
+                            }
+                            else if (Child.Name == "Min")
+                            {
+                                if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
+                                {
+                                    if (FirsTrart)
+                                    {
+                                        MinX = Child.Attributes[0].Value;
+                                        MinY = Child.Attributes[1].Value;
+                                        MinZ = Child.Attributes[2].Value;
+                                    }
+                                    if (MinX != Child.Attributes[0].Value) MinX = "";
+                                    if (MinY != Child.Attributes[1].Value) MinY = "";
+                                    if (MinZ != Child.Attributes[2].Value) MinZ = "";
+                                }
+                                else
+                                {
+                                    MinX = "";
+                                    MinY = "";
+                                    MinZ = "";
+                                }
+                                CountMin++;
+                            }
+                            else if (Child.Name == "ColorMaskHSV")
+                            {
+                                if (Child.Attributes[0].Value != null && Child.Attributes[1].Value != null && Child.Attributes[2].Value != null)
+                                {
+                                    string Colore = Child.Attributes[0].Value + ":" + Child.Attributes[1].Value + ":" + Child.Attributes[2].Value;
+                                    if (FirsTrart)
+                                    {
+                                        Color = Colore;
+                                    }
+                                    if (Color != Colore)
+                                    {
+                                        Color = "";
+                                    }
+                                }
+                                else
                                 {
                                     Color = "";
                                 }
+                                ColorCount++;
                             }
-                            else
+                            else if (Child.Name == "Program" && listBox2.SelectedIndices.Count == 1)
                             {
-                                Color = "";
+                                button6.Text = Settings.LangID == 0 ? "Edit program" : "Изменить скрипт";
+                                button6.Tag = "Edit program|Изменить скрипт";
+                                EXTData = Child.InnerText;
+                                button6.Visible = true;
                             }
-                            ColorCount++;
-                        }
-                        else if (Child.Name == "Program" && listBox2.SelectedIndices.Count == 1)
-                        {
-                            button6.Text = Settings.LangID == 0 ? "Edit program" : "Изменить скрипт";
-                            button6.Tag = "Edit program|Изменить скрипт";
-                            EXTData = Child.InnerText;
-                            button6.Visible = true;
-                        }
-                        else if (Child.Name == "PublicDescription" && listBox2.SelectedIndices.Count == 1 && BlocksSorted[Sorter[Index]].Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_TextPanel")
-                        {
-                            button6.Text = Settings.LangID == 0 ? "Edit text" : "Изменить текст";
-                            button6.Tag = "Edit text|Изменить текст";
-                            EXTData = Child.InnerText;
-                            button6.Visible = true;
-                            Regex Regex = new Regex("[\ue100-\ue2FF]");
-                            panel2.Visible = true;
-                            if (Regex.Match(EXTData).Success)
+                            else if (Child.Name == "PublicDescription" && listBox2.SelectedIndices.Count == 1 && BlocksSorted[Sorter[Index]].Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_TextPanel")
                             {
-                                string[] Lines = EXTData.Split('\n'); int X = 0, Y = 0;
-                                Bitmap Bmp = new Bitmap(Lines[0].Length, Lines.Length);
-                                foreach (string Ziline in Lines)
+                                button6.Text = Settings.LangID == 0 ? "Edit text" : "Изменить текст";
+                                button6.Tag = "Edit text|Изменить текст";
+                                EXTData = Child.InnerText;
+                                button6.Visible = true;
+                                Regex Regex = new Regex("[\ue100-\ue2FF]");
+                                panel2.Visible = true;
+                                if (Regex.Match(EXTData).Success)
                                 {
-                                    foreach (Char Chared in Ziline)
+                                    string[] Lines = EXTData.Split('\n'); int X = 0, Y = 0;
+                                    Bitmap Bmp = new Bitmap(Lines[0].Length, Lines.Length);
+                                    foreach (string Ziline in Lines)
                                     {
-                                        if (X < Bmp.Width) Bmp.SetPixel(X, Y, ColorUtils.CharToColor(Chared));
-                                        X++;
+                                        foreach (Char Chared in Ziline)
+                                        {
+                                            if (X < Bmp.Width) Bmp.SetPixel(X, Y, ColorUtils.CharToColor(Chared));
+                                            X++;
+                                        }
+                                        X = 0;
+                                        Y++;
                                     }
-                                    X = 0;
-                                    Y++;
+                                    pictureBox5.Image = Bmp;
                                 }
-                                pictureBox5.Image = Bmp;
+                                else
+                                {
+                                    pictureBox5.Image = Properties.Resources.Undefined;
+                                }
                             }
-                            else
+                            else if (Child.Name == "ComponentContainer")
                             {
-                                pictureBox5.Image = Properties.Resources.Undefined;
+                                if (listBox2.SelectedIndices.Count == 1 && Child.FirstChild.FirstChild.LastChild.Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_Inventory")// && BlocksSorted[Sorter[Index]].Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_CargoContainer")
+                                {
+                                    button6.Text = Settings.LangID == 0 ? "Edit inventory" : "Изменить инвентарь";
+                                    button6.Tag = "Edit inventory|Изменить инвентарь";
+                                    EXTXML = Child.FirstChild.FirstChild.LastChild.FirstChild;
+                                    button6.Visible = true;
+                                }
+                                if (listBox2.SelectedIndices.Count == 1 && Child.FirstChild.FirstChild.LastChild.Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_InventoryAggregate")
+                                {
+                                    button6.Text = Settings.LangID == 0 ? "Edit inventories" : "Изменить инвентари";
+                                    button6.Tag = "Edit inventories|Изменить инвентари";
+                                    EXTXML = Child.FirstChild.FirstChild.LastChild.LastChild;
+                                    button6.Visible = true;
+                                }
+                                if (listBox2.SelectedIndices.Count == 1 && Child.FirstChild.LastChild.LastChild.Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_ModStorageComponent")
+                                {
+                                    EXTData = Child.FirstChild.LastChild.LastChild.FirstChild.FirstChild.FirstChild.LastChild.InnerText;
+                                    button10.Visible = true;
+                                }
                             }
                         }
-                        else if (Child.Name == "ComponentContainer" && listBox2.SelectedIndices.Count == 1 && BlocksSorted[Sorter[Index]].Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_CargoContainer")
+                        FirsTrart = false;
+                    }
+                    if (TypeName != "")
+                    {
+                        textBox10.Text = TypeName;
+                        textBox10.Enabled = true;
+                    }
+                    if (CustomName != "" && CustomnameCount == Block.Count)
+                    {
+                        textBox3.Text = CustomName;
+                        textBox3.Enabled = true;
+                    }
+                    if (SubtypeName != "" && CountSubt == Block.Count)
+                    {
+                        textBox2.Text = SubtypeName;
+                        textBox2.Enabled = true;
+                    }
+                    if (IsArmor && (Light != 0 || Heavy != 0))
+                    {
+                        SelectedArmorB = Light > Heavy ? 0 : 1;
+                        //comboBox7.Enabled = true;
+                        SetEnableCombo(comboBox7, true);
+                        comboBox7.SelectedIndex = SelectedArmorB;
+                    }
+                    if (BuiltBy != "" && CountBuilt == Block.Count)
+                    {
+                        textBox5.Text = BuiltBy;
+                        textBox5.Enabled = true;
+                    }
+                    if (CountOrient == Block.Count)
+                    {
+                        if (OrForw != "")
                         {
-                            button6.Text = Settings.LangID == 0 ? "Edit inventory" : "Изменить инвентарь";
-                            button6.Tag = "Edit inventory|Изменить инвентарь";
-                            EXTXML = Child.FirstChild.FirstChild.LastChild.FirstChild;
-                            button6.Visible = true;
+                            SetEnableCombo(comboBox4, true);
+                            comboBox4.SelectedIndex = comboBox4.Items.IndexOf(OrForw);
+                            //comboBox4.Enabled = true;
+                        }
+                        if (OrUp != "")
+                        {
+                            SetEnableCombo(comboBox5, true);
+                            comboBox5.SelectedIndex = comboBox5.Items.IndexOf(OrUp);
+                            //comboBox5.Enabled = true;
                         }
                     }
-                    FirsTrart = false;
-                }
-                if (TypeName != "")
-                {
-                    textBox10.Text = TypeName;
-                    textBox10.Enabled = true;
-                }
-                if (CustomName != "" && CustomnameCount == Block.Count)
-                {
-                    textBox3.Text = CustomName;
-                    textBox3.Enabled = true;
-                }
-                if (SubtypeName != "" && CountSubt == Block.Count)
-                {
-                    textBox2.Text = SubtypeName;
-                    textBox2.Enabled = true;
-                }
-                if (IsArmor && (Light != 0 || Heavy != 0))
-                {
-                    SelectedArmorB = Light > Heavy ? 0 : 1;
-                    //comboBox7.Enabled = true;
-                    SetEnableCombo(comboBox7, true);
-                    comboBox7.SelectedIndex = SelectedArmorB;
-                }
-                if (BuiltBy != "" && CountBuilt == Block.Count)
-                {
-                    textBox5.Text = BuiltBy;
-                    textBox5.Enabled = true;
-                }
-                if (CountOrient == Block.Count)
-                {
-                    if (OrForw != "")
+                    if (CountMin == Block.Count)
                     {
-                        SetEnableCombo(comboBox4, true);
-                        comboBox4.SelectedIndex = comboBox4.Items.IndexOf(OrForw);
-                        //comboBox4.Enabled = true;
+                        if (MinX != "")
+                        {
+                            textBox6.Text = MinX;
+                            textBox6.Enabled = true;
+                        }
+                        if (MinY != "")
+                        {
+                            textBox7.Text = MinY;
+                            textBox7.Enabled = true;
+                        }
+                        if (MinZ != "")
+                        {
+                            textBox8.Text = MinZ;
+                            textBox8.Enabled = true;
+                        }
                     }
-                    if (OrUp != "")
+                    if (Color != "" && ColorCount == Block.Count)
                     {
-                        SetEnableCombo(comboBox5, true);
-                        comboBox5.SelectedIndex = comboBox5.Items.IndexOf(OrUp);
-                        //comboBox5.Enabled = true;
+                        textBox9.Text = Color;
+                        textBox9.Enabled = true;
+                        pictureBox4.Enabled = true;
                     }
+                    if (listBox2.SelectedIndex != -1) button4.Enabled = true;
                 }
-                if (CountMin == Block.Count)
-                {
-                    if (MinX != "")
-                    {
-                        textBox6.Text = MinX;
-                        textBox6.Enabled = true;
-                    }
-                    if (MinY != "")
-                    {
-                        textBox7.Text = MinY;
-                        textBox7.Enabled = true;
-                    }
-                    if (MinZ != "")
-                    {
-                        textBox8.Text = MinZ;
-                        textBox8.Enabled = true;
-                    }
-                }
-                if (Color != "" && ColorCount == Block.Count)
-                {
-                    textBox9.Text = Color;
-                    textBox9.Enabled = true;
-                    pictureBox4.Enabled = true;
-                }
-                if (listBox2.SelectedIndex != -1) button4.Enabled = true;
-            }
             }
             catch (Exception ex)
             {
@@ -919,25 +955,26 @@ namespace BlueprintEditor
         string EXTData; XmlNode EXTXML;
         private void textBox2_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (Block != null)
+            try
             {
-                foreach (XmlNode Bl in Block)
+                if (Block != null)
                 {
-                    foreach (XmlNode Child in Bl.ChildNodes)
+                    foreach (XmlNode Bl in Block)
                     {
-                        if (Child.Name == "SubtypeName")
+                        foreach (XmlNode Child in Bl.ChildNodes)
                         {
-                            if (textBox2.Text == "")
+                            if (Child.Name == "SubtypeName")
                             {
-                                textBox2.Text = Child.InnerText;
+                                if (textBox2.Text == "")
+                                {
+                                    textBox2.Text = Child.InnerText;
+                                }
+                                Child.InnerText = textBox2.Text;
                             }
-                            Child.InnerText = textBox2.Text;
                         }
                     }
+                    UpdateBlocks();
                 }
-                UpdateBlocks();
-            }
             }
             catch (Exception ex)
             {
@@ -947,25 +984,26 @@ namespace BlueprintEditor
 
         private void textBox3_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (Block != null)
+            try
             {
-                foreach (XmlNode Bl in Block)
+                if (Block != null)
                 {
-                    foreach (XmlNode Child in Bl.ChildNodes)
+                    foreach (XmlNode Bl in Block)
                     {
-                        if (Child.Name == "CustomName")
+                        foreach (XmlNode Child in Bl.ChildNodes)
                         {
-                            if (textBox3.Text == "")
+                            if (Child.Name == "CustomName")
                             {
-                                textBox3.Text = Child.InnerText;
+                                if (textBox3.Text == "")
+                                {
+                                    textBox3.Text = Child.InnerText;
+                                }
+                                Child.InnerText = textBox3.Text;
                             }
-                            Child.InnerText = textBox3.Text;
                         }
                     }
+                    UpdateBlocks();
                 }
-                UpdateBlocks();
-            }
             }
             catch (Exception ex)
             {
@@ -975,19 +1013,20 @@ namespace BlueprintEditor
 
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            if (comboBox3.SelectedIndex != -1)
+            try
             {
-                string[] Mask = comboBox3.SelectedItem.ToString().Split(':');
-                string[] X_ = Mask[0].Replace('.', ',').Split('E');
-                double X = X_.Length == 1 ? double.Parse(X_[0]) : Math.Pow(double.Parse(X_[0]), double.Parse(X_[1]));
-                string[] Y_ = Mask[1].Replace('.', ',').Split('E');
-                double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
-                string[] Z_ = Mask[2].Replace('.', ',').Split('E');
-                double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
-                pictureBox2.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
-                textBox4.Text = comboBox3.SelectedItem.ToString();
-            }
+                if (comboBox3.SelectedIndex != -1)
+                {
+                    string[] Mask = comboBox3.SelectedItem.ToString().Split(':');
+                    string[] X_ = Mask[0].Replace('.', ',').Split('E');
+                    double X = X_.Length == 1 ? double.Parse(X_[0]) : Math.Pow(double.Parse(X_[0]), double.Parse(X_[1]));
+                    string[] Y_ = Mask[1].Replace('.', ',').Split('E');
+                    double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
+                    string[] Z_ = Mask[2].Replace('.', ',').Split('E');
+                    double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
+                    pictureBox2.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
+                    textBox4.Text = comboBox3.SelectedItem.ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -1154,25 +1193,26 @@ namespace BlueprintEditor
 
         private void textBox4_TextChanged(object sender, EventArgs e)
         {
-            try { 
-            string[] Mask = textBox4.Text.Split(':');
-            if (Mask.Length == 3 && Mask[0] != "")
+            try
             {
-                try
+                string[] Mask = textBox4.Text.Split(':');
+                if (Mask.Length == 3 && Mask[0] != "")
                 {
-                    string[] X_ = Mask[0].Replace('.', ',').Split('E');
-                    double X = X_.Length == 1 ? double.Parse(X_[0]) : Math.Pow(double.Parse(X_[0]), double.Parse(X_[1]));
-                    string[] Y_ = Mask[1].Replace('.', ',').Split('E');
-                    double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
-                    string[] Z_ = Mask[2].Replace('.', ',').Split('E');
-                    double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
-                    pictureBox3.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
-                }
-                catch
-                {
+                    try
+                    {
+                        string[] X_ = Mask[0].Replace('.', ',').Split('E');
+                        double X = X_.Length == 1 ? double.Parse(X_[0]) : Math.Pow(double.Parse(X_[0]), double.Parse(X_[1]));
+                        string[] Y_ = Mask[1].Replace('.', ',').Split('E');
+                        double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
+                        string[] Z_ = Mask[2].Replace('.', ',').Split('E');
+                        double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
+                        pictureBox3.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
+                    }
+                    catch
+                    {
 
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1182,46 +1222,8 @@ namespace BlueprintEditor
 
         private void textBox4_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (comboBox3.SelectedItem != null)
+            try
             {
-                foreach (XmlNode Bl in Blocks)
-                {
-                    foreach (XmlNode Cld in Bl.ChildNodes)
-                    {
-                        if (Cld.Name == "ColorMaskHSV")
-                        {
-                            string Hsv = Cld.Attributes[0].Value + ":" + Cld.Attributes[1].Value + ":" + Cld.Attributes[2].Value;
-                            if (Hsv == comboBox3.SelectedItem.ToString())
-                            {
-                                string[] Strs = textBox4.Text.Split(':');
-                                Cld.Attributes[0].Value = Strs[0].Replace(',', '.');
-                                Cld.Attributes[1].Value = Strs[1].Replace(',', '.');
-                                Cld.Attributes[2].Value = Strs[2].Replace(',', '.');
-                            }
-                            break;
-                        }
-                    }
-                }
-                UpdateColors();
-            }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-        }
-
-        private void pictureBox3_Click(object sender, EventArgs e)
-        {
-            try { 
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-            {
-                Color C = colorDialog1.Color;
-                pictureBox3.BackColor = C;
-                textBox4.Text = (C.GetHue() / 360).ToString() + ":"
-                    + (C.GetSaturation() * 2 - 1).ToString() + ":"
-                    + (C.GetBrightness() * 2 - 1).ToString();
                 if (comboBox3.SelectedItem != null)
                 {
                     foreach (XmlNode Bl in Blocks)
@@ -1245,6 +1247,46 @@ namespace BlueprintEditor
                     UpdateColors();
                 }
             }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (colorDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    Color C = colorDialog1.Color;
+                    pictureBox3.BackColor = C;
+                    textBox4.Text = (C.GetHue() / 360).ToString() + ":"
+                        + (C.GetSaturation() * 2 - 1).ToString() + ":"
+                        + (C.GetBrightness() * 2 - 1).ToString();
+                    if (comboBox3.SelectedItem != null)
+                    {
+                        foreach (XmlNode Bl in Blocks)
+                        {
+                            foreach (XmlNode Cld in Bl.ChildNodes)
+                            {
+                                if (Cld.Name == "ColorMaskHSV")
+                                {
+                                    string Hsv = Cld.Attributes[0].Value + ":" + Cld.Attributes[1].Value + ":" + Cld.Attributes[2].Value;
+                                    if (Hsv == comboBox3.SelectedItem.ToString())
+                                    {
+                                        string[] Strs = textBox4.Text.Split(':');
+                                        Cld.Attributes[0].Value = Strs[0].Replace(',', '.');
+                                        Cld.Attributes[1].Value = Strs[1].Replace(',', '.');
+                                        Cld.Attributes[2].Value = Strs[2].Replace(',', '.');
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        UpdateColors();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1254,11 +1296,12 @@ namespace BlueprintEditor
 
         private void button2_Click(object sender, EventArgs e)
         {
-            try { 
-            SaveBlueprint();
-            int index = listBox1.SelectedIndex;
-            listBox1.SelectedIndex = -1;
-            listBox1.SelectedIndex = index;
+            try
+            {
+                SaveBlueprint();
+                int index = listBox1.SelectedIndex;
+                listBox1.SelectedIndex = -1;
+                listBox1.SelectedIndex = index;
             }
             catch (Exception ex)
             {
@@ -1268,25 +1311,26 @@ namespace BlueprintEditor
 
         private void textBox5_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (Block != null)
+            try
             {
-                foreach (XmlNode Bl in Block)
+                if (Block != null)
                 {
-                    foreach (XmlNode Child in Bl.ChildNodes)
+                    foreach (XmlNode Bl in Block)
                     {
-                        if (Child.Name == "BuiltBy")
+                        foreach (XmlNode Child in Bl.ChildNodes)
                         {
-                            if (textBox5.Text == "")
+                            if (Child.Name == "BuiltBy")
                             {
-                                textBox5.Text = Child.InnerText;
+                                if (textBox5.Text == "")
+                                {
+                                    textBox5.Text = Child.InnerText;
+                                }
+                                Child.InnerText = textBox5.Text;
                             }
-                            Child.InnerText = textBox5.Text;
                         }
                     }
+                    UpdateBlocks();
                 }
-                UpdateBlocks();
-            }
             }
             catch (Exception ex)
             {
@@ -1296,15 +1340,16 @@ namespace BlueprintEditor
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try {
-            Settings.BlueprintPath = Folder;
-            Settings.GamePath = GamePath;
-            if (!File.Exists("Config.dat"))
+            try
             {
-                FileStream FileSt = File.Create("Config.dat");
-                FileSt.Close();
-            }
-            File.WriteAllText("Config.dat", ArhApi.SerializeClass<Settings>(Settings));
+                Settings.BlueprintPath = Folder;
+                Settings.GamePath = GamePath;
+                if (!File.Exists("Config.dat"))
+                {
+                    FileStream FileSt = File.Create("Config.dat");
+                    FileSt.Close();
+                }
+                File.WriteAllText("Config.dat", ArhApi.SerializeClass<Settings>(Settings));
             }
             catch (Exception ex)
             {
@@ -1314,16 +1359,17 @@ namespace BlueprintEditor
 
         private void button4_Click(object sender, EventArgs e)
         {
-            try { 
-            if (Block != null)
+            try
             {
-                foreach (XmlNode Bl in Block)
+                if (Block != null)
                 {
-                    XmlNode parent = Bl.ParentNode;
-                    parent.RemoveChild(Bl);
+                    foreach (XmlNode Bl in Block)
+                    {
+                        XmlNode parent = Bl.ParentNode;
+                        parent.RemoveChild(Bl);
+                    }
+                    UpdateBlocks();
                 }
-                UpdateBlocks();
-            }
             }
             catch (Exception ex)
             {
@@ -1333,24 +1379,25 @@ namespace BlueprintEditor
 
         private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            if (comboBox4.SelectedIndex != -1)
+            try
             {
-                if (Block != null)
+                if (comboBox4.SelectedIndex != -1)
                 {
-                    foreach (XmlNode Bl in Block)
+                    if (Block != null)
                     {
-                        foreach (XmlNode Child in Bl.ChildNodes)
+                        foreach (XmlNode Bl in Block)
                         {
-                            if (Child.Name == "BlockOrientation")
+                            foreach (XmlNode Child in Bl.ChildNodes)
                             {
-                                Child.Attributes[0].Value = comboBox4.Items[comboBox4.SelectedIndex].ToString();
-                                break;
+                                if (Child.Name == "BlockOrientation")
+                                {
+                                    Child.Attributes[0].Value = comboBox4.Items[comboBox4.SelectedIndex].ToString();
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1360,24 +1407,25 @@ namespace BlueprintEditor
 
         private void comboBox5_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try {
-            if (comboBox5.SelectedIndex != -1)
+            try
             {
-                if (Block != null)
+                if (comboBox5.SelectedIndex != -1)
                 {
-                    foreach (XmlNode Bl in Block)
+                    if (Block != null)
                     {
-                        foreach (XmlNode Child in Bl.ChildNodes)
+                        foreach (XmlNode Bl in Block)
                         {
-                            if (Child.Name == "BlockOrientation")
+                            foreach (XmlNode Child in Bl.ChildNodes)
                             {
-                                Child.Attributes[1].Value = comboBox5.Items[comboBox5.SelectedIndex].ToString();
-                                break;
+                                if (Child.Name == "BlockOrientation")
+                                {
+                                    Child.Attributes[1].Value = comboBox5.Items[comboBox5.SelectedIndex].ToString();
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1387,24 +1435,25 @@ namespace BlueprintEditor
 
         private void textBox6_Leave(object sender, EventArgs e)
         {
-            try {
-            if (textBox6.Text != "")
+            try
             {
-                if (Block != null)
+                if (textBox6.Text != "")
                 {
-                    foreach (XmlNode Bl in Block)
+                    if (Block != null)
                     {
-                        foreach (XmlNode Child in Bl.ChildNodes)
+                        foreach (XmlNode Bl in Block)
                         {
-                            if (Child.Name == "Min")
+                            foreach (XmlNode Child in Bl.ChildNodes)
                             {
-                                Child.Attributes[0].Value = textBox6.Text;
-                                break;
+                                if (Child.Name == "Min")
+                                {
+                                    Child.Attributes[0].Value = textBox6.Text;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1414,24 +1463,25 @@ namespace BlueprintEditor
 
         private void textBox7_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (textBox7.Text != "")
+            try
             {
-                if (Block != null)
+                if (textBox7.Text != "")
                 {
-                    foreach (XmlNode Bl in Block)
+                    if (Block != null)
                     {
-                        foreach (XmlNode Child in Bl.ChildNodes)
+                        foreach (XmlNode Bl in Block)
                         {
-                            if (Child.Name == "Min")
+                            foreach (XmlNode Child in Bl.ChildNodes)
                             {
-                                Child.Attributes[1].Value = textBox7.Text;
-                                break;
+                                if (Child.Name == "Min")
+                                {
+                                    Child.Attributes[1].Value = textBox7.Text;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1441,24 +1491,25 @@ namespace BlueprintEditor
 
         private void textBox8_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (textBox8.Text != "")
+            try
             {
-                if (Block != null)
+                if (textBox8.Text != "")
                 {
-                    foreach (XmlNode Bl in Block)
+                    if (Block != null)
                     {
-                        foreach (XmlNode Child in Bl.ChildNodes)
+                        foreach (XmlNode Bl in Block)
                         {
-                            if (Child.Name == "Min")
+                            foreach (XmlNode Child in Bl.ChildNodes)
                             {
-                                Child.Attributes[2].Value = textBox8.Text;
-                                break;
+                                if (Child.Name == "Min")
+                                {
+                                    Child.Attributes[2].Value = textBox8.Text;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1468,17 +1519,18 @@ namespace BlueprintEditor
 
         private void button1_Click(object sender, EventArgs e)
         {
-            try {
-            if (Report == null || Report.IsDisposed)
+            try
             {
-                Report = new Form3(button1);
-                Report.SetColor(AllForeColor, AllBackColor);
+                if (Report == null || Report.IsDisposed)
+                {
+                    Report = new Form3(button1);
+                    Report.SetColor(AllForeColor, AllBackColor);
+                    Report.ChangeLang(Settings.LangID);
+                }
+                Report.Hide();
                 Report.ChangeLang(Settings.LangID);
-            }
-            Report.Hide();
-            Report.ChangeLang(Settings.LangID);
-            Report.Clear();
-            Report.Show();
+                Report.Clear();
+                Report.Show();
             }
             catch (Exception ex)
             {
@@ -1488,26 +1540,27 @@ namespace BlueprintEditor
 
         private void comboBox6_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try {
-            if (comboBox6.SelectedIndex != -1 && comboBox6.SelectedIndex != SelectedArmor)
+            try
             {
-                foreach (XmlNode Bl in Blocks)
+                if (comboBox6.SelectedIndex != -1 && comboBox6.SelectedIndex != SelectedArmor)
                 {
-                    foreach (XmlNode Child in Bl.ChildNodes)
+                    foreach (XmlNode Bl in Blocks)
                     {
-                        if (Child.Name == "SubtypeName")
+                        foreach (XmlNode Child in Bl.ChildNodes)
                         {
-                            string Type = Child.InnerText;
-                            if (Type.Contains("Armor"))
+                            if (Child.Name == "SubtypeName")
                             {
-                                Child.InnerText = comboBox6.SelectedIndex == 1 ? Type.Replace("SmallBlock", "SmallHeavyBlock").Replace("LargeBlock", "LargeHeavyBlock").Replace("HeavyHalf", "Half").Replace("Half", "HeavyHalf") : Type.Replace("SmallHeavyBlock", "SmallBlock").Replace("LargeHeavyBlock", "LargeBlock").Replace("HeavyHalf", "Half");
+                                string Type = Child.InnerText;
+                                if (Type.Contains("Armor"))
+                                {
+                                    Child.InnerText = comboBox6.SelectedIndex == 1 ? Type.Replace("SmallBlock", "SmallHeavyBlock").Replace("LargeBlock", "LargeHeavyBlock").Replace("HeavyHalf", "Half").Replace("Half", "HeavyHalf") : Type.Replace("SmallHeavyBlock", "SmallBlock").Replace("LargeHeavyBlock", "LargeBlock").Replace("HeavyHalf", "Half");
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
+                    UpdateBlocks();
                 }
-                UpdateBlocks();
-            }
             }
             catch (Exception ex)
             {
@@ -1517,8 +1570,9 @@ namespace BlueprintEditor
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            try {
-            UpdateBlocks();
+            try
+            {
+                UpdateBlocks();
             }
             catch (Exception ex)
             {
@@ -1528,8 +1582,9 @@ namespace BlueprintEditor
 
         private void comboBox8_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            UpdateBlocks();
+            try
+            {
+                UpdateBlocks();
             }
             catch (Exception ex)
             {
@@ -1539,25 +1594,26 @@ namespace BlueprintEditor
 
         private void textBox9_TextChanged(object sender, EventArgs e)
         {
-            try {
-            string[] Mask = textBox9.Text.Split(':');
-            if (Mask.Length == 3 && Mask[0] != "")
+            try
             {
-                try
+                string[] Mask = textBox9.Text.Split(':');
+                if (Mask.Length == 3 && Mask[0] != "")
                 {
-                    string[] X_ = Mask[0].Replace('.', ',').Split('E');
-                    double X = X_.Length == 1 ? double.Parse(X_[0]) : Math.Pow(double.Parse(X_[0]), double.Parse(X_[1]));
-                    string[] Y_ = Mask[1].Replace('.', ',').Split('E');
-                    double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
-                    string[] Z_ = Mask[2].Replace('.', ',').Split('E');
-                    double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
-                    pictureBox4.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
-                }
-                catch
-                {
+                    try
+                    {
+                        string[] X_ = Mask[0].Replace('.', ',').Split('E');
+                        double X = X_.Length == 1 ? double.Parse(X_[0]) : Math.Pow(double.Parse(X_[0]), double.Parse(X_[1]));
+                        string[] Y_ = Mask[1].Replace('.', ',').Split('E');
+                        double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
+                        string[] Z_ = Mask[2].Replace('.', ',').Split('E');
+                        double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
+                        pictureBox4.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
+                    }
+                    catch
+                    {
 
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -1567,14 +1623,41 @@ namespace BlueprintEditor
 
         private void pictureBox4_Click(object sender, EventArgs e)
         {
-            try {
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            try
             {
-                Color C = colorDialog1.Color;
-                pictureBox4.BackColor = C;
-                textBox9.Text = (C.GetHue() / 360).ToString() + ":"
-                    + (C.GetSaturation() * 2 - 1).ToString() + ":"
-                    + (C.GetBrightness() * 2 - 1).ToString();
+                if (colorDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    Color C = colorDialog1.Color;
+                    pictureBox4.BackColor = C;
+                    textBox9.Text = (C.GetHue() / 360).ToString() + ":"
+                        + (C.GetSaturation() * 2 - 1).ToString() + ":"
+                        + (C.GetBrightness() * 2 - 1).ToString();
+                    foreach (XmlNode Bl in Block)
+                    {
+                        foreach (XmlNode Cld in Bl.ChildNodes)
+                        {
+                            if (Cld.Name == "ColorMaskHSV")
+                            {
+                                string[] Strs = textBox9.Text.Split(':');
+                                Cld.Attributes[0].Value = Strs[0].Replace(',', '.');
+                                Cld.Attributes[1].Value = Strs[1].Replace(',', '.');
+                                Cld.Attributes[2].Value = Strs[2].Replace(',', '.');
+                            }
+                        }
+                    }
+                    UpdateColors();
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        private void textBox9_Leave(object sender, EventArgs e)
+        {
+            try
+            {
                 foreach (XmlNode Bl in Block)
                 {
                     foreach (XmlNode Cld in Bl.ChildNodes)
@@ -1585,36 +1668,11 @@ namespace BlueprintEditor
                             Cld.Attributes[0].Value = Strs[0].Replace(',', '.');
                             Cld.Attributes[1].Value = Strs[1].Replace(',', '.');
                             Cld.Attributes[2].Value = Strs[2].Replace(',', '.');
+                            break;
                         }
                     }
                 }
                 UpdateColors();
-            }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-        }
-
-        private void textBox9_Leave(object sender, EventArgs e)
-        {
-            try { 
-            foreach (XmlNode Bl in Block)
-            {
-                foreach (XmlNode Cld in Bl.ChildNodes)
-                {
-                    if (Cld.Name == "ColorMaskHSV")
-                    {
-                        string[] Strs = textBox9.Text.Split(':');
-                        Cld.Attributes[0].Value = Strs[0].Replace(',', '.');
-                        Cld.Attributes[1].Value = Strs[1].Replace(',', '.');
-                        Cld.Attributes[2].Value = Strs[2].Replace(',', '.');
-                        break;
-                    }
-                }
-            }
-            UpdateColors();
             }
             catch (Exception ex)
             {
@@ -1645,47 +1703,48 @@ namespace BlueprintEditor
 
         private void button3_Click(object sender, EventArgs e)
         {
-            try {
-            ArhApi.CompliteAsync(() =>
+            try
             {
-                if (Calculator == null || Calculator.IsDisposed)
+                ArhApi.CompliteAsync(() =>
                 {
+                    if (Calculator == null || Calculator.IsDisposed)
+                    {
+                        Invoke(new Action(() =>
+                        {
+                            label22.Text = "Loading Data... Please Wait";
+                        }));
+                        Calculator = new Form4(GamePath, this);
+                        Calculator.SetColor(AllForeColor, AllBackColor);
+                        Calculator.ChangeLang(Settings.LangID);
+                    }
                     Invoke(new Action(() =>
                     {
-                        label22.Text = "Loading Data... Please Wait";
+                        Calculator.Hide();
+                        label22.Text = "Calculating... Please Wait";
+                        Calculator.ClearBlocks();
                     }));
-                    Calculator = new Form4(GamePath, this);
-                    Calculator.SetColor(AllForeColor, AllBackColor);
-                    Calculator.ChangeLang(Settings.LangID);
-                }
-                Invoke(new Action(() =>
-                {
-                    Calculator.Hide();
-                    label22.Text = "Calculating... Please Wait";
-                    Calculator.ClearBlocks();
-                }));
-                foreach (XmlNode MyBlock in Blueprint.GetElementsByTagName("MyObjectBuilder_CubeBlock"))
-                {
-                    string TypeOfBlock;
-                    XmlNode xsitype = MyBlock.Attributes.GetNamedItem("xsi:type");
-                    if (xsitype != null)
+                    foreach (XmlNode MyBlock in Blueprint.GetElementsByTagName("MyObjectBuilder_CubeBlock"))
                     {
-                        TypeOfBlock = xsitype.Value.Replace("MyObjectBuilder_", "").Replace("Projector", "MyObjectBuilder_Projector") + "/" + MyBlock.FirstChild.InnerText;
+                        string TypeOfBlock;
+                        XmlNode xsitype = MyBlock.Attributes.GetNamedItem("xsi:type");
+                        if (xsitype != null)
+                        {
+                            TypeOfBlock = xsitype.Value.Replace("MyObjectBuilder_", "").Replace("Projector", "MyObjectBuilder_Projector") + "/" + MyBlock.FirstChild.InnerText;
+                        }
+                        else
+                        {
+                            TypeOfBlock = "CubeBlock/" + MyBlock.FirstChild.InnerText;
+                        }
+                        Calculator.AddBlock(TypeOfBlock);
                     }
-                    else
+                    Invoke(new Action(() =>
                     {
-                        TypeOfBlock = "CubeBlock/" + MyBlock.FirstChild.InnerText;
-                    }
-                    Calculator.AddBlock(TypeOfBlock);
-                }
-                Invoke(new Action(() =>
-                {
-                    Calculator.ShowBlocks(listBox1.SelectedItem.ToString());
-                    Calculator.ChangeLang(Settings.LangID);
-                    Calculator.Show();
-                    label22.Text = "";
-                }));
-            });
+                        Calculator.ShowBlocks(listBox1.SelectedItem.ToString());
+                        Calculator.ChangeLang(Settings.LangID);
+                        Calculator.Show();
+                        label22.Text = "";
+                    }));
+                });
             }
             catch (Exception ex)
             {
@@ -1709,12 +1768,13 @@ namespace BlueprintEditor
 
         private void comboBox9_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            ChangeLang(this, comboBox9.SelectedIndex);
-            Settings.LangID = comboBox9.SelectedIndex;
-            if (Calculator != null && !Calculator.IsDisposed) Calculator.ChangeLang(Settings.LangID);
-            if (Report != null && !Report.IsDisposed) Report.ChangeLang(Settings.LangID);
-            if (ImageConvert != null && !ImageConvert.IsDisposed) ImageConvert.ChangeLang(Settings.LangID);
+            try
+            {
+                ChangeLang(this, comboBox9.SelectedIndex);
+                Settings.LangID = comboBox9.SelectedIndex;
+                if (Calculator != null && !Calculator.IsDisposed) Calculator.ChangeLang(Settings.LangID);
+                if (Report != null && !Report.IsDisposed) Report.ChangeLang(Settings.LangID);
+                if (ImageConvert != null && !ImageConvert.IsDisposed) ImageConvert.ChangeLang(Settings.LangID);
             }
             catch (Exception ex)
             {
@@ -1766,20 +1826,21 @@ namespace BlueprintEditor
 
         private void comboBox10_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try {
-            Settings.Theme = comboBox10.SelectedIndex;
-            AllBackColor = Themes[comboBox10.SelectedIndex].Back;
-            AllForeColor = Themes[comboBox10.SelectedIndex].Fore;
-            BackColor = AllBackColor;
-            Settings.BackColor = new MyColor(AllBackColor);
-            Settings.ForeColor = new MyColor(AllForeColor);
-            Recolor(Controls, AllForeColor, AllBackColor);
-            if (Report != null && !Report.IsDisposed)
-                Report.SetColor(AllForeColor, AllBackColor);
-            if (ImageConvert != null && !ImageConvert.IsDisposed)
-                ImageConvert.SetColor(AllForeColor, AllBackColor);
-            if (Calculator != null && !Calculator.IsDisposed)
-                Calculator.SetColor(AllForeColor, AllBackColor);
+            try
+            {
+                Settings.Theme = comboBox10.SelectedIndex;
+                AllBackColor = Themes[comboBox10.SelectedIndex].Back;
+                AllForeColor = Themes[comboBox10.SelectedIndex].Fore;
+                BackColor = AllBackColor;
+                Settings.BackColor = new MyColor(AllBackColor);
+                Settings.ForeColor = new MyColor(AllForeColor);
+                Recolor(Controls, AllForeColor, AllBackColor);
+                if (Report != null && !Report.IsDisposed)
+                    Report.SetColor(AllForeColor, AllBackColor);
+                if (ImageConvert != null && !ImageConvert.IsDisposed)
+                    ImageConvert.SetColor(AllForeColor, AllBackColor);
+                if (Calculator != null && !Calculator.IsDisposed)
+                    Calculator.SetColor(AllForeColor, AllBackColor);
             }
             catch (Exception ex)
             {
@@ -1788,42 +1849,52 @@ namespace BlueprintEditor
         }
         private void button6_Click(object sender, EventArgs e)
         {
-            try { 
-            switch (button6.Text)
+            try
             {
-                case "Edit program":
-                case "Изменить скрипт":
-                    #region EditProgram
-                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
-                    try
-                    {
-                        File.WriteAllText("EditProgramTmpFile.cs", EXTData.Replace("\n", "\r\n"));
-                        Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditProgramTmpFile.cs");
-                        if (Editor != null)
+                switch (button6.Text)
+                {
+                    case "Edit program":
+                    case "Изменить скрипт":
+                        #region EditProgram
+                        if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                        try
                         {
-                            Editor.WaitForExit();
-                            if (File.Exists("EditProgramTmpFile.cs"))
+                            File.WriteAllText("EditProgramTmpFile.cs", EXTData.Replace("\n", "\r\n"));
+                            Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditProgramTmpFile.cs");
+                            if (Editor != null)
                             {
-                                string Program = File.ReadAllText("EditProgramTmpFile.cs");
-                                if (Block != null && Block.Count == 1 && button6.Visible)
+                                Editor.WaitForExit();
+                                if (File.Exists("EditProgramTmpFile.cs"))
                                 {
-                                    foreach (XmlNode Bl in Block)
+                                    string Program = File.ReadAllText("EditProgramTmpFile.cs");
+                                    if (Block != null && Block.Count == 1 && button6.Visible)
                                     {
-                                        foreach (XmlNode Child in Bl.ChildNodes)
+                                        foreach (XmlNode Bl in Block)
                                         {
-                                            if (Child.Name == "Program")
+                                            foreach (XmlNode Child in Bl.ChildNodes)
                                             {
-                                                Child.InnerText = Program.Replace("\r\n", "\n");
-                                                break;
+                                                if (Child.Name == "Program")
+                                                {
+                                                    Child.InnerText = Program.Replace("\r\n", "\n");
+                                                    break;
+                                                }
                                             }
                                         }
+                                        UpdateBlocks();
                                     }
-                                    UpdateBlocks();
+                                    File.Delete("EditProgramTmpFile.cs");
                                 }
+                            }
+                            else
+                            {
                                 File.Delete("EditProgramTmpFile.cs");
+                                if (Settings.LangID == 0)
+                                    MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                                else
+                                    MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
                             }
                         }
-                        else
+                        catch
                         {
                             File.Delete("EditProgramTmpFile.cs");
                             if (Settings.LangID == 0)
@@ -1831,116 +1902,69 @@ namespace BlueprintEditor
                             else
                                 MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
                         }
-                    }
-                    catch
-                    {
-                        File.Delete("EditProgramTmpFile.cs");
-                        if (Settings.LangID == 0)
-                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
-                        else
-                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
-                    }
-                    #endregion
-                    break;
-                case "Edit inventory":
-                case "Изменить инвентарь":
-                    #region EditInventory
-                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
-                    try
-                    {
-                        string Inventory = "#Inventory text editor#";
-                        foreach (XmlNode Xm in EXTXML.ChildNodes)
+                        #endregion
+                        break;
+                    case "Edit inventory":
+                    case "Изменить инвентарь":
+                        #region EditInventory
+                        if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                        try
                         {
-                            XmlNode Type = Xm.ChildNodes[1];
-                            Inventory += "\r\n" + Type.Attributes.GetNamedItem("xsi:type").Value.Replace("MyObjectBuilder_", "") + "/" + Type.FirstChild.InnerText + ":" + Xm.FirstChild.InnerText;
-                        }
-                        File.WriteAllText("EditTmpFile.txt", Inventory);
-                        Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
-                        if (Editor != null)
-                        {
-                            Editor.WaitForExit();
-                            if (File.Exists("EditTmpFile.txt"))
+                            string Inventory = "#Inventory text editor#";
+                            foreach (XmlNode Xm in EXTXML.ChildNodes)
                             {
-                                string Program = File.ReadAllText("EditTmpFile.txt");
-                                if (Block != null && Block.Count == 1 && button6.Visible)
+                                XmlNode Type = Xm.ChildNodes[1];
+                                Inventory += "\r\n" + Type.Attributes.GetNamedItem("xsi:type").Value.Replace("MyObjectBuilder_", "") + "/" + Type.FirstChild.InnerText + ":" + Xm.FirstChild.InnerText;
+                            }
+                            File.WriteAllText("EditTmpFile.txt", Inventory);
+                            Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
+                            if (Editor != null)
+                            {
+                                Editor.WaitForExit();
+                                if (File.Exists("EditTmpFile.txt"))
                                 {
-                                    foreach (XmlNode Bl in Block)
+                                    string Program = File.ReadAllText("EditTmpFile.txt");
+                                    if (Block != null && Block.Count == 1 && button6.Visible)
                                     {
-                                        foreach (XmlNode Child in Bl.ChildNodes)
+                                        string Inventoryed = ""; int Couner = 0;
+                                        string[] Splited = Program.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (string inv in Splited)
                                         {
-                                            if (Child.Name == "ComponentContainer")
+                                            string[] Amount = inv.Split(':'), Type = Amount[0].Split('/');
+                                            if (Amount.Length > 1 && Type.Length > 1) Inventoryed += "<MyObjectBuilder_InventoryItem><Amount>" + Amount[1] + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Type[0] + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><SubtypeName>" + Type[1] + "</SubtypeName></PhysicalContent><ItemId>" + Couner + "</ItemId></MyObjectBuilder_InventoryItem>";
+                                            Couner++;
+                                        }
+                                        foreach (XmlNode Bl in Block)
+                                        {
+                                            foreach (XmlNode Child in Bl.ChildNodes)
                                             {
-                                                string Inventoryed = ""; int Couner = 0;
-                                                string[] Splited = Program.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                                                foreach (string inv in Splited)
+                                                if (Child.Name == "ComponentContainer")
                                                 {
-                                                    string[] Amount = inv.Split(':'), Type = Amount[0].Split('/');
-                                                    if (Amount.Length > 1 && Type.Length > 1) Inventoryed += "<MyObjectBuilder_InventoryItem><Amount>" + Amount[1] + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Type[0] + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><SubtypeName>" + Type[1] + "</SubtypeName></PhysicalContent><ItemId>" + Couner + "</ItemId></MyObjectBuilder_InventoryItem>";
-                                                    Couner++;
+                                                    Child.FirstChild.FirstChild.LastChild.FirstChild.InnerXml = Inventoryed;
+                                                    Child.FirstChild.FirstChild.LastChild.ChildNodes[1].InnerText = Couner.ToString();
                                                 }
-                                                Child.FirstChild.FirstChild.LastChild.FirstChild.InnerXml = Inventoryed;
-                                                Child.FirstChild.FirstChild.LastChild.ChildNodes[1].InnerText = Couner.ToString();
-                                                break;
+                                                /*if (Child.Name == "Inventory")
+                                                {
+                                                    Child.FirstChild.InnerXml = Inventoryed;
+                                                    Child.ChildNodes[1].InnerText = Couner.ToString();
+                                                }*/
                                             }
                                         }
+                                        UpdateBlocks();
                                     }
-                                    UpdateBlocks();
+                                    File.Delete("EditTmpFile.txt");
                                 }
-                                File.Delete("EditTmpFile.txt");
                             }
-                        }
-                        else
-                        {
-                            File.Delete("EditTmpFile.txt");
-                            if (Settings.LangID == 0)
-                                MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
                             else
-                                MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
-                        }
-                    }
-                    catch
-                    {
-                        File.Delete("EditTmpFile.txt");
-                        if (Settings.LangID == 0)
-                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
-                        else
-                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
-                    }
-                    #endregion
-                    break;
-                case "Edit text":
-                case "Изменить текст":
-                    #region EditText
-                    if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
-                    try
-                    {
-                        File.WriteAllText("EditTmpFile.txt", EXTData.Replace("\n", "\r\n"));
-                        Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
-                        if (Editor != null)
-                        {
-                            Editor.WaitForExit();
-                            if (File.Exists("EditTmpFile.txt"))
                             {
-                                string Program = File.ReadAllText("EditTmpFile.txt");
-                                if (Block != null && Block.Count == 1 && button6.Visible)
-                                {
-                                    foreach (XmlNode Bl in Block)
-                                    {
-                                        foreach (XmlNode Child in Bl.ChildNodes)
-                                        {
-                                            if (Child.Name == "PublicDescription")
-                                            {
-                                                Child.InnerText = Program.Replace("\r\n", "\n");
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    UpdateBlocks();
-                                }
                                 File.Delete("EditTmpFile.txt");
+                                if (Settings.LangID == 0)
+                                    MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                                else
+                                    MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
                             }
                         }
-                        else
+                        catch
                         {
                             File.Delete("EditTmpFile.txt");
                             if (Settings.LangID == 0)
@@ -1948,18 +1972,153 @@ namespace BlueprintEditor
                             else
                                 MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
                         }
-                    }
-                    catch
-                    {
-                        File.Delete("EditTmpFile.txt");
-                        if (Settings.LangID == 0)
-                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
-                        else
-                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
-                    }
-                    #endregion
-                    break;
-            }
+                        #endregion
+                        break;
+                    case "Edit text":
+                    case "Изменить текст":
+                        #region EditText
+                        if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                        try
+                        {
+                            File.WriteAllText("EditTmpFile.txt", EXTData.Replace("\n", "\r\n"));
+                            Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
+                            if (Editor != null)
+                            {
+                                Editor.WaitForExit();
+                                if (File.Exists("EditTmpFile.txt"))
+                                {
+                                    string Program = File.ReadAllText("EditTmpFile.txt");
+                                    if (Block != null && Block.Count == 1 && button6.Visible)
+                                    {
+                                        foreach (XmlNode Bl in Block)
+                                        {
+                                            foreach (XmlNode Child in Bl.ChildNodes)
+                                            {
+                                                if (Child.Name == "PublicDescription")
+                                                {
+                                                    Child.InnerText = Program.Replace("\r\n", "\n");
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        UpdateBlocks();
+                                    }
+                                    File.Delete("EditTmpFile.txt");
+                                }
+                            }
+                            else
+                            {
+                                File.Delete("EditTmpFile.txt");
+                                if (Settings.LangID == 0)
+                                    MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                                else
+                                    MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                            }
+                        }
+                        catch
+                        {
+                            File.Delete("EditTmpFile.txt");
+                            if (Settings.LangID == 0)
+                                MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                            else
+                                MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                        }
+                        #endregion
+                        break;
+                    case "Edit inventories":
+                    case "Изменить инвентари":
+                        #region EditInventories
+                        if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                        try
+                        {
+                            string Inventory = "#Inventories text editor#";
+                            int IndeIndex = 0;
+                            foreach (XmlNode XmlN in EXTXML.ChildNodes)
+                            {
+                                foreach (XmlNode Xm in XmlN.FirstChild.ChildNodes)
+                                {
+                                    XmlNode Type = Xm.ChildNodes[1];
+                                    Inventory += "\r\n" + Type.Attributes.GetNamedItem("xsi:type").Value.Replace("MyObjectBuilder_", "") + "/" + Type.FirstChild.InnerText + ":" + Xm.FirstChild.InnerText;
+                                }
+                                if(IndeIndex == 0) Inventory += "\r\n#Next Inventory#";
+                                IndeIndex++;
+                            }
+                            File.WriteAllText("EditTmpFile.txt", Inventory);
+                            Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
+                            if (Editor != null)
+                            {
+                                Editor.WaitForExit();
+                                if (File.Exists("EditTmpFile.txt"))
+                                {
+                                    string Program = File.ReadAllText("EditTmpFile.txt");
+                                    if (Block != null && Block.Count == 1 && button6.Visible)
+                                    {
+                                        string[] Inventoryed = new string[] { "",""}; int Couner = 0;
+                                        string[] Invents = Program.Split(new string[] { "#Next Inventory#" }, StringSplitOptions.None);
+                                        string[] Splited = Invents[0].Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (string inv in Splited)
+                                        {
+                                            string[] Amount = inv.Split(':'), Type = Amount[0].Split('/');
+                                            if (Amount.Length > 1 && Type.Length > 1) Inventoryed[0] += "<MyObjectBuilder_InventoryItem><Amount>" + Amount[1] + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Type[0] + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><SubtypeName>" + Type[1] + "</SubtypeName></PhysicalContent><ItemId>" + Couner + "</ItemId></MyObjectBuilder_InventoryItem>";
+                                            Couner++;
+                                        }
+                                        Splited = Invents[1].Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                        Couner = 0;
+                                        foreach (string inv in Splited)
+                                        {
+                                            string[] Amount = inv.Split(':'), Type = Amount[0].Split('/');
+                                            if (Amount.Length > 1 && Type.Length > 1) Inventoryed[1] += "<MyObjectBuilder_InventoryItem><Amount>" + Amount[1] + "</Amount><PhysicalContent xsi:type=\"MyObjectBuilder_" + Type[0] + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><SubtypeName>" + Type[1] + "</SubtypeName></PhysicalContent><ItemId>" + Couner + "</ItemId></MyObjectBuilder_InventoryItem>";
+                                            Couner++;
+                                        }
+                                        foreach (XmlNode Bl in Block)
+                                        {
+                                            foreach (XmlNode Child in Bl.ChildNodes)
+                                            {
+                                                if (Child.Name == "ComponentContainer")
+                                                {
+                                                    int InvIndex = 0;
+                                                    foreach (XmlNode XmlN in Child.FirstChild.FirstChild.LastChild.LastChild.ChildNodes)
+                                                    {
+                                                        if (InvIndex < 2)
+                                                        {
+                                                            XmlN.FirstChild.InnerXml = Inventoryed[InvIndex];
+                                                            XmlN.ChildNodes[1].InnerText = Couner.ToString();
+                                                            InvIndex++;
+                                                        }
+                                                    }
+                                                }
+                                                /*if (Child.Name == "Inventory")
+                                                {
+                                                    Child.FirstChild.InnerXml = Inventoryed;
+                                                    Child.ChildNodes[1].InnerText = Couner.ToString();
+                                                }*/
+                                            }
+                                        }
+                                        UpdateBlocks();
+                                    }
+                                    File.Delete("EditTmpFile.txt");
+                                }
+                            }
+                            else
+                            {
+                                File.Delete("EditTmpFile.txt");
+                                if (Settings.LangID == 0)
+                                    MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                                else
+                                    MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                            }
+                        }
+                        catch
+                        {
+                            File.Delete("EditTmpFile.txt");
+                            if (Settings.LangID == 0)
+                                MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                            else
+                                MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                        }
+                        #endregion
+                        break;
+                }
             }
             catch (Exception ex)
             {
@@ -1969,20 +2128,21 @@ namespace BlueprintEditor
 
         private void textBox10_Leave(object sender, EventArgs e)
         {
-            try { 
-            if (Block != null)
+            try
             {
-                foreach (XmlNode Bl in Block)
+                if (Block != null)
                 {
-
-                    if (textBox10.Text == "")
+                    foreach (XmlNode Bl in Block)
                     {
-                        textBox10.Text = Bl.Attributes.GetNamedItem("xsi:type").Value;
+
+                        if (textBox10.Text == "")
+                        {
+                            textBox10.Text = Bl.Attributes.GetNamedItem("xsi:type").Value;
+                        }
+                        Bl.Attributes.GetNamedItem("xsi:type").Value = textBox10.Text;
                     }
-                    Bl.Attributes.GetNamedItem("xsi:type").Value = textBox10.Text;
+                    UpdateBlocks();
                 }
-                UpdateBlocks();
-            }
             }
             catch (Exception ex)
             {
@@ -1992,45 +2152,46 @@ namespace BlueprintEditor
 
         private void button7_Click(object sender, EventArgs e)
         {
-            try { 
-            List<string> Painters = new List<string>();
-            string Brush = "PaintBrush-" + comboBox11.SelectedItem.ToString();
-            string BluesPathc = Folder + "\\" + Brush;
-            XmlDocument Blueprinte = new XmlDocument();
-            Blueprinte.Load(BluesPathc + "\\bp.sbc");
-            XmlNodeList Paints = Blueprinte.GetElementsByTagName("MyObjectBuilder_CubeBlock");
-            foreach (XmlNode Paint in Paints)
+            try
             {
-                foreach (XmlNode Child in Paint.ChildNodes)
+                List<string> Painters = new List<string>();
+                string Brush = "PaintBrush-" + comboBox11.SelectedItem.ToString();
+                string BluesPathc = Folder + "\\" + Brush;
+                XmlDocument Blueprinte = new XmlDocument();
+                Blueprinte.Load(BluesPathc + "\\bp.sbc");
+                XmlNodeList Paints = Blueprinte.GetElementsByTagName("MyObjectBuilder_CubeBlock");
+                foreach (XmlNode Paint in Paints)
                 {
-                    if (Child.Name == "ColorMaskHSV")
+                    foreach (XmlNode Child in Paint.ChildNodes)
                     {
-                        Painters.Add(Child.Attributes[0].Value + "|" + Child.Attributes[1].Value + "|" + Child.Attributes[2].Value);
-                        break;
+                        if (Child.Name == "ColorMaskHSV")
+                        {
+                            Painters.Add(Child.Attributes[0].Value + "|" + Child.Attributes[1].Value + "|" + Child.Attributes[2].Value);
+                            break;
+                        }
                     }
                 }
-            }
-            foreach (XmlNode Child in Grid.ChildNodes)
-            {
-                if (Child.Name == "CubeBlocks")
+                foreach (XmlNode Child in Grid.ChildNodes)
                 {
-                    foreach (XmlNode Childs in Child.ChildNodes)
+                    if (Child.Name == "CubeBlocks")
                     {
-
-                        foreach (XmlNode Chold in Childs.ChildNodes)
+                        foreach (XmlNode Childs in Child.ChildNodes)
                         {
-                            if (Chold.Name == "ColorMaskHSV")
+
+                            foreach (XmlNode Chold in Childs.ChildNodes)
                             {
-                                string[] Paint = Painters[ArhApi.Rand(0, Painters.Count)].Split('|');
-                                Chold.Attributes[0].Value = Paint[0];
-                                Chold.Attributes[1].Value = Paint[1];
-                                Chold.Attributes[2].Value = Paint[2];
-                                break;
+                                if (Chold.Name == "ColorMaskHSV")
+                                {
+                                    string[] Paint = Painters[ArhApi.Rand(0, Painters.Count)].Split('|');
+                                    Chold.Attributes[0].Value = Paint[0];
+                                    Chold.Attributes[1].Value = Paint[1];
+                                    Chold.Attributes[2].Value = Paint[2];
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -2101,26 +2262,27 @@ namespace BlueprintEditor
         #endregion
         private void button9_Click(object sender, EventArgs e)
         {
-            try { 
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            try
             {
-                Console.WriteLine(saveFileDialog1.FilterIndex);
-                switch (saveFileDialog1.FilterIndex)
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    case 1:
-                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Png);
-                        break;
-                    case 2:
-                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Jpeg);
-                        break;
-                    case 3:
-                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Bmp);
-                        break;
-                    case 4:
-                        pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Icon);
-                        break;
+                    Console.WriteLine(saveFileDialog1.FilterIndex);
+                    switch (saveFileDialog1.FilterIndex)
+                    {
+                        case 1:
+                            pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Png);
+                            break;
+                        case 2:
+                            pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Jpeg);
+                            break;
+                        case 3:
+                            pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Bmp);
+                            break;
+                        case 4:
+                            pictureBox5.Image.Save(saveFileDialog1.FileName, ImageFormat.Icon);
+                            break;
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -2130,16 +2292,17 @@ namespace BlueprintEditor
         Form5 ImageConvert;
         private void button8_Click(object sender, EventArgs e)
         {
-            try {
-            if (ImageConvert == null || ImageConvert.IsDisposed)
+            try
             {
-                ImageConvert = new Form5(this);
-                ImageConvert.SetColor(AllForeColor, AllBackColor);
+                if (ImageConvert == null || ImageConvert.IsDisposed)
+                {
+                    ImageConvert = new Form5(this);
+                    ImageConvert.SetColor(AllForeColor, AllBackColor);
+                    ImageConvert.ChangeLang(Settings.LangID);
+                }
+                ImageConvert.ImageAndRadio(pictureBox5.Image, textBox2.Text.Contains("Wide"), EXTData);
                 ImageConvert.ChangeLang(Settings.LangID);
-            }
-            ImageConvert.ImageAndRadio(pictureBox5.Image, textBox2.Text.Contains("Wide"), EXTData);
-            ImageConvert.ChangeLang(Settings.LangID);
-            ImageConvert.Show();
+                ImageConvert.Show();
             }
             catch (Exception ex)
             {
@@ -2181,7 +2344,65 @@ namespace BlueprintEditor
         {
             try
             {
-                if(Calculator != null && !Calculator.IsDisposed)Calculator.Test();
+                if (Calculator != null && !Calculator.IsDisposed) Calculator.Test();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        private void button10_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+
+                if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                try
+                {
+                    File.WriteAllText("EditTmpFile.txt", EXTData.Replace("\n", "\r\n"));
+                    Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
+                    if (Editor != null)
+                    {
+                        Editor.WaitForExit();
+                        if (File.Exists("EditTmpFile.txt"))
+                        {
+                            string Program = File.ReadAllText("EditTmpFile.txt");
+                            if (Block != null && Block.Count == 1 && button6.Visible)
+                            {
+                                foreach (XmlNode Bl in Block)
+                                {
+                                    foreach (XmlNode Child in Bl.ChildNodes)
+                                    {
+                                        if (Child.Name == "ComponentContainer")
+                                        {
+                                            Child.FirstChild.LastChild.LastChild.FirstChild.FirstChild.FirstChild.LastChild.InnerText = Program.Replace("\r\n", "\n");
+                                            break;
+                                        }
+                                    }
+                                }
+                                UpdateBlocks();
+                            }
+                            File.Delete("EditTmpFile.txt");
+                        }
+                    }
+                    else
+                    {
+                        File.Delete("EditTmpFile.txt");
+                        if (Settings.LangID == 0)
+                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                        else
+                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                    }
+                }
+                catch
+                {
+                    File.Delete("EditTmpFile.txt");
+                    if (Settings.LangID == 0)
+                        MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                    else
+                        MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                }
             }
             catch (Exception ex)
             {
@@ -2191,29 +2412,30 @@ namespace BlueprintEditor
 
         private void comboBox7_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { 
-            if (comboBox7.SelectedIndex != -1 && comboBox7.SelectedIndex != SelectedArmorB)
+            try
             {
-                if (Block != null)
+                if (comboBox7.SelectedIndex != -1 && comboBox7.SelectedIndex != SelectedArmorB)
                 {
-                    foreach (XmlNode Bl in Block)
+                    if (Block != null)
                     {
-                        foreach (XmlNode Child in Bl.ChildNodes)
+                        foreach (XmlNode Bl in Block)
                         {
-                            if (Child.Name == "SubtypeName")
+                            foreach (XmlNode Child in Bl.ChildNodes)
                             {
-                                string Type = Child.InnerText;
-                                if (Type.Contains("Armor"))
+                                if (Child.Name == "SubtypeName")
                                 {
-                                    Child.InnerText = comboBox7.SelectedIndex == 1 ? Type.Replace("SmallBlock", "SmallHeavyBlock").Replace("LargeBlock", "LargeHeavyBlock").Replace("HeavyHalf", "Half").Replace("Half", "HeavyHalf") : Type.Replace("SmallHeavyBlock", "SmallBlock").Replace("LargeHeavyBlock", "LargeBlock").Replace("HeavyHalf", "Half");
+                                    string Type = Child.InnerText;
+                                    if (Type.Contains("Armor"))
+                                    {
+                                        Child.InnerText = comboBox7.SelectedIndex == 1 ? Type.Replace("SmallBlock", "SmallHeavyBlock").Replace("LargeBlock", "LargeHeavyBlock").Replace("HeavyHalf", "Half").Replace("Half", "HeavyHalf") : Type.Replace("SmallHeavyBlock", "SmallBlock").Replace("LargeHeavyBlock", "LargeBlock").Replace("HeavyHalf", "Half");
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
+                        UpdateBlocks();
                     }
-                    UpdateBlocks();
                 }
-            }
             }
             catch (Exception ex)
             {

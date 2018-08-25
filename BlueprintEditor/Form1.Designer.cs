@@ -100,6 +100,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.button10 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -823,9 +824,9 @@
             // button6
             // 
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button6.Location = new System.Drawing.Point(497, 344);
+            this.button6.Location = new System.Drawing.Point(497, 375);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(122, 23);
+            this.button6.Size = new System.Drawing.Size(201, 23);
             this.button6.TabIndex = 55;
             this.button6.Text = "None";
             this.button6.UseVisualStyleBackColor = true;
@@ -1004,6 +1005,19 @@
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Tag = "IgnBack";
             // 
+            // button10
+            // 
+            this.button10.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.button10.Location = new System.Drawing.Point(497, 346);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(201, 23);
+            this.button10.TabIndex = 63;
+            this.button10.Tag = "|Изменить клиентские данные";
+            this.button10.Text = "Edit Custom Data";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Visible = false;
+            this.button10.Click += new System.EventHandler(this.button10_Click_1);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1011,6 +1025,7 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(900, 471);
+            this.Controls.Add(this.button10);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.label25);
             this.Controls.Add(this.label24);
@@ -1163,6 +1178,7 @@
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Button button10;
     }
 }
 

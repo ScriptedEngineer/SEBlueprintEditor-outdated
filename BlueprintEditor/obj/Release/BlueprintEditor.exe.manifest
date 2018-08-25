@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BlueprintEditor.exe" size="4937648">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BlueprintEditor.exe" size="4941232">
       <assemblyIdentity name="BlueprintEditor" version="0.0.0.1" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>dBA7Tfqv7WNDbaR2q4rNmeYvr1qRUezooPzuFx0kTYM=</dsig:DigestValue>
+        <dsig:DigestValue>yI8jxWSZ2lDlfsI2iaHAUuZ2cB6d9bSzS1Wy+s9TkrY=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
