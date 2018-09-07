@@ -53,7 +53,7 @@ namespace BlueprintEditor
         string BluePathc; bool CalculateShip = true;
         Form1 MainF; string GamePath = ""; int SelectedArmor, SelectedArmorB;
         Settings Settings = new Settings();
-
+        Point Button6Location;
         private void Form1_Load(object sender, EventArgs e)
         {
             try
@@ -74,10 +74,11 @@ namespace BlueprintEditor
                         Folder = Settings.BlueprintPath;
                         GamePath = Settings.GamePath;
                         comboBox9.SelectedIndex = Settings.LangID;
-                        if (Settings.Theme == -1)
+                        if (Settings.Theme == -1 && Settings.Theme < Themes.Count)
                         {
                             AllBackColor = Settings.BackColor.GetColor();
                             AllForeColor = Settings.ForeColor.GetColor();
+                            comboBox10.SelectedIndex = -1;
                             comboBox10.Text = "Custom";
                         }
                         else
@@ -228,6 +229,7 @@ namespace BlueprintEditor
                 BackColor = AllBackColor;
                 Recolor(Controls, AllForeColor, AllBackColor);
                 //FormsLoad();Future
+                Button6Location = button6.Location;
             }
             catch (Exception ex)
             {
@@ -382,6 +384,7 @@ namespace BlueprintEditor
 
         void SetEnableCombo(ComboBox Box, bool Enable)
         {
+            Resizing = true;
             if (Box.Size.Width != 1) Box.Tag = Box.Width.ToString();
             if (Enable)
             {
@@ -394,6 +397,7 @@ namespace BlueprintEditor
                 Box.Width = 1;
             }
             Box.Enabled = Enable;
+            Resizing = false;
         }
 
         int OldGridSelect;
@@ -413,28 +417,36 @@ namespace BlueprintEditor
                 Error(ex);
             }
         }
-
-        List<XmlNode> SelectedSaveVar = new List<XmlNode>();
-
+        bool Updating = false;
         void UpdateBlocks()
         {
-            SelectedSaveVar.Clear();
-            foreach (int Index in listBox2.SelectedIndices)
+            if (!Updating)
             {
-                SelectedSaveVar.Add(BlocksSorted[Sorter[Index]]);
-            }
-            UpdateBlocksNoSett();
-            listBox2.BeginUpdate();
-            foreach (XmlNode Sel in SelectedSaveVar)
-            {
-                if (BlocksSorted.ContainsValue(Sel))
+                Updating = true;
+                List<XmlNode> SelectedSaveVar = new List<XmlNode>();
+                SelectedSaveVar.Clear();
+                foreach (int Index in listBox2.SelectedIndices)
                 {
-                    string Key = BlocksSorted.FirstOrDefault(x => x.Value == Sel).Key;
-                    listBox2.SetSelected(Sorter.IndexOf(Key), true);
+                    SelectedSaveVar.Add(BlocksSorted[Sorter[Index]]);
                 }
+                listBox2.SelectedIndex = -1;
+                UpdateBlocksNoSett();
+
+                if (SelectedSaveVar.Count < 50) {
+                    //listBox2.BeginUpdate();
+                    foreach (XmlNode Sel in SelectedSaveVar)
+                    {
+                        if (BlocksSorted.ContainsValue(Sel))
+                        {
+                            string Key = BlocksSorted.FirstOrDefault(x => x.Value == Sel).Key;
+                            listBox2.SetSelected(Sorter.IndexOf(Key), true);
+                        }
+                    }
+                    //listBox2.EndUpdate();
+                    //SelectedSaveVar.Clear();
+                }
+                Updating = false;
             }
-            listBox2.EndUpdate();
-            SelectedSaveVar.Clear();
         }
 
         void UpdateBlocksNoSett()
@@ -871,13 +883,15 @@ namespace BlueprintEditor
                                 }
                                 if (listBox2.SelectedIndices.Count == 1 && Child.FirstChild.LastChild.LastChild.Attributes.GetNamedItem("xsi:type").Value == "MyObjectBuilder_ModStorageComponent")
                                 {
-                                    EXTData = Child.FirstChild.LastChild.LastChild.FirstChild.FirstChild.FirstChild.LastChild.InnerText;
+                                    CustomData = Child.FirstChild.LastChild.LastChild.FirstChild.FirstChild.FirstChild.LastChild.InnerText;
                                     button10.Visible = true;
                                 }
                             }
                         }
                         FirsTrart = false;
                     }
+                    if (!button10.Visible)button6.Location = button10.Location;
+                        else button6.Location = Button6Location;
                     if (TypeName != "")
                     {
                         textBox10.Text = TypeName;
@@ -952,7 +966,7 @@ namespace BlueprintEditor
                 Error(ex);
             }
         }
-        string EXTData; XmlNode EXTXML;
+        string EXTData, CustomData; XmlNode EXTXML;
         private void textBox2_Leave(object sender, EventArgs e)
         {
             try
@@ -1329,7 +1343,6 @@ namespace BlueprintEditor
                             }
                         }
                     }
-                    UpdateBlocks();
                 }
             }
             catch (Exception ex)
@@ -1821,16 +1834,40 @@ namespace BlueprintEditor
             new Theme(Color.FromArgb(204, 173, 96),Color.Brown),
             new Theme(SystemColors.Window,SystemColors.ControlText),
             new Theme(Color.Orange,Color.Black),
-            new Theme(Color.FromArgb(255,104,0),Color.Black)
+            new Theme(Color.FromArgb(255,104,0),Color.Black),
+            new Theme(Color.FromArgb(237,238,240),Color.FromArgb(40,84,115)),
+            new Theme(Color.FromArgb(33,56,87),Color.FromArgb(43,204,216)),
+            new Theme(Color.FromArgb(182,216,213),Color.FromArgb(6,27,51)),
+             new Theme(Color.FromArgb(64,0,64),Color.FromArgb(255,255,0)),
+            new Theme(Color.FromArgb(183,240,32),Color.Black)
                 });
 
         private void comboBox10_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
-                Settings.Theme = comboBox10.SelectedIndex;
-                AllBackColor = Themes[comboBox10.SelectedIndex].Back;
-                AllForeColor = Themes[comboBox10.SelectedIndex].Fore;
+                if (comboBox10.SelectedIndex == -1) return;
+                if (comboBox10.SelectedIndex < Themes.Count)
+                {
+                    Settings.Theme = comboBox10.SelectedIndex;
+                    AllBackColor = Themes[comboBox10.SelectedIndex].Back;
+                    AllForeColor = Themes[comboBox10.SelectedIndex].Fore;
+                }
+                else
+                {
+                    if (colorDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        AllBackColor = colorDialog1.Color;
+                        if (colorDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            AllForeColor = colorDialog1.Color;
+                            Settings.Theme = -1;
+                            comboBox10.SelectedIndex = Themes.Count;
+                        }
+                        else return;
+                    }
+                    else return;
+                }
                 BackColor = AllBackColor;
                 Settings.BackColor = new MyColor(AllBackColor);
                 Settings.ForeColor = new MyColor(AllForeColor);
@@ -2360,7 +2397,7 @@ namespace BlueprintEditor
                 if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
                 try
                 {
-                    File.WriteAllText("EditTmpFile.txt", EXTData.Replace("\n", "\r\n"));
+                    File.WriteAllText("EditTmpFile.txt", CustomData.Replace("\n", "\r\n"));
                     Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditTmpFile.txt");
                     if (Editor != null)
                     {
@@ -2409,6 +2446,21 @@ namespace BlueprintEditor
                 Error(ex);
             }
         }
+        bool Resizing = false;
+
+        private void textBox4_SizeChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                comboBox3.Tag = textBox4.Width;
+                if (!Resizing && !comboBox3.Enabled) comboBox3.Width = 1;
+                else if (!Resizing) comboBox3.Width = textBox4.Width;
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+}
 
         private void comboBox7_SelectedIndexChanged(object sender, EventArgs e)
         {

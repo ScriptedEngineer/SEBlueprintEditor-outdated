@@ -208,8 +208,10 @@
             // 
             // comboBox2
             // 
+            this.comboBox2.CausesValidation = false;
             this.comboBox2.Enabled = false;
             this.comboBox2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox2.Items.AddRange(new object[] {
             "Small",
             "Large"});
@@ -233,8 +235,10 @@
             // 
             // comboBox1
             // 
+            this.comboBox1.CausesValidation = false;
             this.comboBox1.Enabled = false;
             this.comboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox1.Items.AddRange(new object[] {
             "False",
             "True"});
@@ -373,6 +377,7 @@
             this.textBox4.Size = new System.Drawing.Size(149, 20);
             this.textBox4.TabIndex = 5;
             this.textBox4.TabStop = false;
+            this.textBox4.SizeChanged += new System.EventHandler(this.textBox4_SizeChanged);
             this.textBox4.TextChanged += new System.EventHandler(this.textBox4_TextChanged);
             this.textBox4.Leave += new System.EventHandler(this.textBox4_Leave);
             // 
@@ -402,8 +407,10 @@
             // 
             this.comboBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox3.CausesValidation = false;
             this.comboBox3.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.comboBox3.FormattingEnabled = true;
+            this.comboBox3.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox3.Location = new System.Drawing.Point(3, 3);
             this.comboBox3.Name = "comboBox3";
             this.comboBox3.Size = new System.Drawing.Size(149, 21);
@@ -508,8 +515,10 @@
             // comboBox4
             // 
             this.comboBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox4.CausesValidation = false;
             this.comboBox4.Enabled = false;
             this.comboBox4.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox4.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox4.Items.AddRange(new object[] {
             "Forward",
             "Backward",
@@ -527,8 +536,10 @@
             // comboBox5
             // 
             this.comboBox5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox5.CausesValidation = false;
             this.comboBox5.Enabled = false;
             this.comboBox5.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox5.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox5.Items.AddRange(new object[] {
             "Forward",
             "Backward",
@@ -658,8 +669,10 @@
             // comboBox6
             // 
             this.comboBox6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox6.CausesValidation = false;
             this.comboBox6.Enabled = false;
             this.comboBox6.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox6.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox6.Items.AddRange(new object[] {
             "Light",
             "Heavy"});
@@ -685,8 +698,10 @@
             // comboBox7
             // 
             this.comboBox7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox7.CausesValidation = false;
             this.comboBox7.Enabled = false;
             this.comboBox7.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox7.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox7.Items.AddRange(new object[] {
             "Light",
             "Heavy"});
@@ -792,8 +807,10 @@
             // 
             // comboBox9
             // 
+            this.comboBox9.CausesValidation = false;
             this.comboBox9.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.comboBox9.FormattingEnabled = true;
+            this.comboBox9.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox9.Items.AddRange(new object[] {
             "Eng",
             "Rus"});
@@ -805,8 +822,10 @@
             // 
             // comboBox10
             // 
+            this.comboBox10.CausesValidation = false;
             this.comboBox10.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.comboBox10.FormattingEnabled = true;
+            this.comboBox10.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox10.Items.AddRange(new object[] {
             "LightBlack",
             "Homework",
@@ -814,11 +833,18 @@
             "Desert",
             "SurfWhite",
             "DarkLemon",
-            "BriOrange"});
+            "BriOrange",
+            "Vk",
+            "ArhSite",
+            "Books",
+            "PurpleGold",
+            "Frash",
+            "Сustоm"});
             this.comboBox10.Location = new System.Drawing.Point(12, 11);
             this.comboBox10.Name = "comboBox10";
             this.comboBox10.Size = new System.Drawing.Size(79, 21);
             this.comboBox10.TabIndex = 54;
+            this.comboBox10.Text = "Custom";
             this.comboBox10.SelectedIndexChanged += new System.EventHandler(this.comboBox10_SelectedIndexChanged);
             // 
             // button6
@@ -874,7 +900,9 @@
             // 
             // comboBox11
             // 
+            this.comboBox11.CausesValidation = false;
             this.comboBox11.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.comboBox11.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox11.Location = new System.Drawing.Point(496, 133);
             this.comboBox11.Name = "comboBox11";
             this.comboBox11.Size = new System.Drawing.Size(123, 21);
@@ -896,6 +924,7 @@
             // 
             // label25
             // 
+            this.label25.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label25.AutoSize = true;
             this.label25.BackColor = System.Drawing.Color.Transparent;
             this.label25.Location = new System.Drawing.Point(704, 185);
