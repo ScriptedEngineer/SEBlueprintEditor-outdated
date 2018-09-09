@@ -839,6 +839,7 @@
             "Books",
             "PurpleGold",
             "Frash",
+            "GameMenu",
             "Сustоm"});
             this.comboBox10.Location = new System.Drawing.Point(12, 11);
             this.comboBox10.Name = "comboBox10";

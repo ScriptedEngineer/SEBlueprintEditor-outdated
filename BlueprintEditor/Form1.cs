@@ -559,7 +559,7 @@ namespace BlueprintEditor
                     else if (Child.Name == "DestructibleBlocks")
                     {
                         SetEnableCombo(comboBox1, true);
-                        comboBox1.SelectedIndex = Child.InnerText == "True" ? 1 : 0;
+                        comboBox1.SelectedIndex = bool.Parse(Child.InnerText)?1:0;
                         //comboBox1.Enabled = true;
                     }
                     else if (Child.Name == "GridSizeEnum")
@@ -656,7 +656,7 @@ namespace BlueprintEditor
                 {
                     if (Child.Name == "DestructibleBlocks")
                     {
-                        if (comboBox1.SelectedIndex != -1) Child.InnerText = (Convert.ToBoolean(comboBox1.SelectedIndex)).ToString().ToLower();
+                        if (comboBox1.SelectedIndex != -1) Child.InnerText = Convert.ToBoolean(comboBox1.SelectedIndex) ? "true" : "false";
                         break;
                     }
                 }
@@ -1838,10 +1838,11 @@ namespace BlueprintEditor
             new Theme(Color.FromArgb(237,238,240),Color.FromArgb(40,84,115)),
             new Theme(Color.FromArgb(33,56,87),Color.FromArgb(43,204,216)),
             new Theme(Color.FromArgb(182,216,213),Color.FromArgb(6,27,51)),
-             new Theme(Color.FromArgb(64,0,64),Color.FromArgb(255,255,0)),
-            new Theme(Color.FromArgb(183,240,32),Color.Black)
+            new Theme(Color.FromArgb(64,0,64),Color.FromArgb(255,255,0)),
+            new Theme(Color.FromArgb(183,240,32),Color.Black),
+             new Theme(Color.FromArgb(48,60,65),Color.FromArgb(200,222,230))
                 });
-
+        int OldSelectedIndex;
         private void comboBox10_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
@@ -1864,9 +1865,17 @@ namespace BlueprintEditor
                             Settings.Theme = -1;
                             comboBox10.SelectedIndex = Themes.Count;
                         }
-                        else return;
+                        else
+                        {
+                            comboBox10.SelectedIndex = OldSelectedIndex;
+                            return;
+                        }
                     }
-                    else return;
+                    else
+                    {
+                        comboBox10.SelectedIndex = OldSelectedIndex;
+                        return;
+                    }
                 }
                 BackColor = AllBackColor;
                 Settings.BackColor = new MyColor(AllBackColor);
@@ -1878,6 +1887,7 @@ namespace BlueprintEditor
                     ImageConvert.SetColor(AllForeColor, AllBackColor);
                 if (Calculator != null && !Calculator.IsDisposed)
                     Calculator.SetColor(AllForeColor, AllBackColor);
+                OldSelectedIndex = comboBox10.SelectedIndex;
             }
             catch (Exception ex)
             {

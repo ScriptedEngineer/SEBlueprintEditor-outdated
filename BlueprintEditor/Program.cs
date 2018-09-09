@@ -42,8 +42,6 @@ namespace BlueprintEditor
         public MyColor()
         {
 
-
-
         }
         public MyColor(System.Drawing.Color Color)
         {
