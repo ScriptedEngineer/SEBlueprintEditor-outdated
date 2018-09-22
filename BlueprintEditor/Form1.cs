@@ -52,7 +52,7 @@ namespace BlueprintEditor
         List<XmlNode> Block = new List<XmlNode>();
         string BluePathc; bool CalculateShip = true;
         Form1 MainF; string GamePath = ""; int SelectedArmor, SelectedArmorB;
-        Settings Settings = new Settings();
+        public Settings Settings = new Settings();
         Point Button6Location;
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -275,6 +275,7 @@ namespace BlueprintEditor
                     label3.Visible = true;
                     listBox3.Visible = true;
                     button3.Enabled = true;
+                    button11.Enabled = true;
                     button2.Enabled = true;
                 }
             }
@@ -1703,12 +1704,19 @@ namespace BlueprintEditor
 
         }
 
-        public void CreateBlueprint(string Name, string XML)
+        public void CreateBlueprint(string Name, string XML, Image Picture)
         {
             string Pathb = Folder + "\\" + Name;
             Directory.CreateDirectory(Pathb);
             File.WriteAllText(Pathb + "\\bp.sbc", XML);
-            Properties.Resources.forthumb.Save(Pathb + "\\thumb.png", ImageFormat.Png);
+            try
+            {
+                Picture.Save(Pathb + "\\thumb.png");
+            }
+            catch
+            {
+
+            }
             if (File.Exists(Pathb + "\\bp.sbcPB")) File.Delete(Pathb + "\\bp.sbcPB");
             if (File.Exists(Pathb + "\\bp.sbcB1")) File.Delete(Pathb + "\\bp.sbcB1");
             if (!listBox1.Items.Contains(Name)) listBox1.Items.Add(Name);
@@ -2457,6 +2465,13 @@ namespace BlueprintEditor
             }
         }
         bool Resizing = false;
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(BluePathc + "\\bp.sbcPB")) File.Delete(BluePathc + "\\bp.sbcPB");
+            if (File.Exists(BluePathc + "\\bp.sbcB1")) File.Delete(BluePathc + "\\bp.sbcB1");
+            Process.Start(BluePathc);
+        }
 
         private void textBox4_SizeChanged(object sender, EventArgs e)
         {

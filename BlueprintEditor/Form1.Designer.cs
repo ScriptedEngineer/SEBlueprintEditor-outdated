@@ -101,6 +101,7 @@
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.button10 = new System.Windows.Forms.Button();
+            this.button11 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -172,7 +173,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.Color.Transparent;
-            this.label3.Location = new System.Drawing.Point(149, 206);
+            this.label3.Location = new System.Drawing.Point(152, 230);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(31, 13);
             this.label3.TabIndex = 7;
@@ -187,9 +188,9 @@
             this.listBox3.FormattingEnabled = true;
             this.listBox3.Items.AddRange(new object[] {
             " "});
-            this.listBox3.Location = new System.Drawing.Point(152, 220);
+            this.listBox3.Location = new System.Drawing.Point(152, 246);
             this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(110, 236);
+            this.listBox3.Size = new System.Drawing.Size(110, 210);
             this.listBox3.TabIndex = 6;
             this.listBox3.TabStop = false;
             this.listBox3.UseTabStops = false;
@@ -1024,7 +1025,8 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.BackColor = System.Drawing.Color.Black;
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.InitialImage = null;
             this.pictureBox1.Location = new System.Drawing.Point(152, 12);
@@ -1048,6 +1050,19 @@
             this.button10.Visible = false;
             this.button10.Click += new System.EventHandler(this.button10_Click_1);
             // 
+            // button11
+            // 
+            this.button11.Enabled = false;
+            this.button11.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.button11.Location = new System.Drawing.Point(152, 198);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(110, 23);
+            this.button11.TabIndex = 64;
+            this.button11.Tag = "|В ручную";
+            this.button11.Text = "Edit manually";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1055,6 +1070,7 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(900, 471);
+            this.Controls.Add(this.button11);
             this.Controls.Add(this.button10);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.label25);
@@ -1209,6 +1225,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Button button11;
     }
 }
 
