@@ -29,6 +29,7 @@ namespace BlueprintEditor
 
         double ReginaryMultiplier = 0;
         double RefineryEfficensy = 0;
+        double TimeToBuildCompinents, TimeToBuildIngots;
 
         public void Test()
         {
@@ -46,24 +47,12 @@ namespace BlueprintEditor
 
         Dictionary<string, Dictionary<string, double>> DictComponents = new Dictionary<string, Dictionary<string, double>>();
         Dictionary<string, Dictionary<string, double>> DictBlueprint = new Dictionary<string, Dictionary<string, double>>();
+        Dictionary<string, double> DictBlueprintTimes = new Dictionary<string, double>();
 
-        public void ChangeLang(int Lang, Control Contre = null)
+        public void ChangeLang(int Lang, Control Control = null)
         {
-            if (Contre == null)
-            {
-                Contre = this;
-                if (Contre.Tag != null)
-                {
-                    string tag = Contre.Tag.ToString();
-                    if (tag != "")
-                    {
-                        string[] Tagge = tag.Split('|');
-                        if (Tagge[0] == "") Contre.Tag = Contre.Text + tag;
-                        Contre.Text = Tagge[Lang];
-                    }
-                }
-            }
-            foreach (Control Contr in Contre.Controls)
+            if (Control == null) Control = this;
+            foreach (Control Contr in Control.Controls)
             {
                 ChangeLang(Lang, Contr);
                 try
@@ -72,8 +61,8 @@ namespace BlueprintEditor
                     string tag = Contr.Tag.ToString();
                     if (tag is "") continue;
                     string[] Tagge = tag.Split('|');
-                    if (Tagge[0] == "") Contr.Tag = Contr.Text + tag;
-                    Contr.Text = Tagge[Lang];
+                    if (Tagge[0] == "") { Contr.Tag = Contr.Text + tag; tag = Contr.Tag.ToString(); }
+                    Contr.Text = Lang == 1 ? Contr.Text.Replace(Tagge[0], Tagge[1]) : Contr.Text.Replace(Tagge[1], Tagge[0]);
                 }
                 catch
                 {
@@ -84,269 +73,276 @@ namespace BlueprintEditor
 
         string UndefinedBlocks = "";
         Form1 MainForm;
-        public Form4(string GamePatch,Form1 MainF)
+        public Form4(string GamePatch, Form1 MainF)
         {
-            try {
-            InitializeComponent();
-            string str = GamePatch + "\\Content\\Data\\";
-            MainForm = MainF;
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(str + "CubeBlocks.sbc");
-            CubeBlocks = xmlDocument;
-            XmlDocument xmlDocument3 = new XmlDocument();
-            xmlDocument3.Load(str + "Blueprints.sbc");
-            Blueprints = xmlDocument3;
-            foreach (XmlNode Def in CubeBlocks.GetElementsByTagName("Definition"))
+            try
             {
-                Dictionary<string, double> Componentse = new Dictionary<string, double>();
-                //XmlNode xsitype = Def.Attributes.GetNamedItem("xsi:type");
-                string TypeID = "", SybtypeID = "";
-                foreach (XmlNode Ndex in Def.ChildNodes)
+                InitializeComponent();
+                string str = GamePatch + "\\Content\\Data\\";
+                MainForm = MainF;
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(str + "CubeBlocks.sbc");
+                CubeBlocks = xmlDocument;
+                XmlDocument xmlDocument3 = new XmlDocument();
+                xmlDocument3.Load(str + "Blueprints.sbc");
+                Blueprints = xmlDocument3;
+                foreach (XmlNode Def in CubeBlocks.GetElementsByTagName("Definition"))
                 {
-                    if (Ndex.Name == "Id")
+                    Dictionary<string, double> Componentse = new Dictionary<string, double>();
+                    //XmlNode xsitype = Def.Attributes.GetNamedItem("xsi:type");
+                    string TypeID = "", SybtypeID = "";
+                    foreach (XmlNode Ndex in Def.ChildNodes)
                     {
-                        foreach (XmlNode nNdex in Ndex.ChildNodes)
+                        if (Ndex.Name == "Id")
                         {
-                            if (nNdex.Name == "TypeId")
+                            foreach (XmlNode nNdex in Ndex.ChildNodes)
                             {
-                                TypeID = nNdex.InnerText;
-                            }
-                            else if (nNdex.Name == "SubtypeId")
-                            {
-                                SybtypeID = nNdex.InnerText;
-                            }
-                        }
-                        break;
-                    }
-                }
-                string Type = TypeID + "/" + SybtypeID;
-                foreach (XmlNode Node in Def.ChildNodes)
-                {
-                    if (Node.Name == "Components")
-                    {
-                        foreach (XmlNode Component in Node.ChildNodes)
-                        {
-                            if (Component.Attributes != null)
-                            {
-                                string Count = Component.Attributes.GetNamedItem("Count").Value.Replace('.', ',');
-                                string Subtype = Component.Attributes.GetNamedItem("Subtype").Value;
-                                if (Componentse.ContainsKey(Subtype))
-                                    Componentse[Subtype] += double.Parse(Count);
-                                else
-                                    Componentse.Add(Subtype, double.Parse(Count));
-                            }
-                        }
-                        if (Type != "Refinery/LargeRefinery" && Type != "UpgradeModule/LargeEffectivenessModule") break;
-                    }
-                    if (Type == "Refinery/LargeRefinery" && Node.Name == "MaterialEfficiency")
-                    {
-                        RefineryEfficensy = double.Parse(Node.InnerText.Replace('.', ','));
-                    }
-                    if (Type == "UpgradeModule/LargeEffectivenessModule" && Node.Name == "Upgrades")
-                    {
-                        ReginaryMultiplier = double.Parse(Node.FirstChild.ChildNodes[1].InnerText.Replace('.', ','));
-                    }
-                }
-                DictComponents.Add(Type, Componentse);
-            }
-            foreach (XmlNode Blue in Blueprints.GetElementsByTagName("Blueprint"))
-            {
-                Dictionary<string, double> Componentse = new Dictionary<string, double>();
-                double ToOne = 0; string ResyltID = "";
-                foreach (XmlNode Node in Blue.ChildNodes)
-                {
-                    if (Node.Name == "Result")
-                    {
-                        if (Node.Attributes != null)
-                        {
-                            if (double.TryParse(Node.Attributes.GetNamedItem("Amount").Value.Replace('.', ','), out ToOne))
-                            {
-                                ToOne = 1 / ToOne;
-                                ResyltID = Node.Attributes.GetNamedItem("TypeId").Value + "/" + Node.Attributes.GetNamedItem("SubtypeId").Value;
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (ResyltID != "")
-                {
-                    foreach (XmlNode Node in Blue.ChildNodes)
-                    {
-                        if (Node.Name == "Prerequisites")
-                        {
-                            foreach (XmlNode Component in Node.ChildNodes)
-                            {
-                                if (Component.Attributes != null)
+                                if (nNdex.Name == "TypeId")
                                 {
-                                    string ID = Component.Attributes.GetNamedItem("TypeId").Value + "/" + Component.Attributes.GetNamedItem("SubtypeId").Value;
-                                    if (Componentse.ContainsKey(ID))
-                                        Componentse[ID] += double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne;
-                                    else
-                                        Componentse.Add(ID, double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne);
+                                    TypeID = nNdex.InnerText;
+                                }
+                                else if (nNdex.Name == "SubtypeId")
+                                {
+                                    SybtypeID = nNdex.InnerText;
                                 }
                             }
                             break;
                         }
                     }
-                    if (!DictBlueprint.ContainsKey(ResyltID)) DictBlueprint.Add(ResyltID, Componentse);
-                }
-            }
-            string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
-            if (Directory.Exists(ModFolder))
-            {
-                string[] ModsFiles = Directory.GetFiles(ModFolder);
-                foreach (string ModsFile in ModsFiles)
-                {
-                    string SbmPatch = Path.GetFileNameWithoutExtension(ModsFile);
-                    if (Path.GetExtension(ModsFile) == ".sbm")
-                        try
+                    string Type = TypeID + "/" + SybtypeID;
+                    foreach (XmlNode Node in Def.ChildNodes)
+                    {
+                        if (Node.Name == "Components")
                         {
-                            using (ZipArchive zipMode = ZipFile.OpenRead(ModsFile))
+                            foreach (XmlNode Component in Node.ChildNodes)
                             {
-                                //if(!Directory.Exists("Mods"))Directory.CreateDirectory("Mods");
-                                //if(!Directory.Exists("Mods\\" + SbmPatch)) Directory.CreateDirectory("Mods\\"+ SbmPatch);
-                                foreach (ZipArchiveEntry ModFile in zipMode.Entries)
+                                if (Component.Attributes != null)
                                 {
-                                    try
+                                    string Count = Component.Attributes.GetNamedItem("Count").Value.Replace('.', ',');
+                                    string Subtype = Component.Attributes.GetNamedItem("Subtype").Value;
+                                    if (Componentse.ContainsKey(Subtype))
+                                        Componentse[Subtype] += double.Parse(Count);
+                                    else
+                                        Componentse.Add(Subtype, double.Parse(Count));
+                                }
+                            }
+                            if (Type != "Refinery/LargeRefinery" && Type != "UpgradeModule/LargeEffectivenessModule") break;
+                        }
+                        if (Type == "Refinery/LargeRefinery" && Node.Name == "MaterialEfficiency")
+                        {
+                            RefineryEfficensy = double.Parse(Node.InnerText.Replace('.', ','));
+                        }
+                        if (Type == "UpgradeModule/LargeEffectivenessModule" && Node.Name == "Upgrades")
+                        {
+                            ReginaryMultiplier = double.Parse(Node.FirstChild.ChildNodes[1].InnerText.Replace('.', ','));
+                        }
+                    }
+                    if (!DictComponents.ContainsKey(Type)) DictComponents.Add(Type, Componentse);
+                }
+                foreach (XmlNode Blue in Blueprints.GetElementsByTagName("Blueprint"))
+                {
+                    Dictionary<string, double> Componentse = new Dictionary<string, double>();
+                    double ToOne = 0; string ResyltID = "";double BuildTime = 0;
+                    foreach (XmlNode Node in Blue.ChildNodes)
+                    {
+                        if (Node.Name == "Result")
+                        {
+                            if (Node.Attributes != null)
+                            {
+                                if (double.TryParse(Node.Attributes.GetNamedItem("Amount").Value.Replace('.', ','), out ToOne))
+                                {
+                                    ToOne = 1 / ToOne;
+                                    ResyltID = Node.Attributes.GetNamedItem("TypeId").Value + "/" + Node.Attributes.GetNamedItem("SubtypeId").Value;
+                                }
+                            }
+                        }
+                        if (Node.Name == "BaseProductionTimeInSeconds")
+                        {
+                            BuildTime = double.Parse(Node.InnerText.Replace('.', ','));
+                        }
+                    }
+                    if (ResyltID != "")
+                    {
+                        foreach (XmlNode Node in Blue.ChildNodes)
+                        {
+                            if (Node.Name == "Prerequisites")
+                            {
+                                foreach (XmlNode Component in Node.ChildNodes)
+                                {
+                                    if (Component.Attributes != null)
                                     {
-                                        if (Path.GetExtension(ModFile.Name) == ".sbc")
+                                        string ID = Component.Attributes.GetNamedItem("TypeId").Value + "/" + Component.Attributes.GetNamedItem("SubtypeId").Value;
+                                        if (Componentse.ContainsKey(ID))
+                                            Componentse[ID] += double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne;
+                                        else
+                                            Componentse.Add(ID, double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        if (!DictBlueprint.ContainsKey(ResyltID)) DictBlueprint.Add(ResyltID, Componentse);
+                        if (!DictBlueprintTimes.ContainsKey(ResyltID)) DictBlueprintTimes.Add(ResyltID, BuildTime);
+                    }
+                }
+                string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
+                if (Directory.Exists(ModFolder))
+                {
+                    string[] ModsFiles = Directory.GetFiles(ModFolder);
+                    foreach (string ModsFile in ModsFiles)
+                    {
+                        string SbmPatch = Path.GetFileNameWithoutExtension(ModsFile);
+                        if (Path.GetExtension(ModsFile) == ".sbm")
+                            try
+                            {
+                                using (ZipArchive zipMode = ZipFile.OpenRead(ModsFile))
+                                {
+                                    //if(!Directory.Exists("Mods"))Directory.CreateDirectory("Mods");
+                                    //if(!Directory.Exists("Mods\\" + SbmPatch)) Directory.CreateDirectory("Mods\\"+ SbmPatch);
+                                    foreach (ZipArchiveEntry ModFile in zipMode.Entries)
+                                    {
+                                        try
                                         {
-                                            //ModFile.ExtractToFile("Mods\\" + SbmPatch + "\\" + ModFile.Name, true);
-                                            using (Stream XmlFile = ModFile.Open())
+                                            if (Path.GetExtension(ModFile.Name) == ".sbc")
                                             {
-                                                XmlDocument ModDocument = new XmlDocument();
-                                                ModDocument.Load(XmlFile);
-                                                foreach (XmlNode Def in ModDocument.GetElementsByTagName("Definition"))
+                                                //ModFile.ExtractToFile("Mods\\" + SbmPatch + "\\" + ModFile.Name, true);
+                                                using (Stream XmlFile = ModFile.Open())
                                                 {
-                                                    try
+                                                    XmlDocument ModDocument = new XmlDocument();
+                                                    ModDocument.Load(XmlFile);
+                                                    foreach (XmlNode Def in ModDocument.GetElementsByTagName("Definition"))
                                                     {
-                                                        string TypeID = "", SybtypeID = "";
-                                                        foreach (XmlNode Ndex in Def.ChildNodes)
+                                                        try
                                                         {
-                                                            if (Ndex.Name == "Id")
+                                                            string TypeID = "", SybtypeID = "";
+                                                            foreach (XmlNode Ndex in Def.ChildNodes)
                                                             {
-                                                                foreach (XmlNode nNdex in Ndex.ChildNodes)
+                                                                if (Ndex.Name == "Id")
                                                                 {
-                                                                    if (nNdex.Name == "TypeId")
+                                                                    foreach (XmlNode nNdex in Ndex.ChildNodes)
                                                                     {
-                                                                        TypeID = nNdex.InnerText;
-                                                                    }
-                                                                    else if (nNdex.Name == "SubtypeId")
-                                                                    {
-                                                                        SybtypeID = nNdex.InnerText;
-                                                                    }
-                                                                }
-                                                                break;
-                                                            }
-                                                        }
-                                                        string Type = TypeID + "/" + SybtypeID;
-                                                        if (!DictComponents.ContainsKey(Type))
-                                                        {
-                                                            Dictionary<string, double> Componentse = new Dictionary<string, double>();
-                                                            foreach (XmlNode Node in Def.ChildNodes)
-                                                            {
-                                                                if (Node.Name == "Components")
-                                                                {
-                                                                    foreach (XmlNode Component in Node.ChildNodes)
-                                                                    {
-                                                                        if (Component.Attributes != null)
+                                                                        if (nNdex.Name == "TypeId")
                                                                         {
-                                                                            string Count = Component.Attributes.GetNamedItem("Count").Value.Replace('.', ',');
-                                                                            string Subtype = Component.Attributes.GetNamedItem("Subtype").Value;
-                                                                            if (Componentse.ContainsKey(Subtype))
-                                                                                Componentse[Subtype] += double.Parse(Count);
-                                                                            else
-                                                                                Componentse.Add(Subtype, double.Parse(Count));
+                                                                            TypeID = nNdex.InnerText;
                                                                         }
-                                                                    }
-                                                                    if (Type != "Refinery/LargeRefinery" && Type != "UpgradeModule/LargeEffectivenessModule") break;
-                                                                }
-                                                            }
-                                                            DictComponents.Add(Type, Componentse);
-                                                        }
-                                                    }
-                                                    catch
-                                                    {
-
-                                                    }
-                                                }
-                                                foreach (XmlNode Blue in ModDocument.GetElementsByTagName("Blueprint"))
-                                                {
-                                                    try
-                                                    {
-                                                        Dictionary<string, double> Componentse = new Dictionary<string, double>();
-                                                        double ToOne = 0; string ResyltID = "";
-                                                        foreach (XmlNode Node in Blue.ChildNodes)
-                                                        {
-                                                            if (Node.Name == "Result")
-                                                            {
-                                                                if (Node.Attributes != null)
-                                                                {
-                                                                    if (double.TryParse(Node.Attributes.GetNamedItem("Amount").Value.Replace('.', ','), out ToOne))
-                                                                    {
-                                                                        ToOne = 1 / ToOne;
-                                                                        ResyltID = Node.Attributes.GetNamedItem("TypeId").Value + "/" + Node.Attributes.GetNamedItem("SubtypeId").Value;
-                                                                    }
-                                                                }
-                                                                break;
-                                                            }
-                                                        }
-                                                        if (ResyltID != "" && !DictBlueprint.ContainsKey(ResyltID))
-                                                        {
-                                                            foreach (XmlNode Node in Blue.ChildNodes)
-                                                            {
-                                                                if (Node.Name == "Prerequisites")
-                                                                {
-                                                                    foreach (XmlNode Component in Node.ChildNodes)
-                                                                    {
-                                                                        if (Component.Attributes != null)
+                                                                        else if (nNdex.Name == "SubtypeId")
                                                                         {
-                                                                            string ID = Component.Attributes.GetNamedItem("TypeId").Value + "/" + Component.Attributes.GetNamedItem("SubtypeId").Value;
-                                                                            if (Componentse.ContainsKey(ID))
-                                                                                Componentse[ID] += double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne;
-                                                                            else
-                                                                                Componentse.Add(ID, double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne);
+                                                                            SybtypeID = nNdex.InnerText;
                                                                         }
                                                                     }
                                                                     break;
                                                                 }
                                                             }
-                                                            DictBlueprint.Add(ResyltID, Componentse);
+                                                            string Type = TypeID + "/" + SybtypeID;
+                                                            if (!DictComponents.ContainsKey(Type))
+                                                            {
+                                                                Dictionary<string, double> Componentse = new Dictionary<string, double>();
+                                                                foreach (XmlNode Node in Def.ChildNodes)
+                                                                {
+                                                                    if (Node.Name == "Components")
+                                                                    {
+                                                                        foreach (XmlNode Component in Node.ChildNodes)
+                                                                        {
+                                                                            if (Component.Attributes != null)
+                                                                            {
+                                                                                string Count = Component.Attributes.GetNamedItem("Count").Value.Replace('.', ',');
+                                                                                string Subtype = Component.Attributes.GetNamedItem("Subtype").Value;
+                                                                                if (Componentse.ContainsKey(Subtype))
+                                                                                    Componentse[Subtype] += double.Parse(Count);
+                                                                                else
+                                                                                    Componentse.Add(Subtype, double.Parse(Count));
+                                                                            }
+                                                                        }
+                                                                        if (Type != "Refinery/LargeRefinery" && Type != "UpgradeModule/LargeEffectivenessModule") break;
+                                                                    }
+                                                                }
+                                                                if (!DictComponents.ContainsKey(Type)) DictComponents.Add(Type, Componentse);
+                                                            }
+                                                        }
+                                                        catch
+                                                        {
+
                                                         }
                                                     }
-                                                    catch
+                                                    foreach (XmlNode Blue in ModDocument.GetElementsByTagName("Blueprint"))
                                                     {
+                                                        try
+                                                        {
+                                                            Dictionary<string, double> Componentse = new Dictionary<string, double>();
+                                                            double ToOne = 0; string ResyltID = ""; double BuildTime = 0;
+                                                            foreach (XmlNode Node in Blue.ChildNodes)
+                                                            {
+                                                                if (Node.Name == "Result")
+                                                                {
+                                                                    if (Node.Attributes != null)
+                                                                    {
+                                                                        if (double.TryParse(Node.Attributes.GetNamedItem("Amount").Value.Replace('.', ','), out ToOne))
+                                                                        {
+                                                                            ToOne = 1 / ToOne;
+                                                                            ResyltID = Node.Attributes.GetNamedItem("TypeId").Value + "/" + Node.Attributes.GetNamedItem("SubtypeId").Value;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                if (Node.Name == "BaseProductionTimeInSeconds")
+                                                                {
+                                                                    BuildTime = double.Parse(Node.InnerText.Replace('.', ',')) * ToOne;
+                                                                }
+                                                            }
+                                                            if (ResyltID != "" && !DictBlueprint.ContainsKey(ResyltID))
+                                                            {
+                                                                foreach (XmlNode Node in Blue.ChildNodes)
+                                                                {
+                                                                    if (Node.Name == "Prerequisites")
+                                                                    {
+                                                                        foreach (XmlNode Component in Node.ChildNodes)
+                                                                        {
+                                                                            if (Component.Attributes != null)
+                                                                            {
+                                                                                string ID = Component.Attributes.GetNamedItem("TypeId").Value + "/" + Component.Attributes.GetNamedItem("SubtypeId").Value;
+                                                                                if (Componentse.ContainsKey(ID))
+                                                                                    Componentse[ID] += double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne;
+                                                                                else
+                                                                                    Componentse.Add(ID, double.Parse(Component.Attributes.GetNamedItem("Amount").Value.Replace('.', ',')) * ToOne);
+                                                                            }
+                                                                        }
+                                                                        break;
+                                                                    }
+                                                                }
+                                                                if (!DictBlueprint.ContainsKey(ResyltID)) DictBlueprint.Add(ResyltID, Componentse);
+                                                                if (!DictBlueprintTimes.ContainsKey(ResyltID)) DictBlueprintTimes.Add(ResyltID, BuildTime);
+                                                            }
+                                                        }
+                                                        catch
+                                                        {
 
+                                                        }
                                                     }
+                                                    //File.Delete("tmpFiles\\" + ModFile.Name);
                                                 }
-                                                //File.Delete("tmpFiles\\" + ModFile.Name);
                                             }
                                         }
-                                    }
-                                    catch
-                                    {
+                                        catch
+                                        {
 
+                                        }
                                     }
                                 }
                             }
-                        }
-                        catch
-                        {
+                            catch
+                            {
 
-                        }
-                    //GC.Collect();
+                            }
+                        //GC.Collect();
+                    }
+                    if (Directory.Exists("Mods")) ArhApi.DeleteFolder("Mods");
+                    GC.Collect();
                 }
-                if (Directory.Exists("Mods")) ArhApi.DeleteFolder("Mods");
-                GC.Collect();
-            }
             }
             catch (Exception ex)
             {
                 MainForm.Error(ex);
             }
         }
-
-
 
         public void SetColor(Color Fore, Color Back)
         {
@@ -391,6 +387,15 @@ namespace BlueprintEditor
                 return new Dictionary<string, double>();
             }
         }
+        double GetTimeToBuild(string Ingot)
+        {
+            if (DictBlueprintTimes.ContainsKey(Ingot))
+                return DictBlueprintTimes[Ingot];
+            else
+            {
+                return 0;
+            }
+        }
 
         private void Form4_Load(object sender, EventArgs e)
         {
@@ -411,6 +416,7 @@ namespace BlueprintEditor
 
         public void ShowBlocks(string BlueName)
         {
+            TimeToBuildCompinents = 0;
             List<string> CompinentsKeys = ShipComponents.Keys.ToList<string>();
             CompinentsKeys.Sort();
             string Faster3 = ""; PrintName = BlueName;
@@ -418,12 +424,14 @@ namespace BlueprintEditor
             {
                 double Amount = ShipComponents[Key];
                 Faster3 += Key + ": " + (Amount).ToString() + "\r\n";
+                TimeToBuildCompinents += GetTimeToBuild("Component/"+Key) * Amount; 
             }
             string Faster1 = "", Faster2 = "";
             double Pos = (double)trackBar1.Value; ShipOres.Clear();
             double Efficinsy = RefineryEfficensy * Math.Pow(ReginaryMultiplier, (double)trackBar2.Value * 2);
             List<string> IngotsKeys = ShipIngots.Keys.ToList<string>();
             IngotsKeys.Sort();
+            TimeToBuildIngots = 0;
             foreach (string Key in IngotsKeys)
             {
                 double Amount = ShipIngots[Key] / Pos;
@@ -440,17 +448,21 @@ namespace BlueprintEditor
                         ShipOres.Add(Key2, Math.Max((Ingotz[Key2] * Amount) / Efficinsy, Amount));
                     }
                 }
+                TimeToBuildIngots += GetTimeToBuild(Key) * Amount;
             }
             List<string> OresKeys = ShipOres.Keys.ToList<string>();
             OresKeys.Sort();
             foreach (string Key in OresKeys)
             {
-                Faster2 += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n";
+                Faster2 += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n"; 
             }
             textBox4.Text = Faster2;
             textBox3.Text = Faster3;
             textBox2.Text = UndefinedBlocks;
             textBox1.Text = Faster1;
+            label1.Text = label1.Text.Split('(')[0]+$"({AddTimeCounters(TimeToBuildCompinents)})";
+            label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / trackBar3.Value)})";
+            label12.Text = label12.Text.Split('(')[0] + $"({AddTimeCounters((TimeToBuildIngots / trackBar3.Value) + TimeToBuildCompinents)})";
         }
 
         public void AddBlock(string Types)
@@ -497,33 +509,42 @@ namespace BlueprintEditor
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            try {
-            string Faster1 = "", Faster2 = "";
-            double Pos = (double)trackBar1.Value; ShipOres.Clear();
-            double Efficinsy = RefineryEfficensy * Math.Pow(ReginaryMultiplier, (double)trackBar2.Value * 2);
-            foreach (string Key in ShipIngots.Keys)
+            try
             {
-                double Amount = ShipIngots[Key] / Pos;
-                Faster1 += Key.Replace("Ingot/", "") + ": " + AddCounters(Amount) + "\r\n";
-                Dictionary<string, double> Ingotz = GetOres(Key.Replace("Ingot/", ""));
-                foreach (string Key2 in Ingotz.Keys)
+                string Faster1 = "", Faster2 = "";
+                double Pos = (double)trackBar1.Value; ShipOres.Clear();
+                double Efficinsy = RefineryEfficensy * Math.Pow(ReginaryMultiplier, (double)trackBar2.Value * 2);
+                List<string> IngotsKeys = ShipIngots.Keys.ToList<string>();
+                IngotsKeys.Sort();
+                TimeToBuildIngots = 0;
+                foreach (string Key in IngotsKeys)
                 {
-                    if (ShipOres.ContainsKey(Key2))
+                    double Amount = ShipIngots[Key] / Pos;
+                    Faster1 += Key.Replace("Ingot/", "") + ": " + AddCounters(Amount) + "\r\n";
+                    Dictionary<string, double> Ingotz = GetOres(Key.Replace("Ingot/", ""));
+                    foreach (string Key2 in Ingotz.Keys)
                     {
-                        ShipOres[Key2] += Math.Max((Ingotz[Key2] * Amount) / Efficinsy, Amount);
+                        if (ShipOres.ContainsKey(Key2))
+                        {
+                            ShipOres[Key2] += Math.Max((Ingotz[Key2] * Amount) / Efficinsy, Amount);
+                        }
+                        else
+                        {
+                            ShipOres.Add(Key2, Math.Max((Ingotz[Key2] * Amount) / Efficinsy, Amount));
+                        }
                     }
-                    else
-                    {
-                        ShipOres.Add(Key2, Math.Max((Ingotz[Key2] * Amount) / Efficinsy, Amount));
-                    }
+                    TimeToBuildIngots += GetTimeToBuild(Key) * Amount;
                 }
-            }
-            foreach (string Key in ShipOres.Keys)
-            {
-                Faster2 += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n";
-            }
-            textBox4.Text = Faster2;
-            textBox1.Text = Faster1;
+                List<string> OresKeys = ShipOres.Keys.ToList<string>();
+                OresKeys.Sort();
+                foreach (string Key in OresKeys)
+                {
+                    Faster2 += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n";
+                }
+                textBox4.Text = Faster2;
+                textBox1.Text = Faster1;
+                label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / trackBar3.Value)})";
+                label12.Text = label12.Text.Split('(')[0] + $"({AddTimeCounters((TimeToBuildIngots / trackBar3.Value) + TimeToBuildCompinents)})";
             }
             catch (Exception ex)
             {
@@ -537,7 +558,9 @@ namespace BlueprintEditor
             double Pos = (double)trackBar1.Value;
             double Efficinsy = RefineryEfficensy * Math.Pow(ReginaryMultiplier, (double)trackBar2.Value * 2);
             ShipOres.Clear();
-            foreach (string Key in ShipIngots.Keys)
+            List<string> IngotsKeys = ShipIngots.Keys.ToList<string>();
+            IngotsKeys.Sort();
+            foreach (string Key in IngotsKeys)
             {
                 double Amount = ShipIngots[Key] / Pos;
                 Dictionary<string, double> Ingotz = GetOres(Key.Replace("Ingot/", ""));
@@ -553,7 +576,9 @@ namespace BlueprintEditor
                     }
                 }
             }
-            foreach (string Key in ShipOres.Keys)
+            List<string> OresKeys = ShipOres.Keys.ToList<string>();
+            OresKeys.Sort();
+            foreach (string Key in OresKeys)
             {
                 textBox4Text += Key.Replace("Ore/", "") + ": " + AddCounters(ShipOres[Key]) + "\r\n";
             }
@@ -567,6 +592,15 @@ namespace BlueprintEditor
             else if (Num > 10000000) Oute = (Num / 1000000).ToString("0.00") + " KT";
             else if (Num > 10000) Oute = (Num / 1000).ToString("0.00") + " T";
             else if (Num < 0.1) Oute = (Num * 1000).ToString("0.00") + " g";
+            return Oute;
+        }
+        string AddTimeCounters(double Seconds)
+        {
+            string Oute = Seconds.ToString("0.00") + "s";
+            if (Seconds/86400 > 1) Oute = (Seconds / 86400).ToString("0.00") + "d";
+            else if (Seconds/3600 > 1) Oute = (Seconds / 3600).ToString("0.00") + "h";
+            else if (Seconds/60 > 1) Oute = (Seconds / 60).ToString("0.00") + "m";
+            else if (Seconds < 0.1) Oute = (Seconds * 1000).ToString("0.00") + "ms";
             return Oute;
         }
 
@@ -642,10 +676,11 @@ namespace BlueprintEditor
                     string Data = "#This file created by SE BlueprintEditor#\r\n" +
                                     "#Resources need to build \"" + PrintName + "\"#\r\n" +
                                     "#Assembler Efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
-                                    "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n\r\n" +
+                                    "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n" +
+                                    "#Refine and Assembly time " + label12.Text.Split('(')[1].Replace(")", "") + "#\r\n\r\n" +
                                     "#List of undefined block types#\r\n" + textBox2.Text + "#End list of undefined block types#\r\n\r\n" +
-                                    "#List of components#\r\n" + textBox3.Text + "#End list of components#\r\n\r\n" +
-                                    "#List of ingots#\r\n" + textBox1.Text + "#End list of ingots#\r\n\r\n" +
+                                    "#List of components#\r\n#Assembly time " + label1.Text.Split('(')[1].Replace(")","") + "#\r\n" + textBox3.Text + "#End list of components#\r\n\r\n" +
+                                    "#List of ingots#\r\n#Refine time " + label3.Text.Split('(')[1].Replace(")", "") + "#\r\n" + textBox1.Text + "#End list of ingots#\r\n\r\n" +
                                     "#List of ores#\r\n" + textBox4.Text + "#End list of ores#\r\n";
                     File.WriteAllText(saveFileDialog1.FileName, Data);
                 }
@@ -729,9 +764,41 @@ namespace BlueprintEditor
             }
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void label3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBar3_Scroll(object sender, EventArgs e)
+        {
+            label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / trackBar3.Value)})";
+            label12.Text = label12.Text.Split('(')[0] + $"({AddTimeCounters((TimeToBuildIngots / trackBar3.Value) + TimeToBuildCompinents)})";
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string FileData = File.ReadAllText(openFileDialog1.FileName);
+                try
+                {
+
+                }
+                catch
+                {
+                    if(MainForm.Settings.LangID == 0)MessageBox.Show("","");
+                }
+            }
         }
     }
 }

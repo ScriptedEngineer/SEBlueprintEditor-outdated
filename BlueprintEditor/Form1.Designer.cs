@@ -102,6 +102,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -119,9 +120,9 @@
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Items.AddRange(new object[] {
             " "});
-            this.listBox1.Location = new System.Drawing.Point(12, 51);
+            this.listBox1.Location = new System.Drawing.Point(12, 90);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(134, 405);
+            this.listBox1.Size = new System.Drawing.Size(134, 366);
             this.listBox1.TabIndex = 0;
             this.listBox1.TabStop = false;
             this.listBox1.UseTabStops = false;
@@ -132,12 +133,13 @@
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(9, 35);
+            this.label1.Location = new System.Drawing.Point(12, 74);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(53, 13);
             this.label1.TabIndex = 2;
             this.label1.Tag = "|Чертежи";
             this.label1.Text = "Blueprints";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
@@ -911,6 +913,7 @@
             this.comboBox11.TabIndex = 59;
             this.comboBox11.TabStop = false;
             this.comboBox11.Visible = false;
+            this.comboBox11.SelectedIndexChanged += new System.EventHandler(this.comboBox11_SelectedIndexChanged);
             // 
             // label24
             // 
@@ -1009,6 +1012,7 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.Filter = "ImageFile|*.png;*.jpeg;*.jpg;*.bmp;*.ico";
             // 
             // pictureBox4
             // 
@@ -1036,6 +1040,7 @@
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Tag = "IgnBack";
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // button10
             // 
@@ -1063,6 +1068,18 @@
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
+            // button12
+            // 
+            this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.button12.Location = new System.Drawing.Point(12, 38);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(134, 23);
+            this.button12.TabIndex = 65;
+            this.button12.Tag = "|Обновить чертежи";
+            this.button12.Text = "Update blueprints";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1070,6 +1087,7 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(900, 471);
+            this.Controls.Add(this.button12);
             this.Controls.Add(this.button11);
             this.Controls.Add(this.button10);
             this.Controls.Add(this.panel2);
@@ -1226,6 +1244,7 @@
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Button button12;
     }
 }
 

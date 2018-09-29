@@ -18,19 +18,8 @@ namespace BlueprintEditor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Restart:
-            try
-            {
-                GlobalMainForm = new Form1();
-                Application.Run(GlobalMainForm);
-            }
-            catch (Exception e)
-            {
-                Form3 Reporting = new Form3();
-                ArhApi.Server("bugreport", "CRITICAL!!!!\nMessage:\n" + e.Message+ "\n\nStackTrace:\n" + e.StackTrace,"", Reporting.GetPCInfo());
-                Reporting.Dispose();
-                goto Restart;
-            }
+            GlobalMainForm = new Form1(args);
+            Application.Run(GlobalMainForm);
             //Application.Run(new EXTS.Form1());
         }
     }

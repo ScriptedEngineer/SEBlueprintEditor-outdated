@@ -63,6 +63,16 @@ namespace BlueprintEditor.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap blueprintpic {
+            get {
+                object obj = ResourceManager.GetObject("blueprintpic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap forthumb {
             get {
                 object obj = ResourceManager.GetObject("forthumb", resourceCulture);

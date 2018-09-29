@@ -28,9 +28,13 @@ namespace BlueprintEditor
         Color AllForeColor = Color.FromArgb(240, 240, 240);
         Color AllBackColor = Color.FromArgb(20, 20, 20);
 
-        public Form1()
+        public Form1(string[] args)
         {
             InitializeComponent();
+            if(args.Length > 0)
+            {
+
+            }
         }
 
         void Recolor(Control.ControlCollection Controlls, Color ForeColor, Color BackColor)
@@ -299,7 +303,6 @@ namespace BlueprintEditor
             gfxPic.DrawImage(imgPic, new Rectangle(0, 0, bmpPic.Width, bmpPic.Height), 0, 0, imgPic.Width, imgPic.Height, GraphicsUnit.Pixel, iaPic);
             gfxPic.Dispose();
             return bmpPic;
-            GC.Collect();
         }
 
         public void Error(Exception except)
@@ -689,6 +692,7 @@ namespace BlueprintEditor
         }
         private void SaveBlueprint()
         {
+            pictureBox1.Image.Save(BluePathc + "\\thumb.png", ImageFormat.Png);
             Blueprint.Save(BluePathc + "\\bp.sbc");
             if (File.Exists(BluePathc + "\\bp.sbcPB")) File.Delete(BluePathc + "\\bp.sbcPB");
             if (File.Exists(BluePathc + "\\bp.sbcB1")) File.Delete(BluePathc + "\\bp.sbcB1");
@@ -2471,6 +2475,74 @@ namespace BlueprintEditor
             if (File.Exists(BluePathc + "\\bp.sbcPB")) File.Delete(BluePathc + "\\bp.sbcPB");
             if (File.Exists(BluePathc + "\\bp.sbcB1")) File.Delete(BluePathc + "\\bp.sbcB1");
             Process.Start(BluePathc);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            if (BluePathc != null) {
+                if (openFileDialog1.ShowDialog() == DialogResult.OK) {
+                    pictureBox1.Image = Image.FromFile(openFileDialog1.FileName);
+                }
+            }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            button7.Visible = false;
+            comboBox11.Visible = false;
+            label24.Visible = false; BluePathc = null;
+            ClearEditorGrid();ClearEditorBlock();
+            pictureBox1.Image = Properties.Resources.blueprintpic;
+            listBox2.Items.Clear();listBox3.Items.Clear();
+            label2.Text = label2.Tag.ToString().Split('|')[Settings.LangID];
+            string[] Blueprints = new string[] { };
+            if (Directory.Exists(Folder))
+            {
+                Blueprints = Directory.GetDirectories(Folder);
+                for (int i = 0; i < Blueprints.Length; i++)
+                {
+                    Blueprints[i] = Path.GetFileName(Blueprints[i]);
+                }
+                listBox1.Items.Clear();
+                List<string> listBox1Items = new List<string>();
+                List<string> Brushes = new List<string>();
+                foreach (string BlueD in Blueprints)
+                {
+
+                    if (File.Exists(Folder + "\\" + BlueD + "\\bp.sbc")
+                        && File.Exists(Folder + "\\" + BlueD + "\\thumb.png"))
+                    {
+                        if (BlueD.StartsWith("PaintBrush-"))
+                        {
+                            Brushes.Add(BlueD.Replace("PaintBrush-", ""));
+                        }
+                        else
+                        {
+                            listBox1Items.Add(BlueD);
+                        }
+                    }
+                }
+                listBox1.Items.AddRange(listBox1Items.ToArray());
+                if (Brushes.Count > 0)
+                {
+                    comboBox11.Items.Clear();
+                    comboBox11.Items.AddRange(Brushes.ToArray());
+                    comboBox11.SelectedIndex = 0;
+                    button7.Visible = true;
+                    comboBox11.Visible = true;
+                    label24.Visible = true;
+                }
+            }
+        }
+
+        private void comboBox11_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void textBox4_SizeChanged(object sender, EventArgs e)
