@@ -2493,10 +2493,10 @@ namespace BlueprintEditor
 
         private void button12_Click(object sender, EventArgs e)
         {
-            button7.Visible = false;
-            comboBox11.Visible = false;
+            button7.Visible = false; button11.Enabled = false;
+            comboBox11.Visible = false; button3.Enabled = false;
             label24.Visible = false; BluePathc = null;
-            ClearEditorGrid();ClearEditorBlock();
+            ClearEditorGrid();ClearEditorBlock(); button2.Enabled = false;
             pictureBox1.Image = Properties.Resources.blueprintpic;
             listBox2.Items.Clear();listBox3.Items.Clear();
             label2.Text = label2.Tag.ToString().Split('|')[Settings.LangID];
