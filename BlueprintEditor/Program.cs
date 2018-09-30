@@ -16,6 +16,13 @@ namespace BlueprintEditor
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length > 0)
+            {
+                switch (args[1])
+                {
+
+                }
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             GlobalMainForm = new Form1(args);

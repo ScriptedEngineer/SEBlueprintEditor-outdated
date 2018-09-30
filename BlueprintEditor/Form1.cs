@@ -31,9 +31,13 @@ namespace BlueprintEditor
         public Form1(string[] args)
         {
             InitializeComponent();
-            if(args.Length > 0)
+            pictureBox1.ErrorImage = pictureBox1.Image;
+            if (args.Length > 0)
             {
+                switch (args[1])
+                {
 
+                }
             }
         }
 
@@ -98,6 +102,7 @@ namespace BlueprintEditor
                     comboBox10.SelectedIndex = 0;
                     comboBox9.SelectedIndex = Settings.LangID = CultureInfo.CurrentCulture.NativeName == "русский (Россия)" ? 1 : 0;
                 }
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("ru-RU", true);
                 if (GamePath == "")
                 {
                     try
@@ -2497,7 +2502,7 @@ namespace BlueprintEditor
             comboBox11.Visible = false; button3.Enabled = false;
             label24.Visible = false; BluePathc = null;
             ClearEditorGrid();ClearEditorBlock(); button2.Enabled = false;
-            pictureBox1.Image = Properties.Resources.blueprintpic;
+            pictureBox1.Image = pictureBox1.ErrorImage;
             listBox2.Items.Clear();listBox3.Items.Clear();
             label2.Text = label2.Tag.ToString().Split('|')[Settings.LangID];
             string[] Blueprints = new string[] { };

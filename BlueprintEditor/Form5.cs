@@ -94,6 +94,7 @@ namespace BlueprintEditor
         {
             pictureBox1.Image = new Bitmap(Image.FromFile(openFileDialog1.FileName));
             NormalizeForm();
+            button2_Click(sender,new EventArgs());
         }
 
         void NormalizeForm()

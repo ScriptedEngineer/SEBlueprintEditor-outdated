@@ -337,6 +337,7 @@ namespace BlueprintEditor
                     if (Directory.Exists("Mods")) ArhApi.DeleteFolder("Mods");
                     GC.Collect();
                 }
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("ru-RU", true);
             }
             catch (Exception ex)
             {
@@ -460,9 +461,9 @@ namespace BlueprintEditor
             textBox3.Text = Faster3;
             textBox2.Text = UndefinedBlocks;
             textBox1.Text = Faster1;
-            label1.Text = label1.Text.Split('(')[0]+$"({AddTimeCounters(TimeToBuildCompinents)})";
-            label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / trackBar3.Value)})";
-            label12.Text = label12.Text.Split('(')[0] + $"({AddTimeCounters((TimeToBuildIngots / trackBar3.Value) + TimeToBuildCompinents)})";
+            label1.Text = label1.Text.Split('(')[0]+$"({AddTimeCounters(TimeToBuildCompinents/ CompinentsTimeDevider)})";
+            label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider))})";
+            label16.Text = label16.Text.Split(':')[0] + $": {AddTimeCounters((TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider)) + (TimeToBuildCompinents / CompinentsTimeDevider))}";
         }
 
         public void AddBlock(string Types)
@@ -543,8 +544,8 @@ namespace BlueprintEditor
                 }
                 textBox4.Text = Faster2;
                 textBox1.Text = Faster1;
-                label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / trackBar3.Value)})";
-                label12.Text = label12.Text.Split('(')[0] + $"({AddTimeCounters((TimeToBuildIngots / trackBar3.Value) + TimeToBuildCompinents)})";
+                label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider))})";
+                label16.Text = label16.Text.Split(':')[0] + $": {AddTimeCounters((TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider)) + (TimeToBuildCompinents / CompinentsTimeDevider))}";
             }
             catch (Exception ex)
             {
@@ -594,13 +595,23 @@ namespace BlueprintEditor
             else if (Num < 0.1) Oute = (Num * 1000).ToString("0.00") + " g";
             return Oute;
         }
+        string AddCountersInt(uint Num)
+        {
+            string Oute = Num.ToString("0") + "";
+            if (Num > 1000000000) Oute = (Num / 1000000000).ToString("0") + "B";
+            else if (Num > 10000000) Oute = (Num / 1000000).ToString("0") + "M";
+            else if (Num > 10000) Oute = (Num / 1000).ToString("0") + "K";
+            return Oute;
+        }
         string AddTimeCounters(double Seconds)
         {
             string Oute = Seconds.ToString("0.00") + "s";
-            if (Seconds/86400 > 1) Oute = (Seconds / 86400).ToString("0.00") + "d";
+            if (Seconds / 31536000 > 1) Oute = (Seconds / 31536000).ToString("0.00") + "y";
+            else if (Seconds/86400 > 1) Oute = (Seconds / 86400).ToString("0.00") + "d";
             else if (Seconds/3600 > 1) Oute = (Seconds / 3600).ToString("0.00") + "h";
             else if (Seconds/60 > 1) Oute = (Seconds / 60).ToString("0.00") + "m";
             else if (Seconds < 0.1) Oute = (Seconds * 1000).ToString("0.00") + "ms";
+            else if (Seconds < 0.000001) Oute = (Seconds * 1000000000).ToString("0.00") + "ns";
             return Oute;
         }
 
@@ -643,6 +654,8 @@ namespace BlueprintEditor
                 Faster3 += Key + ": " + (Amount).ToString() + "\r\n";
             }
             textBox3.Text = Faster3;
+            if(textBox3.Lines.Length > 16)textBox3.ScrollBars = ScrollBars.Vertical;
+            else textBox3.ScrollBars = ScrollBars.None;
             }
             catch (Exception ex)
             {
@@ -675,9 +688,12 @@ namespace BlueprintEditor
                 {
                     string Data = "#This file created by SE BlueprintEditor#\r\n" +
                                     "#Resources need to build \"" + PrintName + "\"#\r\n" +
-                                    "#Assembler Efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
-                                    "#Refinary Yield Mods: " + trackBar2.Value.ToString() + " #\r\n" +
-                                    "#Refine and Assembly time " + label12.Text.Split('(')[1].Replace(")", "") + "#\r\n\r\n" +
+                                    "#Assembler efficiency: " + trackBar1.Value.ToString() + "x #\r\n" +
+                                    "#Refinery speed: " + trackBar3.Value.ToString() + "x #\r\n" +
+                                    "#Refinery yield mods: " + trackBar2.Value.ToString() + " #\r\n" +
+                                    "#Assemblers count: " + (CompinentsTimeDevider).ToString() + " #\r\n" +
+                                    "#Refinery count: " + (IngotsTimeDevider).ToString() + " #\r\n" +
+                                    "#Refine and Assembly time " + label16.Text.Split(':')[1].Replace(" ", "") + "#\r\n\r\n" +
                                     "#List of undefined block types#\r\n" + textBox2.Text + "#End list of undefined block types#\r\n\r\n" +
                                     "#List of components#\r\n#Assembly time " + label1.Text.Split('(')[1].Replace(")","") + "#\r\n" + textBox3.Text + "#End list of components#\r\n\r\n" +
                                     "#List of ingots#\r\n#Refine time " + label3.Text.Split('(')[1].Replace(")", "") + "#\r\n" + textBox1.Text + "#End list of ingots#\r\n\r\n" +
@@ -781,8 +797,47 @@ namespace BlueprintEditor
 
         private void trackBar3_Scroll(object sender, EventArgs e)
         {
-            label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / trackBar3.Value)})";
-            label12.Text = label12.Text.Split('(')[0] + $"({AddTimeCounters((TimeToBuildIngots / trackBar3.Value) + TimeToBuildCompinents)})";
+            label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider))})";
+            label16.Text = label16.Text.Split(':')[0] + $": {AddTimeCounters((TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider)) + (TimeToBuildCompinents / CompinentsTimeDevider))}";
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        uint CompinentsTimeDevider = 1;
+        private void textBox5_TextChanged(object sender, EventArgs e)
+        {
+            uint TimeDevider = CompinentsTimeDevider;
+            if (uint.TryParse(textBox5.Text, out CompinentsTimeDevider))
+            {
+                textBox5.Text = CompinentsTimeDevider.ToString();
+                label17.Text = label17.Text.Split('(')[0] + $"({AddCountersInt(CompinentsTimeDevider)})";
+                label1.Text = label1.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildCompinents / CompinentsTimeDevider)})";
+                label16.Text = label16.Text.Split(':')[0] + $": {AddTimeCounters((TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider)) + (TimeToBuildCompinents / CompinentsTimeDevider))}";
+            }
+            else
+            {
+                CompinentsTimeDevider = TimeDevider;
+            }
+        }
+
+        uint IngotsTimeDevider = 1;
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+            uint TimeDevider = IngotsTimeDevider;
+            if (uint.TryParse(textBox6.Text, out IngotsTimeDevider))
+            {
+                textBox6.Text = IngotsTimeDevider.ToString();
+                label18.Text = label18.Text.Split('(')[0] + $"({AddCountersInt(IngotsTimeDevider)})";
+                label3.Text = label3.Text.Split('(')[0] + $"({AddTimeCounters(TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider))})";
+                label16.Text = label16.Text.Split(':')[0] + $": {AddTimeCounters((TimeToBuildIngots / (trackBar3.Value * IngotsTimeDevider)) + (TimeToBuildCompinents / CompinentsTimeDevider))}";
+            }
+            else
+            {
+                IngotsTimeDevider = TimeDevider;
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -792,11 +847,16 @@ namespace BlueprintEditor
                 string FileData = File.ReadAllText(openFileDialog1.FileName);
                 try
                 {
+                    string ResourcesConfig = FileData.Split(new string[] { "#This file created by SE BlueprintEditor#" },StringSplitOptions.RemoveEmptyEntries)[1];
+                    string[] margins = ResourcesConfig.Split(new string[] { "\r\n\r\n" },2, StringSplitOptions.RemoveEmptyEntries);
+                    string[] Strings = margins[0].Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] Resources = margins[1].Split(new string[] { "\r\n\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
                 }
                 catch
                 {
-                    if(MainForm.Settings.LangID == 0)MessageBox.Show("","");
+                    if(MainForm.Settings.LangID == 0)MessageBox.Show("Invalid or obsolete file format", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    else MessageBox.Show("Неверный или устаревший формат файла", "Ошибка", MessageBoxButtons.OK,MessageBoxIcon.Error);
                 }
             }
         }
