@@ -188,7 +188,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="map-_1_.ico" />
-    <None Include="Resources\blueprintpic.png" />
     <None Include="Resources\gyZddYCd3a8.jpg" />
     <None Include="Resources\forthumb.png" />
   </ItemGroup>
