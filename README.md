@@ -8,7 +8,7 @@ The tool for easy editing blueprints of the game Space Engineers
 
 ## Download
 
-You can download it from my website, [download](https://arhsite.tk/exes/SEBlueprintEditor.zip) or [visit site](https://arhsite.tk/apps)
+You can download it from my website, [download](https://xyzs.ru/Download/BlueprintEditor.exe) or [visit site](https://xyzs.ru/apps)
 
 ### Prewiew
 
