@@ -683,7 +683,7 @@ namespace BlueprintEditor
         {
             try
             {
-                saveFileDialog1.FileName = (MainForm.Settings.LangID == 0 ? "Resources for ":"Ресурсы для ") + PrintName;
+                saveFileDialog1.FileName = (Form1.Settings.LangID == 0 ? "Resources for ":"Ресурсы для ") + PrintName;
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     string Data = "#This file created by SE BlueprintEditor#\r\n" +
@@ -855,7 +855,7 @@ namespace BlueprintEditor
                 }
                 catch
                 {
-                    if(MainForm.Settings.LangID == 0)MessageBox.Show("Invalid or obsolete file format", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if(Form1.Settings.LangID == 0)MessageBox.Show("Invalid or obsolete file format", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     else MessageBox.Show("Неверный или устаревший формат файла", "Ошибка", MessageBoxButtons.OK,MessageBoxIcon.Error);
                 }
             }

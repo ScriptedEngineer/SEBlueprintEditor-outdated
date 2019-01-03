@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Text;
 
 namespace BlueprintEditor
 {
@@ -227,22 +228,13 @@ namespace BlueprintEditor
                 return false;
             }
         }
-        static public string Server(string Action, string Data = "", string Key = "", string PCInfo = "", string Lang = "0")
+        static public string Server(string Action,string AddtionalJson = "", string OutputType = "string")
         {
-            System.Net.Http.HttpClient Http = new System.Net.Http.HttpClient();
             using (var client = new System.Net.WebClient())
             {
-                var values = new System.Collections.Specialized.NameValueCollection();
-                values["app"] = ApplicationID;
-                values["act"] = Action;
-                values["ver"] = "v"+Application.ProductVersion;
-                values["lang"] = Lang;
-                values["pc"] = PCInfo;
-                values["key"] = Key;
-                values["dat"] = Data;
-                var response = client.UploadValues("https://arhsite.tk/ArhApi.php", values);
-                //Please don't spam on my apps API!!!
-                return System.Text.RegularExpressions.Regex.Replace(System.Text.Encoding.UTF8.GetString(response), "\n", "\r\n");
+                client.Encoding = Encoding.UTF8;
+                return client.UploadString("https://xyzs.ru/api/" + Action + "/" + OutputType, 
+                "{\"token\":\"L6Pv566loZC7JsDzjr83psLMoktWQqDb\",\"app\":\"SEBE\",\"version\":\"" + Application.ProductVersion + "\"" + AddtionalJson + "}");
             }
         }
         static public string IPtoBase64(string IP)
@@ -359,7 +351,4 @@ namespace BlueprintEditor
             System.IO.Directory.Delete(dir);
         }
     }
-
-
-
 }

@@ -74,33 +74,39 @@ namespace BlueprintEditor
 
         public string GetPCInfo()
         {
-            return "Processor: " + GetProcessorInformation() + "\nVideo: " + GetVideoProcessorInformation() + "\nBoard: " + GetBoardProductId() + "\nDisc: " + GetDisckModel() + "\nMem: " + GetPhysicalMemory() + "\nOS: " + GetOSInformation();
+            return "Processor: " + GetProcessorInformation() + "<br>Video: " + GetVideoProcessorInformation() + "<br>Board: " + GetBoardProductId() + "<br>Disc: " + GetDisckModel() + "<br>Mem: " + GetPhysicalMemory() + "<br>OS: " + GetOSInformation();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.Text != "")
             {
-                label4.Text = "Sending...";
-                string Report = "Report by " + (textBox2.Text != "" ? textBox2.Text : "Anonymous") + "\nMessage: " + textBox1.Text+"\n";
+                label4.Text = Form1.Settings.LangID == 0 ? "Sending...":"Отправка...";
+                string Report = "Report by " + (textBox2.Text != "" ? textBox2.Text : "Anonymous") +"<br>App v" + Application.ProductVersion + "<br>Message: " + textBox1.Text.Replace("\n", "<br>").Replace("\r", "") + "<br>";
+                string returned = "false";
                 switch (comboBox1.SelectedIndex)
                 {
                     case 0:
-                        ArhApi.Server("bugreport", Report, "", GetPCInfo());
+                        returned = ArhApi.Server("Report", ",\"body\":\"Bug"+ Report + "PC components: <br>" + GetPCInfo() + "\"","bool");
                         break;
                     case 1:
-                        ArhApi.Server("suggestionsreport", Report);
+                        returned = ArhApi.Server("Report", ",\"body\":\"Suggestions"+ Report + "\"", "bool");
                         break;
                 }
-                MessageBox.Show("Thank you for your report");
+
+                if (returned == "true")
+                {
+                    MessageBox.Show(Form1.Settings.LangID == 0 ? "Thank you for your report":"Спасибо за ваш отчет");
+                    if (ReportButton != null) ReportButton.Enabled = false;
+                }
+                else MessageBox.Show(Form1.Settings.LangID == 0 ? "Error, report not sended." :"Ошибка при отправке отчета.");
                 //ReportButton.Dispose();
                 int result;
-                if(ReportButton != null) ReportButton.Enabled = false;
                 this.Hide();
             }
             else
             {
-                MessageBox.Show("Report can't be empty");
+                MessageBox.Show(Form1.Settings.LangID == 0?"Report can't be empty":"Отчет не может быть пустым");
             }
         }
         public void Clear()

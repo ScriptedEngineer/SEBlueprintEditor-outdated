@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BlueprintPath>C:\Users\Денис\AppData\Roaming\SpaceEngineers\Blueprints\local</BlueprintPath>
+  <GamePath>D:\\Games\\SteamLibrary\\steamapps\\TF2\steamapps\common\SpaceEngineers</GamePath>
+  <LangID>1</LangID>
+  <Theme>0</Theme>
+  <EditorProgram>notepad</EditorProgram>
+  <ForeColor>
+    <R>230</R>
+    <G>230</G>
+    <B>230</B>
+  </ForeColor>
+  <BackColor>
+    <R>40</R>
+    <G>40</G>
+    <B>40</B>
+  </BackColor>
+</Settings>

@@ -24,7 +24,7 @@ namespace BlueprintEditor
 {
     public partial class Form1 : Form
     {
-
+        
         Color AllForeColor = Color.FromArgb(240, 240, 240);
         Color AllBackColor = Color.FromArgb(20, 20, 20);
 
@@ -39,6 +39,7 @@ namespace BlueprintEditor
 
                 }
             }
+            AppDomain.CurrentDomain.UnhandledException += Error;
         }
 
         void Recolor(Control.ControlCollection Controlls, Color ForeColor, Color BackColor)
@@ -60,7 +61,7 @@ namespace BlueprintEditor
         List<XmlNode> Block = new List<XmlNode>();
         string BluePathc; bool CalculateShip = true;
         Form1 MainF; string GamePath = ""; int SelectedArmor, SelectedArmorB;
-        public Settings Settings = new Settings();
+        static public Settings Settings = new Settings();
         Point Button6Location;
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -217,8 +218,9 @@ namespace BlueprintEditor
                 MainF = this;
                 ArhApi.CompliteAsync(() =>
                 {
-                    string UpdateUrl = ArhApi.Server("nalgversion");
-                    if (UpdateUrl != "You New" && ArhApi.IsLink(UpdateUrl))
+                    string[] retrn = ArhApi.Server("CheckVersion").Split(' ');
+                    string UpdateUrl = retrn[1];
+                    if (retrn[0] != "1" && ArhApi.IsLink(UpdateUrl))
                     {
                         MainF.Invoke(new Action(() =>
                         {
@@ -320,7 +322,8 @@ namespace BlueprintEditor
                     Report.SetColor(AllForeColor, AllBackColor);
                     Report.ChangeLang(Settings.LangID);
                 }
-                ArhApi.Server("bugreport", "Message:\n" + except.Message + "\n\nStackTrace:\n" + except.StackTrace, "", Report.GetPCInfo());
+                //ArhApi.Server("bugreport", "Message:\n" + except.Message + "\n\nStackTrace:\n" + except.StackTrace, "", Report.GetPCInfo());
+                ArhApi.Server("Report", ",\"body\":\"Exception<br>Message:<br>" + except.Message + "<br><br>StackTrace:<br>" + except.StackTrace + "<br>PC components<br>" + Report.GetPCInfo() + "\"", "bool");
                 /*MessageBox.Show("Похоже было вызванно некритическое исключение, отчет был отправлен и мы постараемся решить проблему как можно скорее."+
                     "\nЖелаете перезапустить приложение?"+
                     "\nДа - Приложение перезапустится, Нет - Приложение продолжит работу(Данные измененные незавершившимся кодом могут вызвать другие исключения)", 
@@ -332,6 +335,39 @@ namespace BlueprintEditor
                      "\nЖелаете перезапустить приложение?" +
                      "\nДа - Приложение перезапустится, Нет - Приложение продолжит работу(Данные измененные незавершившимся кодом могут вызвать другие исключения)",
                      "Похоже у нас проблемы", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);*/
+                if (Report == null || Report.IsDisposed)
+                {
+                    Report = new Form3(button1);
+                    Report.SetColor(AllForeColor, AllBackColor);
+                    Report.ChangeLang(Settings.LangID);
+                }
+                File.WriteAllText("Error.txt", "Message:<br>" + except.Message + "<br><br>StackTrace:<br>" + except.StackTrace + "<br>PC components<br>" + Report.GetPCInfo());
+            }
+        }
+        public void Error(object sender, UnhandledExceptionEventArgs except)
+        {
+            try
+            {
+                if (Report == null || Report.IsDisposed)
+                {
+                    Report = new Form3(button1);
+                    Report.SetColor(AllForeColor, AllBackColor);
+                    Report.ChangeLang(Settings.LangID);
+                }
+                //ArhApi.Server("bugreport", "Message:\n" + except.Message + "\n\nStackTrace:\n" + except.StackTrace, "", Report.GetPCInfo());
+                ArhApi.Server("Report", ",\"body\":\"Exception<br>Message:<br>" + ((Exception)except.ExceptionObject).Message + "<br><br>StackTrace:<br>" + ((Exception)except.ExceptionObject).StackTrace + "<br>PC components<br>" + Report.GetPCInfo() + "\"", "bool");
+                /*MessageBox.Show("Похоже было вызванно некритическое исключение, отчет был отправлен и мы постараемся решить проблему как можно скорее."+
+                    "\nЖелаете перезапустить приложение?"+
+                    "\nДа - Приложение перезапустится, Нет - Приложение продолжит работу(Данные измененные незавершившимся кодом могут вызвать другие исключения)", 
+                    "Похоже у нас проблемы", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);*/
+            }
+            catch
+            {
+                /*MessageBox.Show("Похоже было вызванно некритическое исключение, отчет не удалось отправить похоже мы не узнаем о проблеме, вы можете отпавить отчет в ручную, данные об ошибке будет записанны в файл \"Error.txt\"." +
+                     "\nЖелаете перезапустить приложение?" +
+                     "\nДа - Приложение перезапустится, Нет - Приложение продолжит работу(Данные измененные незавершившимся кодом могут вызвать другие исключения)",
+                     "Похоже у нас проблемы", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);*/
+                File.WriteAllText("Error.txt", "Message:<br>" + ((Exception)except.ExceptionObject).Message + "<br><br>StackTrace:<br>" + ((Exception)except.ExceptionObject).StackTrace + "<br>PC components<br>" + Report.GetPCInfo());
             }
         }
 
@@ -1741,7 +1777,7 @@ namespace BlueprintEditor
                     {
                         Invoke(new Action(() =>
                         {
-                            label22.Text = "Loading Data... Please Wait";
+                            label22.Text = Settings.LangID == 0?"Loading Data...":"Загрузка данных...";
                         }));
                         Calculator = new Form4(GamePath, this);
                         Calculator.SetColor(AllForeColor, AllBackColor);
@@ -1750,7 +1786,7 @@ namespace BlueprintEditor
                     Invoke(new Action(() =>
                     {
                         Calculator.Hide();
-                        label22.Text = "Calculating... Please Wait";
+                        label22.Text = Settings.LangID == 0 ? "Calculating...":"Расчет...";
                         Calculator.ClearBlocks();
                     }));
                     foreach (XmlNode MyBlock in Blueprint.GetElementsByTagName("MyObjectBuilder_CubeBlock"))
@@ -2498,56 +2534,113 @@ namespace BlueprintEditor
 
         private void button12_Click(object sender, EventArgs e)
         {
-            button7.Visible = false; button11.Enabled = false;
-            comboBox11.Visible = false; button3.Enabled = false;
-            label24.Visible = false; BluePathc = null;
-            ClearEditorGrid();ClearEditorBlock(); button2.Enabled = false;
-            pictureBox1.Image = pictureBox1.ErrorImage;
-            listBox2.Items.Clear();listBox3.Items.Clear();
-            label2.Text = label2.Tag.ToString().Split('|')[Settings.LangID];
-            string[] Blueprints = new string[] { };
-            if (Directory.Exists(Folder))
+            try
             {
-                Blueprints = Directory.GetDirectories(Folder);
-                for (int i = 0; i < Blueprints.Length; i++)
+                button7.Visible = false;
+                button11.Enabled = false;
+                comboBox11.Visible = false;
+                button3.Enabled = false;
+                label24.Visible = false;
+                BluePathc = null;
+                ClearEditorGrid();
+                ClearEditorBlock();
+                button2.Enabled = false;
+                pictureBox1.Image = pictureBox1.ErrorImage;
+                listBox2.Items.Clear();
+                listBox3.Items.Clear();
+                label2.Text = label2.Tag.ToString().Split('|')[Settings.LangID];
+                string[] Blueprints = new string[] { };
+                if (Directory.Exists(Folder))
                 {
-                    Blueprints[i] = Path.GetFileName(Blueprints[i]);
-                }
-                listBox1.Items.Clear();
-                List<string> listBox1Items = new List<string>();
-                List<string> Brushes = new List<string>();
-                foreach (string BlueD in Blueprints)
-                {
-
-                    if (File.Exists(Folder + "\\" + BlueD + "\\bp.sbc")
-                        && File.Exists(Folder + "\\" + BlueD + "\\thumb.png"))
+                    Blueprints = Directory.GetDirectories(Folder);
+                    for (int i = 0; i < Blueprints.Length; i++)
                     {
-                        if (BlueD.StartsWith("PaintBrush-"))
+                        Blueprints[i] = Path.GetFileName(Blueprints[i]);
+                    }
+
+                    listBox1.Items.Clear();
+                    List<string> listBox1Items = new List<string>();
+                    List<string> Brushes = new List<string>();
+                    foreach (string BlueD in Blueprints)
+                    {
+
+                        if (File.Exists(Folder + "\\" + BlueD + "\\bp.sbc")
+                            && File.Exists(Folder + "\\" + BlueD + "\\thumb.png"))
                         {
-                            Brushes.Add(BlueD.Replace("PaintBrush-", ""));
-                        }
-                        else
-                        {
-                            listBox1Items.Add(BlueD);
+                            if (BlueD.StartsWith("PaintBrush-"))
+                            {
+                                Brushes.Add(BlueD.Replace("PaintBrush-", ""));
+                            }
+                            else
+                            {
+                                listBox1Items.Add(BlueD);
+                            }
                         }
                     }
+
+                    listBox1.Items.AddRange(listBox1Items.ToArray());
+                    if (Brushes.Count > 0)
+                    {
+                        comboBox11.Items.Clear();
+                        comboBox11.Items.AddRange(Brushes.ToArray());
+                        comboBox11.SelectedIndex = 0;
+                        button7.Visible = true;
+                        comboBox11.Visible = true;
+                        label24.Visible = true;
+                    }
                 }
-                listBox1.Items.AddRange(listBox1Items.ToArray());
-                if (Brushes.Count > 0)
-                {
-                    comboBox11.Items.Clear();
-                    comboBox11.Items.AddRange(Brushes.ToArray());
-                    comboBox11.SelectedIndex = 0;
-                    button7.Visible = true;
-                    comboBox11.Visible = true;
-                    label24.Visible = true;
-                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
         private void comboBox11_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            try
+            {
+
+                if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                try
+                {
+                    File.WriteAllText("UpdateLog.txt", ArhApi.Server("GetUpdateLog"));
+                    Process Editor = Process.Start(Settings.EditorProgram + ".exe", "UpdateLog.txt");
+                    if (Editor != null)
+                    {
+                        Editor.WaitForExit();
+                        if (File.Exists("UpdateLog.txt"))
+                        {
+                            File.Delete("UpdateLog.txt");
+                        }
+                    }
+                    else
+                    {
+                        File.Delete("UpdateLog.txt");
+                        if (Settings.LangID == 0)
+                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                        else
+                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                    }
+                }
+                catch
+                {
+                    File.Delete("UpdateLog.txt");
+                    if (Settings.LangID == 0)
+                        MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                    else
+                        MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private void textBox4_SizeChanged(object sender, EventArgs e)
