@@ -1,3 +1,7 @@
+# THIS OLD VERSION!
+
+New version in developing...
+
 # SEBlueprintEditor
 
 The tool for easy editing blueprints of the game Space Engineers
