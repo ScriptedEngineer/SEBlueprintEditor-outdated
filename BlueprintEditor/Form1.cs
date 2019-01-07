@@ -234,7 +234,7 @@ namespace BlueprintEditor
                 string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
                 if (Directory.Exists(ModFolder) && Directory.GetFiles(ModFolder).Length > 0)
                 {
-                    button5.Visible = true;
+                    button5.Enabled = true;
                 }
                 ChangeLang(this, comboBox9.SelectedIndex);
                 BackColor = AllBackColor;
@@ -422,6 +422,7 @@ namespace BlueprintEditor
             textBox5.Enabled = false;
             textBox6.Enabled = false;
             textBox7.Enabled = false;
+            button16.Enabled = false;
             textBox10.Enabled = false;
             textBox8.Enabled = false;
             panel2.Visible = false;
@@ -496,6 +497,7 @@ namespace BlueprintEditor
 
         void UpdateBlocksNoSett()
         {
+            Regex regex = new Regex(textBox11.Text, RegexOptions.IgnoreCase);
             int Heavy = 0, Light = 0, numerer = 0;
             ClearEditorGrid();
             ClearEditorBlock();
@@ -517,8 +519,11 @@ namespace BlueprintEditor
                                 {
                                     if (comboBox8.SelectedIndex == 1)
                                     {
-                                        Sorter.Add(Cld.InnerText + "|" + numerer);
-                                        BlocksSorted.Add(Cld.InnerText + "|" + numerer, Childs);
+                                        if (regex.IsMatch(Cld.InnerText))
+                                        {
+                                            Sorter.Add(Cld.InnerText + "|" + numerer);
+                                            BlocksSorted.Add(Cld.InnerText + "|" + numerer, Childs);
+                                        }
                                         HasName = true;
                                         break;
                                     }
@@ -553,8 +558,11 @@ namespace BlueprintEditor
                                 string Type = Childs.FirstChild.InnerText;
                                 if (comboBox8.SelectedIndex == 0 || !HasName)
                                 {
-                                    Sorter.Add(Childs.FirstChild.InnerText + "|" + numerer);
-                                    BlocksSorted.Add(Childs.FirstChild.InnerText + "|" + numerer, Childs);
+                                    if (regex.IsMatch(Childs.FirstChild.InnerText))
+                                    {
+                                        Sorter.Add(Childs.FirstChild.InnerText + "|" + numerer);
+                                        BlocksSorted.Add(Childs.FirstChild.InnerText + "|" + numerer, Childs);
+                                    }
                                 }
                                 if (Type.Contains("Armor"))
                                 {
@@ -570,17 +578,18 @@ namespace BlueprintEditor
                             }
                             else
                             {
-                                foreach (XmlNode Cld in Childs.ChildNodes)
+                                if (Childs.Attributes.GetNamedItem("xsi:type") != null && !HasName)
                                 {
-                                    if (Cld.Name == "CustomName" && !HasName)
+                                    string Typeds = Childs.Attributes.GetNamedItem("xsi:type").Value;
+                                    if (regex.IsMatch(Typeds))
                                     {
-                                        //listBox2.Items.Add(Cld.InnerText);
-                                        Sorter.Add(Cld.InnerText + "|" + numerer);
-                                        BlocksSorted.Add(Cld.InnerText + "|" + numerer, Childs);
-                                        break;
+                                        Sorter.Add(Typeds + "|" + numerer);
+                                        BlocksSorted.Add(Typeds + "|" + numerer, Childs);
                                     }
                                 }
+
                             }
+
                             foreach (XmlNode Cld in Childs.ChildNodes)
                             {
                                 if (Cld.Name == "ColorMaskHSV")
@@ -751,6 +760,7 @@ namespace BlueprintEditor
                     string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
                     int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
                     int CountBuilt = 0; int CountSubt = 0; string TypeName = "";
+                    button16.Enabled = true; 
                     foreach (int Index in listBox2.SelectedIndices)
                     {
                         XmlNode Blocke = BlocksSorted[Sorter[Index]];
@@ -932,6 +942,10 @@ namespace BlueprintEditor
                                     CustomData = Child.FirstChild.LastChild.LastChild.FirstChild.FirstChild.FirstChild.LastChild.InnerText;
                                     button10.Visible = true;
                                 }
+                            }
+                            else if (Child.Name == "Enabled")
+                            {
+                            
                             }
                         }
                         FirsTrart = false;
@@ -1824,7 +1838,7 @@ namespace BlueprintEditor
             {
                 string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
                 ArhApi.ClearFolder(ModFolder);
-                button5.Visible = false;
+                button5.Enabled = false;
             }
             catch (Exception ex)
             {
@@ -1841,6 +1855,7 @@ namespace BlueprintEditor
                 if (Calculator != null && !Calculator.IsDisposed) Calculator.ChangeLang(Settings.LangID);
                 if (Report != null && !Report.IsDisposed) Report.ChangeLang(Settings.LangID);
                 if (ImageConvert != null && !ImageConvert.IsDisposed) ImageConvert.ChangeLang(Settings.LangID);
+                if (SettsBlock != null && !SettsBlock.IsDisposed) SettsBlock.ChangeLang(Settings.LangID);
             }
             catch (Exception ex)
             {
@@ -1859,6 +1874,7 @@ namespace BlueprintEditor
                     string tag = Contr.Tag.ToString();
                     if (tag is "") continue;
                     string[] Tagge = tag.Split('|');
+                    if(Tagge[1] is "") continue;
                     if (Tagge[0] == "") { Contr.Tag = Contr.Text + tag; tag = Contr.Tag.ToString(); }
                     Contr.Text = Lang == 1 ? Contr.Text.Replace(Tagge[0], Tagge[1]) : Contr.Text.Replace(Tagge[1], Tagge[0]);
                 }
@@ -1893,7 +1909,8 @@ namespace BlueprintEditor
             new Theme(Color.FromArgb(182,216,213),Color.FromArgb(6,27,51)),
             new Theme(Color.FromArgb(64,0,64),Color.FromArgb(255,255,0)),
             new Theme(Color.FromArgb(183,240,32),Color.Black),
-             new Theme(Color.FromArgb(48,60,65),Color.FromArgb(200,222,230))
+            new Theme(Color.FromArgb(48,60,65),Color.FromArgb(200,222,230)),
+            new Theme(Color.Gold,Color.DarkBlue)
                 });
         int OldSelectedIndex;
         private void comboBox10_SelectedIndexChanged(object sender, EventArgs e)
@@ -1940,6 +1957,8 @@ namespace BlueprintEditor
                     ImageConvert.SetColor(AllForeColor, AllBackColor);
                 if (Calculator != null && !Calculator.IsDisposed)
                     Calculator.SetColor(AllForeColor, AllBackColor);
+                if (SettsBlock != null && !SettsBlock.IsDisposed)
+                    SettsBlock.SetColor(AllForeColor, AllBackColor);
                 OldSelectedIndex = comboBox10.SelectedIndex;
             }
             catch (Exception ex)
@@ -2631,6 +2650,110 @@ namespace BlueprintEditor
                 catch
                 {
                     File.Delete("UpdateLog.txt");
+                    if (Settings.LangID == 0)
+                        MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                    else
+                        MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        Form6 SettsBlock;
+        private void button14_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (ImageConvert == null || ImageConvert.IsDisposed)
+                {
+                    SettsBlock = new Form6(this);
+                    SettsBlock.SetColor(AllForeColor, AllBackColor);
+                    SettsBlock.ChangeLang(Settings.LangID);
+                }
+                SettsBlock.ChangeLang(Settings.LangID);
+                SettsBlock.Show();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        private void textBox11_TextChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            UpdateBlocksNoSett();
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            foreach (XmlNode Child in Grid.ChildNodes)
+            {
+                if (Child.Name == "CubeBlocks")
+                {
+                    foreach (XmlNode Childs in Child.ChildNodes)
+                    {
+                        if (Childs != null)
+                        {
+                            foreach (XmlNode Bl in Childs)
+                            {
+                                XmlNode parent = Bl.ParentNode;
+                                parent.RemoveChild(Bl);
+                            }
+                            UpdateBlocks();
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            try
+            {
+
+                if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
+                try
+                {
+                    File.WriteAllText("EditBlockXML.xml", Block[0].InnerXml.Replace("><", ">\r\n<"));
+                    Process Editor = Process.Start(Settings.EditorProgram + ".exe", "EditBlockXML.xml");
+                    if (Editor != null)
+                    {
+                        Editor.WaitForExit();
+                        if (File.Exists("EditBlockXML.xml"))
+                        {
+                            string Program = File.ReadAllText("EditBlockXML.xml");
+                            if (Block != null && Block.Count == 1 && button16.Enabled)
+                            {
+                                foreach (XmlNode Bl in Block)
+                                {
+                                    Bl.InnerXml = Program.Replace(">\r\n<", "><");
+                                }
+                                UpdateBlocks();
+                            }
+                            File.Delete("EditBlockXML.xml");
+                        }
+                    }
+                    else
+                    {
+                        File.Delete("EditBlockXML.xml");
+                        if (Settings.LangID == 0)
+                            MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
+                        else
+                            MessageBox.Show("Пожалуйста, установите " + Settings.EditorProgram, "Отсутствует " + Settings.EditorProgram);
+                    }
+                }
+                catch
+                {
+                    File.Delete("EditBlockXML.xml");
                     if (Settings.LangID == 0)
                         MessageBox.Show("Please install " + Settings.EditorProgram, "Missing " + Settings.EditorProgram);
                     else

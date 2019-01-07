@@ -21,3 +21,4 @@ C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\B
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.exe
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.pdb
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.csprojAssemblyReference.cache
+C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form6.resources
