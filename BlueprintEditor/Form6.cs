@@ -12,11 +12,20 @@ namespace BlueprintEditor
 {
     public partial class Form6 : Form
     {
-        Form1 MainForm;
-        public Form6(Form1 Parrent)
+        string UpdateUrl; Form1 MainF;
+        public Form6(string UpdUrl, Form1 Main,string Avai)
         {
             InitializeComponent();
-            MainForm = Parrent;
+            UpdateUrl = UpdUrl;
+            MainF = Main;
+            label1.Text = Form1.Settings.LangID == 0?
+                "Current version " + Application.ProductVersion+ ", available " + Avai :
+                "Текущая версия " + Application.ProductVersion+ ", доступна " + Avai;
+            ArhApi.CompliteAsync(() =>
+            {
+                string Log = PrepareLog(ArhApi.Server("GetUpdateLog"),true);
+                Invoke(new Action(() => { textBox1.Text = Log; }));
+            });
         }
         public void SetColor(Color Fore, Color Back)
         {
@@ -65,6 +74,55 @@ namespace BlueprintEditor
 
                 }
             }
+        }
+
+        private void Form6_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        string PrepareLog(string log,bool cut = false)
+        {
+            string[] Versions = log.Split('*');
+            string Backlog = "";
+            foreach (var version in Versions)
+            {
+                bool breaked = false;
+                string[] Strings = version.Split(new string[] {"\n", "\r", "\r\n"},StringSplitOptions.RemoveEmptyEntries);
+                foreach (var stringe in Strings)
+                {
+                    string[] langs = stringe.Split('|');
+                    if (langs.Length > 1)
+                        Backlog += (langs[Form1.Settings.LangID])+ "\r\n";
+                    else
+                    {
+                        if (cut && langs[0] == Application.ProductVersion + ":")
+                        {
+                            breaked = true;
+                            break;
+                        }
+                        Backlog +=  langs[0]+"\r\n";
+                    }
+
+                    
+                }
+                if (breaked) break;
+            }
+
+            return Backlog;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Form2 Updater = new Form2(UpdateUrl, MainF);
+            ArhApi.LoadForm(Updater);
+            Updater.SetColor(MainF.AllForeColor, MainF.AllBackColor);
+            Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

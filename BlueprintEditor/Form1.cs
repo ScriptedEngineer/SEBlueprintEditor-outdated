@@ -25,8 +25,8 @@ namespace BlueprintEditor
     public partial class Form1 : Form
     {
         
-        Color AllForeColor = Color.FromArgb(240, 240, 240);
-        Color AllBackColor = Color.FromArgb(20, 20, 20);
+        public Color AllForeColor = Color.FromArgb(240, 240, 240);
+        public Color AllBackColor = Color.FromArgb(20, 20, 20);
 
         public Form1(string[] args)
         {
@@ -224,9 +224,10 @@ namespace BlueprintEditor
                     {
                         MainF.Invoke(new Action(() =>
                         {
-                            Form2 Updater = new Form2(UpdateUrl, this);
+                            Form6 Updater = new Form6(UpdateUrl, this, retrn[2]);
                             ArhApi.LoadForm(Updater);
                             Updater.SetColor(AllForeColor, AllBackColor);
+                            Updater.ChangeLang(Settings.LangID);
                         }));
                     }
                 });
@@ -2628,7 +2629,7 @@ namespace BlueprintEditor
                 if (Settings.EditorProgram == "" || Settings.EditorProgram == null) Settings.EditorProgram = "notepad";
                 try
                 {
-                    File.WriteAllText("UpdateLog.txt", ArhApi.Server("GetUpdateLog"));
+                    File.WriteAllText("UpdateLog.txt", PrepareLog(ArhApi.Server("GetUpdateLog")));
                     Process Editor = Process.Start(Settings.EditorProgram + ".exe", "UpdateLog.txt");
                     if (Editor != null)
                     {
@@ -2662,19 +2663,44 @@ namespace BlueprintEditor
             }
         }
 
+        string PrepareLog(string log, bool cut = false)
+        {
+            string[] Versions = log.Split('*');
+            string Backlog = "";
+            foreach (var version in Versions)
+            {
+                bool breaked = false;
+                string[] Strings = version.Split(new string[] { "\n", "\r", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var stringe in Strings)
+                {
+                    string[] langs = stringe.Split('|');
+                    if (langs.Length > 1)
+                        Backlog += (langs[Form1.Settings.LangID]) + "\r\n";
+                    else
+                    {
+                        if (cut && langs[0] == Application.ProductVersion + ":")
+                        {
+                            breaked = true;
+                            break;
+                        }
+                        Backlog += langs[0] + "\r\n";
+                    }
+
+                    
+                }
+                if (breaked) break;
+            }
+
+            return Backlog;
+        }
+
+
         Form6 SettsBlock;
         private void button14_Click(object sender, EventArgs e)
         {
             try
             {
-                if (ImageConvert == null || ImageConvert.IsDisposed)
-                {
-                    SettsBlock = new Form6(this);
-                    SettsBlock.SetColor(AllForeColor, AllBackColor);
-                    SettsBlock.ChangeLang(Settings.LangID);
-                }
-                SettsBlock.ChangeLang(Settings.LangID);
-                SettsBlock.Show();
+
             }
             catch (Exception ex)
             {
