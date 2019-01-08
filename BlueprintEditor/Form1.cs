@@ -1889,6 +1889,11 @@ namespace BlueprintEditor
                     if (Contr.Tag is null) continue;
                     string tag = Contr.Tag.ToString();
                     if (tag is "") continue;
+                    string[] Tagget = tag.Split(':');
+                    if (Tagget.Length > 1 && Environment.OSVersion.Version < new Version("6.2"))
+                    {
+                        Contr.Text = Tagget[1];
+                    }
                     string[] Tagge = tag.Split('|');
                     if(Tagge[1] is "") continue;
                     if (Tagge[0] == "") { Contr.Tag = Contr.Text + tag; tag = Contr.Tag.ToString(); }
@@ -2590,10 +2595,14 @@ namespace BlueprintEditor
 
         }
 
+        Regex BlueprintRegex = new Regex("", RegexOptions.IgnoreCase);
+        bool dontclear = false;
         private void button12_Click(object sender, EventArgs e)
         {
             try
             {
+                if (!dontclear) textBox12.Text = "";
+                else dontclear = false;
                 button7.Visible = false;
                 button11.Enabled = false;
                 comboBox11.Visible = false;
@@ -2631,7 +2640,7 @@ namespace BlueprintEditor
                             }
                             else
                             {
-                                listBox1Items.Add(BlueD);
+                                if(BlueprintRegex.IsMatch(BlueD)) listBox1Items.Add(BlueD);
                             }
                         }
                     }
@@ -2837,6 +2846,17 @@ namespace BlueprintEditor
             {
                 Error(ex);
             }
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            dontclear = true;
+            button12_Click(sender,e);
+        }
+
+        private void textBox12_TextChanged(object sender, EventArgs e)
+        {
+            BlueprintRegex = new Regex(textBox12.Text, RegexOptions.IgnoreCase);
         }
 
         private void textBox4_SizeChanged(object sender, EventArgs e)

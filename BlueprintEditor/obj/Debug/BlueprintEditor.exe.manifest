@@ -4,7 +4,7 @@
   <description asmv2:iconFile="map-_1_.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="BlueprintEditor" version="0.0.1.24" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="BlueprintEditor" version="0.0.1.26" language="neutral" processorArchitecture="msil" />
     <commandLine file="BlueprintEditor.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BlueprintEditor.exe" size="2659760">
-      <assemblyIdentity name="BlueprintEditor" version="0.0.1.24" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BlueprintEditor.exe" size="2661808">
+      <assemblyIdentity name="BlueprintEditor" version="0.0.1.26" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>+7T3Z9myMwrxSXVMVUUiOAt8ZQRd4zNhZ/PmyfdT0Hg=</dsig:DigestValue>
+        <dsig:DigestValue>rAIqHyaRd47VueUSL3qWdcugGepouwdSgaoyorI9Tc0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

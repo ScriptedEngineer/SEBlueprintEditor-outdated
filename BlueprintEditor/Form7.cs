@@ -99,10 +99,14 @@ namespace BlueprintEditor
 
         }
 
+        bool EditEnabled = false;
         private void treeView1_AfterSelect_1(object sender, TreeViewEventArgs e)
         {
+            EditEnabled = false;
             textBox1.Enabled = false;
             textBox1.Text = "";
+            textBox2.Enabled = false;
+            textBox2.Text = "0";
             comboBox1.Enabled = false;
             comboBox1.Width = 1;
             comboBox2.Enabled = false;
@@ -140,31 +144,87 @@ namespace BlueprintEditor
                         comboBox2.SelectedIndex = 2;
                         break;
                     default:
-                        textBox1.Enabled = true;
-                        textBox1.Text = data;
+                        long n;
+                        if (long.TryParse(data, out n))
+                        {
+                            textBox2.Enabled = true;
+                            textBox2.Text = data;
+                        }
+                        else
+                        {
+                            textBox1.Enabled = true;
+                            textBox1.Text = data;
+                        }
+
                         break;
                 }
-
+                EditEnabled = true;
                 //textBox1.Text = ;
             }
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (comboBox1.SelectedIndex)
+            if (EditEnabled)
             {
-                case 0:
-                    foreach (var Block in Blocks)
-                    {
-                        Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = "false";
-                    }
-                    break;
-                case 1:
-                    foreach (var Block in Blocks)
-                    {
-                        Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = "true";
-                    }
-                    break;
+                switch (comboBox1.SelectedIndex)
+                {
+                    case 0:
+                        foreach (var Block in Blocks)
+                        {
+                            Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = "false";
+                        }
+
+                        break;
+                    case 1:
+                        foreach (var Block in Blocks)
+                        {
+                            Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = "true";
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (EditEnabled)
+            {
+                foreach (var Block in Blocks)
+                {
+                    Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText =
+                        comboBox2.SelectedItem.ToString();
+                }
+            }
+        }
+
+        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsNumber(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            long n;
+            if (!long.TryParse(textBox2.Text, out n)) textBox2.Text = "0";
+            if (EditEnabled)
+            {
+                foreach (var Block in Blocks)
+                {
+                    Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = textBox2.Text;
+                }
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (EditEnabled)
+            {
+                foreach (var Block in Blocks)
+                {
+                    Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = textBox1.Text;
+                }
             }
         }
     }
