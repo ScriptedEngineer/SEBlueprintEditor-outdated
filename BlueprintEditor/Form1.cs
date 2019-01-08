@@ -427,6 +427,8 @@ namespace BlueprintEditor
             textBox10.Enabled = false;
             textBox8.Enabled = false;
             panel2.Visible = false;
+            button14.Enabled = false;
+            if (SettsBlock != null && !SettsBlock.IsDisposed) SettsBlock.Close();
         }
 
         void SetEnableCombo(ComboBox Box, bool Enable)
@@ -495,10 +497,9 @@ namespace BlueprintEditor
                 Updating = false;
             }
         }
-
+        Regex BlocksRegex = new Regex("", RegexOptions.IgnoreCase);
         void UpdateBlocksNoSett()
         {
-            Regex regex = new Regex(textBox11.Text, RegexOptions.IgnoreCase);
             int Heavy = 0, Light = 0, numerer = 0;
             ClearEditorGrid();
             ClearEditorBlock();
@@ -520,7 +521,7 @@ namespace BlueprintEditor
                                 {
                                     if (comboBox8.SelectedIndex == 1)
                                     {
-                                        if (regex.IsMatch(Cld.InnerText))
+                                        if (BlocksRegex.IsMatch(Cld.InnerText))
                                         {
                                             Sorter.Add(Cld.InnerText + "|" + numerer);
                                             BlocksSorted.Add(Cld.InnerText + "|" + numerer, Childs);
@@ -559,7 +560,7 @@ namespace BlueprintEditor
                                 string Type = Childs.FirstChild.InnerText;
                                 if (comboBox8.SelectedIndex == 0 || !HasName)
                                 {
-                                    if (regex.IsMatch(Childs.FirstChild.InnerText))
+                                    if (BlocksRegex.IsMatch(Childs.FirstChild.InnerText))
                                     {
                                         Sorter.Add(Childs.FirstChild.InnerText + "|" + numerer);
                                         BlocksSorted.Add(Childs.FirstChild.InnerText + "|" + numerer, Childs);
@@ -582,7 +583,7 @@ namespace BlueprintEditor
                                 if (Childs.Attributes.GetNamedItem("xsi:type") != null && !HasName)
                                 {
                                     string Typeds = Childs.Attributes.GetNamedItem("xsi:type").Value;
-                                    if (regex.IsMatch(Typeds))
+                                    if (BlocksRegex.IsMatch(Typeds))
                                     {
                                         Sorter.Add(Typeds + "|" + numerer);
                                         BlocksSorted.Add(Typeds + "|" + numerer, Childs);
@@ -761,10 +762,13 @@ namespace BlueprintEditor
                     string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
                     int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
                     int CountBuilt = 0; int CountSubt = 0; string TypeName = "";
-                    button16.Enabled = true; 
+                    string OtherData = "";
+                    string BlockXML = "";
                     foreach (int Index in listBox2.SelectedIndices)
                     {
                         XmlNode Blocke = BlocksSorted[Sorter[Index]];
+                        if (FirsTrart) BlockXML = Blocke.InnerXml;
+                        if (BlockXML != Blocke.InnerXml) BlockXML = "";
                         if (Blocke.Attributes.GetNamedItem("xsi:type") != null)
                         {
                             if (FirsTrart) TypeName = Blocke.Attributes.GetNamedItem("xsi:type").Value;
@@ -775,6 +779,7 @@ namespace BlueprintEditor
                             TypeName = "";
                         }
                         Block.Add(Blocke);
+                        string otherData = "";
                         foreach (XmlNode Child in BlocksSorted[Sorter[Index]].ChildNodes)
                         {
                             if (Child.Name == "SubtypeName")
@@ -944,15 +949,25 @@ namespace BlueprintEditor
                                     button10.Visible = true;
                                 }
                             }
-                            else if (Child.Name == "Enabled")
+                            else
                             {
-                            
+                                if(Form7.NodeRegexD.IsMatch(Child.Name)) otherData += Child.Name+":"+Child.InnerText+"|";
                             }
                         }
+                        if (FirsTrart) OtherData = otherData;
+                        if (OtherData != otherData) OtherData = "";
                         FirsTrart = false;
                     }
                     if (!button10.Visible)button6.Location = button10.Location;
                         else button6.Location = Button6Location;
+                    if (OtherData != "")
+                    {
+                        button14.Enabled = true;
+                    }
+                    if (BlockXML != "")
+                    {
+                        button16.Enabled = true;
+                    }
                     if (TypeName != "")
                     {
                         textBox10.Text = TypeName;
@@ -1884,6 +1899,28 @@ namespace BlueprintEditor
 
                 }
             }
+            ChangeMenuLang(Lang);
+        }
+        void ChangeMenuLang(int Lang)
+        {
+            foreach (ToolStripItem Contr in menuStrip1.Items)
+            {
+                try
+                {
+                    if (Contr.Tag is null) continue;
+                    string tag = Contr.Tag.ToString();
+                    if (tag is "") continue;
+                    string[] Tagge = tag.Split('|');
+                    if (Tagge[1] is "") continue;
+                    if (Tagge[0] == "") { Contr.Tag = Contr.Text + tag; tag = Contr.Tag.ToString(); }
+                    Contr.Text = Lang == 1 ? Contr.Text.Replace(Tagge[0], Tagge[1]) : Contr.Text.Replace(Tagge[1], Tagge[0]);
+                }
+                catch
+                {
+
+                }
+            }
+
         }
 
         class Theme
@@ -1911,7 +1948,8 @@ namespace BlueprintEditor
             new Theme(Color.FromArgb(64,0,64),Color.FromArgb(255,255,0)),
             new Theme(Color.FromArgb(183,240,32),Color.Black),
             new Theme(Color.FromArgb(48,60,65),Color.FromArgb(200,222,230)),
-            new Theme(Color.Gold,Color.DarkBlue)
+            new Theme(Color.Gold,Color.DarkBlue),
+            new Theme(Color.LightGray,Color.Black)
                 });
         int OldSelectedIndex;
         private void comboBox10_SelectedIndexChanged(object sender, EventArgs e)
@@ -2695,12 +2733,21 @@ namespace BlueprintEditor
         }
 
 
-        Form6 SettsBlock;
+        Form7 SettsBlock;
         private void button14_Click(object sender, EventArgs e)
         {
             try
             {
+                if (SettsBlock == null || SettsBlock.IsDisposed)
+                {
 
+                    SettsBlock = new Form7(Block);
+                    SettsBlock.SetColor(AllForeColor, AllBackColor);
+                    SettsBlock.ChangeLang(Settings.LangID);
+                }
+                SettsBlock.ChangeLang(Settings.LangID);
+                SettsBlock.Show();
+                SettsBlock.Focus();
             }
             catch (Exception ex)
             {
@@ -2710,7 +2757,7 @@ namespace BlueprintEditor
 
         private void textBox11_TextChanged(object sender, EventArgs e)
         {
-            
+            BlocksRegex = new Regex(textBox11.Text, RegexOptions.IgnoreCase);
         }
 
         private void button19_Click(object sender, EventArgs e)

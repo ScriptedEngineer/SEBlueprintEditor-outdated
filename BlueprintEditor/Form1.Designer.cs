@@ -102,13 +102,13 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
-            this.button12 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
-            this.button15 = new System.Windows.Forms.Button();
             this.textBox11 = new System.Windows.Forms.TextBox();
             this.button19 = new System.Windows.Forms.Button();
             this.button16 = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.button12 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -128,7 +128,7 @@
             " "});
             this.listBox1.Location = new System.Drawing.Point(12, 58);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(134, 444);
+            this.listBox1.Size = new System.Drawing.Size(134, 457);
             this.listBox1.TabIndex = 0;
             this.listBox1.TabStop = false;
             this.listBox1.UseTabStops = false;
@@ -171,7 +171,7 @@
             this.listBox2.Location = new System.Drawing.Point(268, 253);
             this.listBox2.Name = "listBox2";
             this.listBox2.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBox2.Size = new System.Drawing.Size(219, 223);
+            this.listBox2.Size = new System.Drawing.Size(219, 236);
             this.listBox2.TabIndex = 3;
             this.listBox2.TabStop = false;
             this.listBox2.UseTabStops = false;
@@ -198,7 +198,7 @@
             " "});
             this.listBox3.Location = new System.Drawing.Point(152, 279);
             this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(110, 223);
+            this.listBox3.Size = new System.Drawing.Size(110, 236);
             this.listBox3.TabIndex = 6;
             this.listBox3.TabStop = false;
             this.listBox3.UseTabStops = false;
@@ -454,7 +454,7 @@
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.Enabled = false;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button2.Location = new System.Drawing.Point(800, 482);
+            this.button2.Location = new System.Drawing.Point(800, 495);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(87, 23);
             this.button2.TabIndex = 24;
@@ -655,7 +655,7 @@
             this.label19.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label19.AutoSize = true;
             this.label19.BackColor = System.Drawing.Color.Transparent;
-            this.label19.Location = new System.Drawing.Point(724, 492);
+            this.label19.Location = new System.Drawing.Point(724, 505);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(70, 13);
             this.label19.TabIndex = 40;
@@ -781,7 +781,7 @@
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button3.Enabled = false;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button3.Location = new System.Drawing.Point(496, 482);
+            this.button3.Location = new System.Drawing.Point(496, 495);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(201, 23);
             this.button3.TabIndex = 50;
@@ -794,9 +794,9 @@
             // 
             this.label22.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label22.BackColor = System.Drawing.Color.Transparent;
-            this.label22.Location = new System.Drawing.Point(496, 458);
+            this.label22.Location = new System.Drawing.Point(496, 477);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(201, 21);
+            this.label22.Size = new System.Drawing.Size(201, 15);
             this.label22.TabIndex = 51;
             this.label22.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
@@ -810,7 +810,7 @@
             this.button5.Size = new System.Drawing.Size(181, 23);
             this.button5.TabIndex = 52;
             this.button5.Tag = "|Удалить Загруженные Моды";
-            this.button5.Text = "Clear Loaded Mods";
+            this.button5.Text = "Clear loaded mods";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -850,6 +850,7 @@
             "Frash",
             "GameMenu",
             "GoldPaper",
+            "JustGray",
             "Сustоm"});
             this.comboBox10.Location = new System.Drawing.Point(152, 12);
             this.comboBox10.Name = "comboBox10";
@@ -861,7 +862,7 @@
             // button6
             // 
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button6.Location = new System.Drawing.Point(496, 422);
+            this.button6.Location = new System.Drawing.Point(496, 449);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(201, 23);
             this.button6.TabIndex = 55;
@@ -958,7 +959,7 @@
             this.panel2.Controls.Add(this.pictureBox5);
             this.panel2.Location = new System.Drawing.Point(703, 389);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(185, 86);
+            this.panel2.Size = new System.Drawing.Size(185, 99);
             this.panel2.TabIndex = 62;
             this.panel2.Visible = false;
             // 
@@ -976,7 +977,7 @@
             // 
             this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button9.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button9.Location = new System.Drawing.Point(87, 58);
+            this.button9.Location = new System.Drawing.Point(87, 71);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(93, 23);
             this.button9.TabIndex = 2;
@@ -989,12 +990,12 @@
             // 
             this.button8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button8.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button8.Location = new System.Drawing.Point(86, 32);
+            this.button8.Location = new System.Drawing.Point(86, 45);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(93, 23);
             this.button8.TabIndex = 1;
             this.button8.Tag = "|Изменить";
-            this.button8.Text = "ChangePic";
+            this.button8.Text = "Change pic";
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
@@ -1007,7 +1008,7 @@
             this.pictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox5.Image")));
             this.pictureBox5.Location = new System.Drawing.Point(3, 3);
             this.pictureBox5.Name = "pictureBox5";
-            this.pictureBox5.Size = new System.Drawing.Size(78, 78);
+            this.pictureBox5.Size = new System.Drawing.Size(78, 91);
             this.pictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox5.TabIndex = 0;
             this.pictureBox5.TabStop = false;
@@ -1052,12 +1053,12 @@
             // button10
             // 
             this.button10.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button10.Location = new System.Drawing.Point(496, 393);
+            this.button10.Location = new System.Drawing.Point(496, 420);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(201, 23);
             this.button10.TabIndex = 63;
             this.button10.Tag = "|Изменить клиентские данные";
-            this.button10.Text = "Edit Custom Data";
+            this.button10.Text = "Edit custom data";
             this.button10.UseVisualStyleBackColor = true;
             this.button10.Visible = false;
             this.button10.Click += new System.EventHandler(this.button10_Click_1);
@@ -1074,18 +1075,6 @@
             this.button11.Text = "Edit manually";
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.button11_Click);
-            // 
-            // button12
-            // 
-            this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button12.Location = new System.Drawing.Point(12, 12);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(134, 23);
-            this.button12.TabIndex = 65;
-            this.button12.Tag = "|Обновить чертежи";
-            this.button12.Text = "Update blueprints";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
             // button13
             // 
@@ -1104,33 +1093,20 @@
             // 
             this.button14.Enabled = false;
             this.button14.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button14.Location = new System.Drawing.Point(703, 201);
+            this.button14.Location = new System.Drawing.Point(496, 391);
             this.button14.Name = "button14";
-            this.button14.Size = new System.Drawing.Size(89, 23);
+            this.button14.Size = new System.Drawing.Size(201, 23);
             this.button14.TabIndex = 67;
-            this.button14.Tag = "|Настроить";
-            this.button14.Text = "Options";
+            this.button14.Tag = "|Настроить блок";
+            this.button14.Text = "Block options";
             this.button14.UseVisualStyleBackColor = true;
-            this.button14.Visible = false;
             this.button14.Click += new System.EventHandler(this.button14_Click);
-            // 
-            // button15
-            // 
-            this.button15.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button15.Location = new System.Drawing.Point(347, 10);
-            this.button15.Name = "button15";
-            this.button15.Size = new System.Drawing.Size(140, 23);
-            this.button15.TabIndex = 68;
-            this.button15.Tag = "|Остальные настройки";
-            this.button15.Text = "Other Settings";
-            this.button15.UseVisualStyleBackColor = true;
-            this.button15.Visible = false;
             // 
             // textBox11
             // 
             this.textBox11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox11.Location = new System.Drawing.Point(268, 482);
+            this.textBox11.Location = new System.Drawing.Point(268, 495);
             this.textBox11.Name = "textBox11";
             this.textBox11.Size = new System.Drawing.Size(191, 20);
             this.textBox11.TabIndex = 69;
@@ -1140,7 +1116,7 @@
             // 
             this.button19.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button19.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button19.Location = new System.Drawing.Point(465, 479);
+            this.button19.Location = new System.Drawing.Point(465, 492);
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(22, 23);
             this.button19.TabIndex = 73;
@@ -1162,18 +1138,36 @@
             this.button16.UseVisualStyleBackColor = true;
             this.button16.Click += new System.EventHandler(this.button16_Click);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(900, 24);
+            this.menuStrip1.TabIndex = 75;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // button12
+            // 
+            this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.button12.Location = new System.Drawing.Point(12, 10);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(134, 23);
+            this.button12.TabIndex = 65;
+            this.button12.Tag = "|Обновить чертежи";
+            this.button12.Text = "Update blueprints";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(900, 513);
+            this.ClientSize = new System.Drawing.Size(900, 526);
             this.Controls.Add(this.button16);
             this.Controls.Add(this.button19);
             this.Controls.Add(this.textBox11);
-            this.Controls.Add(this.button15);
-            this.Controls.Add(this.button14);
             this.Controls.Add(this.button13);
             this.Controls.Add(this.button12);
             this.Controls.Add(this.button11);
@@ -1236,8 +1230,11 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.button14);
+            this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(916, 552);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -1332,13 +1329,13 @@
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
-        private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button13;
         private System.Windows.Forms.Button button14;
-        private System.Windows.Forms.Button button15;
         private System.Windows.Forms.TextBox textBox11;
         private System.Windows.Forms.Button button19;
         private System.Windows.Forms.Button button16;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.Button button12;
     }
 }
 
