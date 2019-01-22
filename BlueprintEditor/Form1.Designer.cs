@@ -111,6 +111,7 @@
             this.button12 = new System.Windows.Forms.Button();
             this.textBox12 = new System.Windows.Forms.TextBox();
             this.button15 = new System.Windows.Forms.Button();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -796,9 +797,9 @@
             // 
             this.label22.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label22.BackColor = System.Drawing.Color.Transparent;
-            this.label22.Location = new System.Drawing.Point(496, 477);
+            this.label22.Location = new System.Drawing.Point(496, 475);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(201, 15);
+            this.label22.Size = new System.Drawing.Size(201, 17);
             this.label22.TabIndex = 51;
             this.label22.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
@@ -1184,6 +1185,19 @@
             this.button15.UseVisualStyleBackColor = true;
             this.button15.Click += new System.EventHandler(this.button15_Click);
             // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Enabled = false;
+            this.checkBox2.Location = new System.Drawing.Point(496, 477);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(58, 17);
+            this.checkBox2.TabIndex = 78;
+            this.checkBox2.Tag = "|Целиком";
+            this.checkBox2.Text = "Wholly";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1191,6 +1205,8 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(914, 526);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.button15);
             this.Controls.Add(this.textBox12);
             this.Controls.Add(this.button16);
@@ -1212,7 +1228,6 @@
             this.Controls.Add(this.comboBox9);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label22);
-            this.Controls.Add(this.button3);
             this.Controls.Add(this.label21);
             this.Controls.Add(this.textBox9);
             this.Controls.Add(this.pictureBox4);
@@ -1366,6 +1381,7 @@
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.TextBox textBox12;
         private System.Windows.Forms.Button button15;
+        private System.Windows.Forms.CheckBox checkBox2;
     }
 }
 

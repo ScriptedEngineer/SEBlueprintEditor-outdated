@@ -161,6 +161,7 @@ namespace BlueprintEditor
                 if (GamePath == "" && !CalculateShip)
                 {
                     button3.Visible = false;
+                    checkBox2.Visible = false;
                 }
                 if (Directory.Exists(Folder))
                 {
@@ -287,6 +288,7 @@ namespace BlueprintEditor
                     label3.Visible = true;
                     listBox3.Visible = true;
                     button3.Enabled = true;
+                    checkBox2.Enabled = true;
                     button11.Enabled = true;
                     button2.Enabled = true;
                 }
@@ -750,6 +752,7 @@ namespace BlueprintEditor
             if (File.Exists(BluePathc + "\\bp.sbcB1")) File.Delete(BluePathc + "\\bp.sbcB1");
         }
 
+        Dictionary<string, string> BlocksOtherData = new Dictionary<string, string>();
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
@@ -762,7 +765,7 @@ namespace BlueprintEditor
                     string CustomName = ""; bool FirsTrart = true; string OrForw = ""; string OrUp = "";
                     int ColorCount = 0; int CustomnameCount = 0; int CountOrient = 0; int CountMin = 0;
                     int CountBuilt = 0; int CountSubt = 0; string TypeName = "";
-                    string OtherData = "";
+                    Dictionary<string,string> OtherData = new Dictionary<string, string>();
                     string BlockXML = "";
                     foreach (int Index in listBox2.SelectedIndices)
                     {
@@ -779,7 +782,7 @@ namespace BlueprintEditor
                             TypeName = "";
                         }
                         Block.Add(Blocke);
-                        string otherData = "";
+                        Dictionary<string, string> otherData = new Dictionary<string, string>();
                         foreach (XmlNode Child in BlocksSorted[Sorter[Index]].ChildNodes)
                         {
                             if (Child.Name == "SubtypeName")
@@ -951,18 +954,36 @@ namespace BlueprintEditor
                             }
                             else
                             {
-                                if(Form7.NodeRegexD.IsMatch(Child.Name)) otherData += Child.Name+":"+Child.InnerText+"|";
+                                //if (Form7.NodeRegexD.IsMatch(Child.Name))
+                                    otherData.Add(Child.Name, Child.InnerXml);
                             }
                         }
                         if (FirsTrart) OtherData = otherData;
-                        if (OtherData != otherData) OtherData = "";
+                        List<string> ToDelete = new List<string>();
+                        foreach (var dic in OtherData)
+                        {
+                            if (otherData.ContainsKey(dic.Key) && otherData[dic.Key] == dic.Value)
+                            {
+
+                            }
+                            else
+                            {
+                                ToDelete.Add(dic.Key);
+                            }
+                        }
+                        foreach (var str in ToDelete)
+                        {
+                            OtherData.Remove(str);
+                        }
+
                         FirsTrart = false;
                     }
                     if (!button10.Visible)button6.Location = button10.Location;
                         else button6.Location = Button6Location;
-                    if (OtherData != "")
+                    if (OtherData.Count > 0)
                     {
                         button14.Enabled = true;
+                        BlocksOtherData = OtherData;
                     }
                     if (BlockXML != "")
                     {
@@ -1808,6 +1829,7 @@ namespace BlueprintEditor
                         Invoke(new Action(() =>
                         {
                             label22.Text = Settings.LangID == 0?"Loading Data...":"Загрузка данных...";
+                            checkBox2.Visible = false;
                         }));
                         Calculator = new Form4(GamePath, this);
                         Calculator.SetColor(AllForeColor, AllBackColor);
@@ -1817,9 +1839,16 @@ namespace BlueprintEditor
                     {
                         Calculator.Hide();
                         label22.Text = Settings.LangID == 0 ? "Calculating...":"Расчет...";
+                        checkBox2.Visible = false;
                         Calculator.ClearBlocks();
                     }));
-                    foreach (XmlNode MyBlock in Blueprint.GetElementsByTagName("MyObjectBuilder_CubeBlock"))
+                    XmlNodeList CalculateList = null;
+                    if (checkBox2.Checked)
+                    {
+                        CalculateList = Blueprint.GetElementsByTagName("MyObjectBuilder_CubeBlock");
+                    }
+                    else CalculateList = Grid.SelectNodes("CubeBlocks/MyObjectBuilder_CubeBlock");
+                    foreach (XmlNode MyBlock in CalculateList)
                     {
                         string TypeOfBlock;
                         XmlNode xsitype = MyBlock.Attributes.GetNamedItem("xsi:type");
@@ -1839,6 +1868,7 @@ namespace BlueprintEditor
                         Calculator.ChangeLang(Settings.LangID);
                         Calculator.Show();
                         label22.Text = "";
+                        checkBox2.Visible = true;
                     }));
                 });
             }
@@ -2607,6 +2637,7 @@ namespace BlueprintEditor
                 button11.Enabled = false;
                 comboBox11.Visible = false;
                 button3.Enabled = false;
+                checkBox2.Enabled = false;
                 label24.Visible = false;
                 BluePathc = null;
                 ClearEditorGrid();
@@ -2750,7 +2781,7 @@ namespace BlueprintEditor
                 if (SettsBlock == null || SettsBlock.IsDisposed)
                 {
 
-                    SettsBlock = new Form7(Block);
+                    SettsBlock = new Form7(Block,BlocksOtherData);
                     SettsBlock.SetColor(AllForeColor, AllBackColor);
                     SettsBlock.ChangeLang(Settings.LangID);
                 }
@@ -2857,6 +2888,11 @@ namespace BlueprintEditor
         private void textBox12_TextChanged(object sender, EventArgs e)
         {
             BlueprintRegex = new Regex(textBox12.Text, RegexOptions.IgnoreCase);
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void textBox4_SizeChanged(object sender, EventArgs e)

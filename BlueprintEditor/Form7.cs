@@ -15,22 +15,24 @@ namespace BlueprintEditor
     public partial class Form7 : Form
     {
         List<XmlNode> Blocks;
-        public Form7(List<XmlNode> _Block)
+        Dictionary<string, string> AllowedS;
+        public Form7(List<XmlNode> _Block, Dictionary<string,string> _Allowed)
         {
             Blocks = _Block;
+            AllowedS = _Allowed;
             InitializeComponent();
             AddThree(Blocks[0]);
         }
 
-        Regex NodeRegex = new Regex("#text|SubtypeName|CustomName|BuiltBy|BlockOrientation|Min|ColorMaskHSV|Program|PublicDescription|ComponentContainer", RegexOptions.None);
+        Regex NodeRegex = new Regex("#text|SubtypeName|Inventory|CustomName|BuiltBy|BlockOrientation|Min|ColorMaskHSV|Program|PublicDescription|ComponentContainer", RegexOptions.None);
         static public Regex NodeRegexD = new Regex("^(UseSingleWeaponMode|PlaySound|IsActive|DetectAsteroids|DetectOwner|DetectFriendly|DetectNeutral|DetectEnemy|DetectPlayers|DetectFloatingObjects|DetectSmallShips|DetectLargeShips|DetectStations|DetectSubgrids|GyroOverride|Storage|Owner|ShareMode|ShowOnHUD|ShowInTerminal|ShowInToolbarConfig|ShowInInventory|Enabled|BroadcastRadius|ShowShipName|EnableBroadcasting|IgnoreAllied|IgnoreOther|AutoPilotEnabled|DockingModeEnabled|IsMainRemoteControl)$", RegexOptions.None);
 
         void AddThree(XmlNode node,string nameleveling = "")
         {
             treeView1.Nodes.Clear();
-            treeView1.Nodes.AddRange(AddNode(node));
+            treeView1.Nodes.AddRange(AddNode(node,true));
         }
-        TreeNode[] AddNode(XmlNode node)
+        TreeNode[] AddNode(XmlNode node,bool first = false)
         {
             List<TreeNode> nodes = new List<TreeNode>();
             if(node.ChildNodes.Count == 0 && node.Name != "#text")return null;
@@ -38,7 +40,7 @@ namespace BlueprintEditor
             foreach (XmlNode nodee in node.ChildNodes)
             {
                 TreeNode[] childs = AddNode(nodee);
-                if (NodeRegexD.IsMatch(nodee.Name) && childs != null) nodes.Add(new TreeNode(nodee.Name, childs));
+                if ((!first || AllowedS.ContainsKey(nodee.Name) && AllowedS[nodee.Name] == nodee.InnerXml) && !NodeRegex.IsMatch(nodee.Name) && childs != null) nodes.Add(new TreeNode(nodee.Name, childs));
             }
             return nodes.ToArray();
         }
@@ -107,57 +109,66 @@ namespace BlueprintEditor
             textBox1.Text = "";
             textBox2.Enabled = false;
             textBox2.Text = "0";
+            textBox3.Enabled = false;
+            textBox3.Text = "0.0";
             comboBox1.Enabled = false;
             comboBox1.Width = 1;
             comboBox2.Enabled = false;
             comboBox2.Width = 1;
             if (treeView1.SelectedNode.Nodes.Count == 0)
             {
-                string data = Blocks[0].SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText;
-                switch (data)
-                {
-                    case "true":
-                    case "True":
-                        comboBox1.Width = 70;
-                        comboBox1.Enabled = true;
-                        comboBox1.SelectedIndex = 1;
-                        break;
-                    case "false":
-                    case "False":
-                        comboBox1.Width = 70;
-                        comboBox1.Enabled = true;
-                        comboBox1.SelectedIndex = 0;
-                        break;
-                    case "All":
-                        comboBox2.Width = 120;
-                        comboBox2.Enabled = true;
-                        comboBox2.SelectedIndex = 0;
-                        break;
-                    case "Faction":
-                        comboBox2.Width = 120;
-                        comboBox2.Enabled = true;
-                        comboBox2.SelectedIndex = 1;
-                        break;
-                    case "None":
-                        comboBox2.Width = 120;
-                        comboBox2.Enabled = true;
-                        comboBox2.SelectedIndex = 2;
-                        break;
-                    default:
-                        long n;
-                        if (long.TryParse(data, out n))
-                        {
-                            textBox2.Enabled = true;
-                            textBox2.Text = data;
-                        }
-                        else
-                        {
-                            textBox1.Enabled = true;
-                            textBox1.Text = data;
-                        }
+                XmlNode data = Blocks[0].SelectSingleNode(treeView1.SelectedNode.FullPath);
+                if(treeView1.SelectedNode.Nodes.Count == 0)
+                    switch (data.InnerText)
+                    {
+                        case "true":
+                        case "True":
+                            comboBox1.Width = 70;
+                            comboBox1.Enabled = true;
+                            comboBox1.SelectedIndex = 1;
+                            break;
+                        case "false":
+                        case "False":
+                            comboBox1.Width = 70;
+                            comboBox1.Enabled = true;
+                            comboBox1.SelectedIndex = 0;
+                            break;
+                        case "All":
+                            comboBox2.Width = 120;
+                            comboBox2.Enabled = true;
+                            comboBox2.SelectedIndex = 0;
+                            break;
+                        case "Faction":
+                            comboBox2.Width = 120;
+                            comboBox2.Enabled = true;
+                            comboBox2.SelectedIndex = 1;
+                            break;
+                        case "None":
+                            comboBox2.Width = 120;
+                            comboBox2.Enabled = true;
+                            comboBox2.SelectedIndex = 2;
+                            break;
+                        default:
+                            long n;
+                            double n2;
+                            if (long.TryParse(data.InnerText, out n))
+                            {
+                                textBox2.Enabled = true;
+                                textBox2.Text = data.InnerText;
+                            }
+                            else if (double.TryParse(data.InnerText.Replace('.', ','), out n2))
+                            {
+                                textBox3.Enabled = true;
+                                textBox3.Text = data.InnerText;
+                            }
+                            else
+                            {
+                                textBox1.Enabled = true;
+                                textBox1.Text = data.InnerText;
+                            }
 
-                        break;
-                }
+                            break;
+                    }
                 EditEnabled = true;
                 //textBox1.Text = ;
             }
@@ -226,6 +237,24 @@ namespace BlueprintEditor
                     Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = textBox1.Text;
                 }
             }
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            double n;
+            if (!double.TryParse(textBox3.Text.Replace('.',','), out n)) textBox3.Text = "0.0";
+            if (EditEnabled)
+            {
+                foreach (var Block in Blocks)
+                {
+                    Block.SelectSingleNode(treeView1.SelectedNode.FullPath).InnerText = textBox3.Text;
+                }
+            }
+        }
+
+        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = e.KeyChar != '.' && e.KeyChar != '-' && !char.IsNumber(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
     }
 }
