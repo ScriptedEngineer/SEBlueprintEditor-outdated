@@ -230,11 +230,19 @@ namespace BlueprintEditor
         }
         static public string Server(string Action,string AddtionalJson = "", string OutputType = "string")
         {
-            using (var client = new System.Net.WebClient())
+            try
             {
-                client.Encoding = Encoding.UTF8;
-                return client.UploadString("https://xyzs.ru/api/" + Action + "/" + OutputType, 
-                "{\"token\":\"L6Pv566loZC7JsDzjr83psLMoktWQqDb\",\"app\":\"SEBE\",\"version\":\"" + Application.ProductVersion + "\"" + AddtionalJson + "}");
+                using (var client = new System.Net.WebClient())
+                {
+                    client.Encoding = Encoding.UTF8;
+                    return client.UploadString("https://xyzs.ru/api/" + Action + "/" + OutputType,
+                        "{\"token\":\"L6Pv566loZC7JsDzjr83psLMoktWQqDb\",\"app\":\"SEBE\",\"version\":\"" +
+                        Application.ProductVersion + "\"" + AddtionalJson + "}");
+                }
+            }
+            catch (Exception e)
+            {
+                return "No have access to API.";
             }
         }
         static public string IPtoBase64(string IP)

@@ -77,7 +77,7 @@
             this.MinimumSize = new System.Drawing.Size(353, 117);
             this.Name = "Form2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "New Update Available";
+            this.Text = "New Update";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

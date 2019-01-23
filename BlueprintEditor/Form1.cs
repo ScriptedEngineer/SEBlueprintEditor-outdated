@@ -221,7 +221,7 @@ namespace BlueprintEditor
                 {
                     string[] retrn = ArhApi.Server("CheckVersion").Split(' ');
                     string UpdateUrl = retrn[1];
-                    if (retrn[0] != "1" && ArhApi.IsLink(UpdateUrl))
+                    if (retrn[0] == "0" && ArhApi.IsLink(UpdateUrl))
                     {
                         MainF.Invoke(new Action(() =>
                         {
@@ -230,6 +230,10 @@ namespace BlueprintEditor
                             Updater.SetColor(AllForeColor, AllBackColor);
                             Updater.ChangeLang(Settings.LangID);
                         }));
+                    }
+                    else
+                    {
+                        MessageBox.Show(retrn[0]);
                     }
                 });
                 comboBox8.SelectedIndex = 1;
