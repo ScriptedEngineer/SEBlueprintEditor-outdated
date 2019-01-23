@@ -231,10 +231,7 @@ namespace BlueprintEditor
                             Updater.ChangeLang(Settings.LangID);
                         }));
                     }
-                    else
-                    {
-                        MessageBox.Show(retrn[0]);
-                    }
+                    //else MessageBox.Show(retrn[0]);
                 });
                 comboBox8.SelectedIndex = 1;
                 string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
