@@ -36,3 +36,4 @@ C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Debug\Blu
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.pdb
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.csprojAssemblyReference.cache
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.Form7.resources
+C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Debug\BlueprintEditor.Form8.resources
