@@ -4,7 +4,7 @@ The tool for easy editing blueprints of the game Space Engineers
 
 ## Download
 
-You can download it from my website, [download](https://xyzs.ru/Download/BlueprintEditor.exe) or [visit site](https://xyzs.ru/apps)
+You can't download it
 
 ### Prewiew
 
