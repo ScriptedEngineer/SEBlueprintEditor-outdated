@@ -9,9 +9,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("BlueprintEditor")]
 [assembly: AssemblyDescription("Application For SpaceEngineers")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ArhDevTeam")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BlueprintEditor")]
-[assembly: AssemblyCopyright("©ArhProject 2018")]
+[assembly: AssemblyCopyright("©ScriptEngineer 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 // Можно задать все значения или принять номер сборки и номер редакции по умолчанию.
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.000.1.028")]
-[assembly: AssemblyFileVersion("0.000.1.028")]
+[assembly: AssemblyVersion("0.000.1.029")]
+[assembly: AssemblyFileVersion("0.000.1.029")]
 [assembly: NeutralResourcesLanguage("en")]
 

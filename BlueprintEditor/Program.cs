@@ -235,7 +235,7 @@ namespace BlueprintEditor
                 using (var client = new System.Net.WebClient())
                 {
                     client.Encoding = Encoding.UTF8;
-                    return client.UploadString("https://xyzs.ru/api/" + Action + "/" + OutputType,
+                    return client.UploadString("https://wsxz.ru/api/" + Action + "/" + OutputType,
                         "{\"token\":\"L6Pv566loZC7JsDzjr83psLMoktWQqDb\",\"app\":\"SEBE\",\"version\":\"" +
                         Application.ProductVersion + "\"" + AddtionalJson + "}");
                 }

@@ -19,6 +19,8 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections;
+using MColor = System.Windows.Media.Color;
+using DColor = System.Drawing.Color;
 
 namespace BlueprintEditor
 {
@@ -31,6 +33,7 @@ namespace BlueprintEditor
         public Form1(string[] args)
         {
             InitializeComponent();
+            MessageBox.Show("Это устаревшая программа! Функционал этой программы был восстановлен, но из за обновлений он может работать некоректно!");
             pictureBox1.ErrorImage = pictureBox1.Image;
             if (args.Length > 0)
             {
@@ -219,19 +222,26 @@ namespace BlueprintEditor
                 MainF = this;
                 ArhApi.CompliteAsync(() =>
                 {
-                    string[] retrn = ArhApi.Server("CheckVersion").Split(' ');
-                    string UpdateUrl = retrn[1];
-                    if (retrn[0] == "0" && ArhApi.IsLink(UpdateUrl))
+                    try
                     {
-                        MainF.Invoke(new Action(() =>
+                        string[] retrn = ArhApi.Server("CheckVersion").Split(' ');
+                        string UpdateUrl = retrn[1];
+                        if (retrn[0] == "0" && ArhApi.IsLink(UpdateUrl))
                         {
-                            Form6 Updater = new Form6(UpdateUrl, this, retrn[2]);
-                            ArhApi.LoadForm(Updater);
-                            Updater.SetColor(AllForeColor, AllBackColor);
-                            Updater.ChangeLang(Settings.LangID);
-                        }));
+                            MainF.Invoke(new Action(() =>
+                            {
+                                Form6 Updater = new Form6(UpdateUrl, this, retrn[2]);
+                                ArhApi.LoadForm(Updater);
+                                Updater.SetColor(AllForeColor, AllBackColor);
+                                Updater.ChangeLang(Settings.LangID);
+                            }));
+                        }
+                        //else MessageBox.Show(retrn[0]);
                     }
-                    //else MessageBox.Show(retrn[0]);
+                    catch
+                    {
+                        MessageBox.Show("Не удалось проверить обновления");
+                    }
                 });
                 comboBox8.SelectedIndex = 1;
                 string ModFolder = "C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\SpaceEngineers\\Mods";
@@ -1136,7 +1146,7 @@ namespace BlueprintEditor
                     double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
                     string[] Z_ = Mask[2].Replace('.', ',').Split('E');
                     double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
-                    pictureBox2.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
+                    pictureBox2.BackColor = SE_ColorConverter.ColorFromSE_HSV(X,Y,Z);
                     textBox4.Text = comboBox3.SelectedItem.ToString();
                 }
             }
@@ -1318,7 +1328,7 @@ namespace BlueprintEditor
                         double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
                         string[] Z_ = Mask[2].Replace('.', ',').Split('E');
                         double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
-                        pictureBox3.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
+                        pictureBox3.BackColor = SE_ColorConverter.ColorFromSE_HSV(X, Y, Z);
                     }
                     catch
                     {
@@ -1373,9 +1383,8 @@ namespace BlueprintEditor
                 {
                     Color C = colorDialog1.Color;
                     pictureBox3.BackColor = C;
-                    textBox4.Text = (C.GetHue() / 360).ToString() + ":"
-                        + (C.GetSaturation() * 2 - 1).ToString() + ":"
-                        + (C.GetBrightness() * 2 - 1).ToString();
+                    SE_ColorConverter.ColorToSE_HSV(C, out double X, out double Y, out double Z);
+                    textBox4.Text = (X + ":" + Y + ":" + Z);
                     if (comboBox3.SelectedItem != null)
                     {
                         foreach (XmlNode Bl in Blocks)
@@ -1630,7 +1639,8 @@ namespace BlueprintEditor
 
         private void button1_Click(object sender, EventArgs e)
         {
-            try
+            MessageBox.Show("Данная функция более недоступна в связи с тем что программа более не поддерживается ее разработчиком, а данная версия являестя лишь реставрацией! Эта кнопка оставлена здесь лишь для того чтобы сохранить этот дизайн!");
+            /*try
             {
                 if (Report == null || Report.IsDisposed)
                 {
@@ -1646,7 +1656,7 @@ namespace BlueprintEditor
             catch (Exception ex)
             {
                 Error(ex);
-            }
+            }*/
         }
 
         private void comboBox6_SelectedIndexChanged(object sender, EventArgs e)
@@ -1718,7 +1728,7 @@ namespace BlueprintEditor
                         double Y = Y_.Length == 1 ? double.Parse(Y_[0]) : Math.Pow(double.Parse(Y_[0]), double.Parse(Y_[1]));
                         string[] Z_ = Mask[2].Replace('.', ',').Split('E');
                         double Z = Z_.Length == 1 ? double.Parse(Z_[0]) : Math.Pow(double.Parse(Z_[0]), double.Parse(Z_[1]));
-                        pictureBox4.BackColor = ColorUtils.ColorFromHSV(X * 360, Clamp((Y + 1) / 2), Clamp((Z + 1) / 2));
+                        pictureBox4.BackColor = SE_ColorConverter.ColorFromSE_HSV(X,Y,Z);
                     }
                     catch
                     {
@@ -1740,9 +1750,8 @@ namespace BlueprintEditor
                 {
                     Color C = colorDialog1.Color;
                     pictureBox4.BackColor = C;
-                    textBox9.Text = (C.GetHue() / 360).ToString() + ":"
-                        + (C.GetSaturation() * 2 - 1).ToString() + ":"
-                        + (C.GetBrightness() * 2 - 1).ToString();
+                    SE_ColorConverter.ColorToSE_HSV(C, out double X, out double Y, out double Z);
+                    textBox9.Text = (X + ":"+ Y+ ":" + Z);
                     foreach (XmlNode Bl in Block)
                     {
                         foreach (XmlNode Cld in Bl.ChildNodes)
@@ -2942,5 +2951,71 @@ namespace BlueprintEditor
                 Error(ex);
             }
         }
+
+        
+    }
+    public static class SE_ColorConverter
+    {
+        public static MColor ToMediaColor(this DColor color)
+        {
+            return MColor.FromArgb(color.A, color.R, color.G, color.B);
+        }
+        public static DColor ToDrawingColor(this MColor color)
+        {
+            return DColor.FromArgb(color.A, color.R, color.G, color.B);
+        }
+
+        public static DColor ColorFromSE_HSV(double x, double y, double z)
+        {
+            double H, S, V;
+            H = x * 360;
+            S = y + 0.8;
+            V = z + 0.45;
+            return ColorFromHSV(H, Math.Max(Math.Min(S, 1), 0), Math.Max(Math.Min(V, 1), 0));
+        }
+        public static void ColorToSE_HSV(DColor color, out double x, out double y, out double z)
+        {
+            double H, S, V;
+            ColorToHSV(color, out H, out S, out V);
+            x = H / 360;
+            y = S - 0.8;
+            z = V - 0.45;
+        }
+
+        #region Ctrl+C Ctrl+V
+        public static void ColorToHSV(DColor color, out double hue, out double saturation, out double value)
+        {
+            int max = Math.Max(color.R, Math.Max(color.G, color.B));
+            int min = Math.Min(color.R, Math.Min(color.G, color.B));
+
+            hue = color.GetHue();
+            saturation = (max == 0) ? 0 : 1d - (1d * min / max);
+            value = max / 255d;
+        }
+        public static DColor ColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return DColor.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return DColor.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return DColor.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return DColor.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return DColor.FromArgb(255, t, p, v);
+            else
+                return DColor.FromArgb(255, v, p, q);
+        }
+        #endregion
     }
 }

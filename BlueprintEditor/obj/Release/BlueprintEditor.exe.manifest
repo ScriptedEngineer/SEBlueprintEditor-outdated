@@ -4,7 +4,7 @@
   <description asmv2:iconFile="map-_1_.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="BlueprintEditor" version="0.0.1.22" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="BlueprintEditor" version="0.0.1.29" language="neutral" processorArchitecture="msil" />
     <commandLine file="BlueprintEditor.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,38 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BlueprintEditor.exe" size="2635696">
-      <assemblyIdentity name="BlueprintEditor" version="0.0.1.22" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BlueprintEditor.exe" size="2656256">
+      <assemblyIdentity name="BlueprintEditor" version="0.0.1.29" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>fhJJZFMJAc6kdOzi4mPfm59GmBwGNJ7abP1BqaNn+PE=</dsig:DigestValue>
-      </hash>
-    </dependentAssembly>
-  </dependency>
-  <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="FastColoredTextBox.dll" size="339456">
-      <assemblyIdentity name="FastColoredTextBox" version="2.16.21.0" publicKeyToken="FB8AA12B994EF61B" language="neutral" processorArchitecture="msil" />
-      <hash>
-        <dsig:Transforms>
-          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-        </dsig:Transforms>
-        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>d3xoxcR8+R4YWDoPpQtVaxVRiYoHCX8paggRlDpJP6Y=</dsig:DigestValue>
-      </hash>
-    </dependentAssembly>
-  </dependency>
-  <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MaterialSkin.dll" size="589824">
-      <assemblyIdentity name="MaterialSkin" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
-      <hash>
-        <dsig:Transforms>
-          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-        </dsig:Transforms>
-        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>SXbed8MkGmQfanDm6T2ETMidwxRs8UgP1cmCVlFuzwU=</dsig:DigestValue>
+        <dsig:DigestValue>HvUlIsTW6ABChJijU5Dirha1u9lSJB28VWcu/5wi27A=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

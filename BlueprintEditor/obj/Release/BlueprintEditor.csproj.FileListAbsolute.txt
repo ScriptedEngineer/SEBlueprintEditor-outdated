@@ -3,9 +3,6 @@ C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\B
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\BlueprintEditor.application
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\BlueprintEditor.exe
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\BlueprintEditor.pdb
-C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\FastColoredTextBox.dll
-C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\MaterialSkin.dll
-C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\bin\Release\FastColoredTextBox.xml
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form1.resources
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form2.resources
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form3.resources
@@ -13,12 +10,12 @@ C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\B
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form5.resources
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Properties.Resources.resources
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.csproj.GenerateResource.cache
-C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.csproj.CoreCompileInputs.cache
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.TrustInfo.xml
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.exe.manifest
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.application
-C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.csproj.CopyComplete
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.exe
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.pdb
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.csprojAssemblyReference.cache
 C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form6.resources
+C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form7.resources
+C:\Users\Денис\source\repos\SEBlueprintEditor\BlueprintEditor\obj\Release\BlueprintEditor.Form8.resources
