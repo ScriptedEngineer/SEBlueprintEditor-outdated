@@ -5,3 +5,5 @@
 /.vs/BlueprintEditor/v15
 /BlueprintEditor/bin
 /packages
+/.vs/BlueprintEditor/v16/Server/sqlite3/db.lock
+/.vs/BlueprintEditor/v16/Server/sqlite3
