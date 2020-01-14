@@ -4,7 +4,7 @@ The tool for easy editing blueprints of the game Space Engineers
 
 ## Download
 
-You can't download it
+[Google Drive](https://drive.google.com/file/d/1rWBLePXxZF5ufHLYq73sPyTo3dLTbph3)
 
 ### Prewiew
 
