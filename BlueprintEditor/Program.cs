@@ -236,7 +236,7 @@ namespace BlueprintEditor
                 {
                     client.Encoding = Encoding.UTF8;
                     return client.UploadString("https://wsxz.ru/api/" + Action + "/" + OutputType,
-                        "{\"token\":\"L6Pv566loZC7JsDzjr83psLMoktWQqDb\",\"app\":\"SEBE\",\"version\":\"" +
+                        "{\"token\":\"\",\"app\":\"SEBE\",\"version\":\"" +
                         Application.ProductVersion + "\"" + AddtionalJson + "}");
                 }
             }
